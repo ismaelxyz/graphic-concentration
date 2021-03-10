@@ -18,11 +18,11 @@ If you want to contact the author of DemOpenGL send an email to
 by telegram [@ismaelxyz](t.me/@ismaelxyz).
 
 # Galeria
-![da](da.png)
-![dek](dek.png)
-![GLE](GLE.png)
-![GLUT](GLUT.png)
-![NeHe](NeHe.png)
-![proesch](proesch.png)
-![redbook](redbook.png)
-![tom](tom.png)
+![da](images/da.png)
+![dek](images/ek.png)
+![GLE](images/GLE.png)
+![GLUT](images/GLUT.png)
+![NeHe](images/NeHe.png)
+![proesch](images/proesch.png)
+![redbook](images/redbook.png)
+![tom](images/tom.png)
