@@ -19,7 +19,7 @@ by telegram [@ismaelxyz](t.me/@ismaelxyz).
 
 # Galeria
 ![da](images/da.png)
-![dek](images/ek.png)
+![dek](images/dek.png)
 ![GLE](images/GLE.png)
 ![GLUT](images/GLUT.png)
 ![NeHe](images/NeHe.png)
