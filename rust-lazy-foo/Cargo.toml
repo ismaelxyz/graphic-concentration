@@ -1,0 +1,88 @@
+[package]
+name = "lazy-foo"
+version = "0.1.0"
+authors = ["Ysgard <ysgard@gmail.com>", "Ismaelxyz <ismaelbeli.com@gmail.com>"]
+edition = "2018"
+
+[dependencies.sdl2]
+version = "*"
+default-features = false
+features = ["image", "ttf", "mixer"]
+
+[[bin]]
+name = "lesson01"
+path = "lesson01/main.rs"
+
+[[bin]]
+name = "lesson02"
+path = "lesson02/main.rs"
+
+[[bin]]
+name = "lesson03"
+path = "lesson03/main.rs"
+
+[[bin]]
+name = "lesson04"
+path = "lesson04/main.rs"
+
+[[bin]]
+name = "lesson05"
+path = "lesson05/main.rs"
+
+[[bin]]
+name = "lesson06"
+path = "lesson06/main.rs"
+
+[[bin]]
+name = "lesson07"
+path = "lesson07/main.rs"
+
+[[bin]]
+name = "lesson08"
+path = "lesson08/main.rs"
+
+[[bin]]
+name = "lesson09"
+path = "lesson09/main.rs"
+
+[[bin]]
+name = "lesson10"
+path = "lesson10/main.rs"
+
+[[bin]]
+name = "lesson11"
+path = "lesson11/main.rs"
+
+[[bin]]
+name = "lesson12"
+path = "lesson12/main.rs"
+
+[[bin]]
+name = "lesson13"
+path = "lesson13/main.rs"
+
+[[bin]]
+name = "lesson14"
+path = "lesson14/main.rs"
+
+[[bin]]
+name = "lesson15"
+path = "lesson15/main.rs"
+
+[[bin]]
+name = "lesson16"
+path = "lesson16/main.rs"
+
+[[bin]]
+name = "lesson17"
+path = "lesson17/main.rs"
+
+[[bin]]
+name = "lesson18"
+path = "lesson18/main.rs"
+
+# Skip 19 20
+
+[[bin]]
+name = "lesson21"
+path = "lesson21/main.rs"
