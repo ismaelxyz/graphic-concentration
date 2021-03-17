@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadTexture, Sdl2ImageContext},
@@ -8,17 +6,17 @@ use sdl2::{
     video::Window,
     Sdl,
 };
+use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-
 const IMG_NAME: &'static str = "resources/viewport.png";
 
-// Note that 'renderer.load_texture' makes this example trivial.  See lesson03
+// Note that 'creator.load_texture' makes this example trivial.  See lesson03
 // to show how we can manually load a surface and convert it to a texture.
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 fn init() -> (Sdl, Window, Sdl2ImageContext) {
     let sdl = sdl2::init().unwrap();
     let video = sdl.video().unwrap();
@@ -55,15 +53,13 @@ fn main() {
 
     // Set renderer color using the context
     canvas.set_draw_color(Color::RGB(0, 0, 0));
-
     // running is 'mut' because we will want to 'flip' it to false when we're ready
-    // to exit the game loop.
+    // to exit the main loop.
     let mut running: bool = true;
-
     // Get a handle to the SDL2 event pump
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
@@ -93,7 +89,6 @@ fn main() {
         let bottom_viewport = Rect::new(0, HEIGHT as i32 / 2, WIDTH, HEIGHT / 2);
         canvas.set_viewport(Some(bottom_viewport));
         canvas.copy(&image_texture, None, None).unwrap();
-
         // Update the screen
         canvas.present();
     }

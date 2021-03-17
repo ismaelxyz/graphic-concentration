@@ -4,6 +4,7 @@ __pycache__
 .vscodium
 /DemOpenGL/keys.py
 /DemOpenGL/info.txt
+/LazyFoo-SDL2
 
 # Files
 Cargo.lock

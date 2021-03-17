@@ -1,5 +1,4 @@
 use sdl2::surface::Surface;
-
 use std::{path::Path, thread::sleep, time::Duration};
 
 // Screen dimensions
@@ -7,10 +6,11 @@ const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
 
 fn main() {
-    // Initialize SDL
-    // We'll just unwrap these - See lesson01 for an example of how to properly handle SDL errors
-    let sdl_context = sdl2::init().unwrap();
-    let video = sdl_context.video().unwrap();
+    /* Initialize SDL
+    We'll just unwrap these - See lesson01 for an example of how to properly
+    handle SDL errors */
+    let context = sdl2::init().unwrap();
+    let video = context.video().unwrap();
 
     // Create the window
     let window = video
@@ -20,7 +20,7 @@ fn main() {
         .build()
         .unwrap();
 
-    // Obtain a canvas and context
+    // Obtain a canvas
     let mut canvas = window.into_canvas().build().unwrap();
 
     // Load the image as a surface - if we can't load the image, we want to know why
@@ -29,8 +29,8 @@ fn main() {
         Err(err) => panic!("Could not load image: {}", err),
     };
 
-    // Obtain a texture_creator for create textures
-    // renderer (SDL_CreateRenderer): canvas + creator
+    // Obtain a TextureCreator<T> for create textures
+    // renderer (SDL_CreateRenderer) == canvas + creator
     let creator = canvas.texture_creator();
 
     // At this point, we could do any number of transformations on the surface, and

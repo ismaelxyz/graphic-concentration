@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
@@ -11,14 +9,13 @@ use sdl2::{
     video::Window,
     Sdl,
 };
+use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-
 const BUTTON_WIDTH: u32 = 300;
 const BUTTON_HEIGHT: u32 = 200;
 const TOTAL_BUTTONS: u32 = 4;
-
 const BUTTON_SPRITESHEET: &'static str = "resources/button.png";
 
 // Rust enums are powerful, allowing you to create algebraic data types,
@@ -191,7 +188,7 @@ impl LButton {
         // The LazyFoo tutorial uses the 'SDL_GetMouseState()' function to
         // obtain the x, y coordinates.  That would require passing the event pump
         // into the function, so we simplify things a little bit by acquiring the
-        // mouse state in the main game loop and passing in the state to handle_event
+        // mouse state in the main loop and passing in the state to handle_event
 
         // Check to see if the mouse is inside the button
         if (s.x() < self.position.x())
@@ -240,12 +237,12 @@ impl LButton {
     }
 }
 
-/// We take a deviation from the Lazy Foo tutorial here. In the tutorial, load_media
-/// initializes a lot of global variables, which we try and avoid.  Instead load_media
-/// just takes care of loading the image and creating its clip rectangles, we will
-/// initialize the LButton array in the main loop itself.  That way load_media takes
-/// care of only loading the media and its direct data structures (the clip rects),
-/// while other initialization takes place elsewhere.
+/* We take a deviation from the Lazy Foo tutorial here. In the tutorial, load_media
+initializes a lot of global variables, which we try and avoid.  Instead load_media
+just takes care of loading the image and creating its clip rectangles, we will
+initialize the LButton array in the main loop itself.  That way load_media takes
+care of only loading the media and its direct data structures (the clip rects),
+while other initialization takes place elsewhere. */
 fn load_media<T>(creator: &TextureCreator<T>) -> (LTexture, Vec<Rect>) {
     // Load the button sprite
     let button_sprite = LTexture::new_from_file(creator, Path::new(BUTTON_SPRITESHEET));
@@ -261,8 +258,8 @@ fn load_media<T>(creator: &TextureCreator<T>) -> (LTexture, Vec<Rect>) {
     (button_sprite, clip_rects)
 }
 
-/// We will create the buttons here.  We will use an array instead of a vec because
-/// it makes no difference to the program, but is illustrative.
+// We will create the buttons here.  We will use an array instead of a vec because
+// it makes no difference to the program, but is illustrative.
 fn initialize_buttons() -> [LButton; 4] {
     // We don't use set_position, because that would require making the buttons mutable
     // Instead, just initialize them from scratch.
@@ -277,8 +274,8 @@ fn initialize_buttons() -> [LButton; 4] {
     ]
 }
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 fn init() -> (Sdl, Window, Sdl2ImageContext) {
     let sdl = sdl2::init().expect("Unable to initialize SDL!");
     let video = sdl.video().expect("Could not acquire video context!");
@@ -298,7 +295,7 @@ fn main() {
     // Initialize SDL2
     let (sdl_context, window, _image) = init();
 
-    // obtain the canvas
+    // Obtain the canvas
     let mut canvas = window
         .into_canvas()
         .build()
@@ -315,7 +312,7 @@ fn main() {
         .event_pump()
         .expect("Unable to obtain event pump handle!");
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {

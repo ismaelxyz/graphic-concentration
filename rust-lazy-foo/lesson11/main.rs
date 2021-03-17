@@ -1,7 +1,3 @@
-extern crate sdl2;
-
-use std::path::Path;
-
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
@@ -12,10 +8,10 @@ use sdl2::{
     video::Window,
     Sdl,
 };
+use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-
 const IMG_DOTS: &'static str = "resources/dots.png";
 
 // Create a struct that will track texture data
@@ -97,11 +93,11 @@ impl<'a> LTexture<'a> {
     }
 }
 
-// Note that 'renderer.load_texture' makes this example trivial.  See lesson03
+// Note that 'creator.load_texture' makes this example trivial.  See lesson03
 // to show how we can manually load a surface and convert it to a texture.
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 fn init() -> (Sdl, Window, Sdl2ImageContext) {
     let sdl = sdl2::init().unwrap();
     let video = sdl.video().unwrap();
@@ -143,24 +139,22 @@ fn load_media<'a, T>(
 
 fn main() {
     // Initialize SDL2
-    let (sdl_context, window, _image) = init();
+    let (context, window, _image) = init();
 
-    // obtain the renderer
+    // Obtain the canvas
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
         Err(err) => panic!("Could not obtain canvas: {}", err),
     };
-    let creator = canvas.texture_creator();
 
+    let creator = canvas.texture_creator();
     // Create the textures we are going to use.
     let (sprite_sheet, sprite_clips) = load_media(&creator, Path::new(IMG_DOTS));
-
     let mut running: bool = true;
-
     // Get a handle to the SDL2 event pump
-    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut event_pump = context.event_pump().unwrap();
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {

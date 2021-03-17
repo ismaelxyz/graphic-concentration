@@ -1,5 +1,4 @@
 use sdl2::pixels::Color;
-
 use std::{thread::sleep, time::Duration};
 
 // Set Screen dimensions

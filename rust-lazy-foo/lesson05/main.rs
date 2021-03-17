@@ -1,6 +1,3 @@
-// Author: ysgard <ysgard@gmail.com>
-// Contributor: ismaelxyz <ismaelbeli.com@gmail.com>
-
 use sdl2::{
     event::Event,
     rect::Rect,
@@ -22,8 +19,8 @@ const HEIGHT: u32 = 480;
 // stretched into different dimensions for purposes of blitting
 // to other surfaces or in preparation to be rendered to a texture.
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 fn init() -> (Sdl, Window) {
     let sdl = sdl2::init().unwrap();
     let video = sdl.video().unwrap();
@@ -40,8 +37,8 @@ fn init() -> (Sdl, Window) {
     (sdl, win)
 }
 
-/// Take a string describing a path and use it to load
-/// an image, and return its optimized surface.
+// Take a string describing a path and use it to load
+// an image, and return its optimized surface.
 fn load_image(path: &str) -> Surface {
     use std::path::Path;
     match Surface::load_bmp(&Path::new(path)) {
@@ -50,8 +47,8 @@ fn load_image(path: &str) -> Surface {
     }
 }
 
-/// Take a string describing a path and use it to
-/// load an image, and return its texture
+// Take a string describing a path and use it to
+// load an image, and return its texture
 fn surface_to_texture<'a, T>(
     sfc: &'a Surface<'static>,
     renderer: &'a TextureCreator<T>,
@@ -64,14 +61,14 @@ fn surface_to_texture<'a, T>(
 
 fn main() {
     // Initialize SDL2
-    let (sdl_context, window) = init();
+    let (context, window) = init();
 
     // Get a handle to the SDL2 event pump.  This is done here because we
     // used to need to pass the event pump to a function called 'properties_getters
     // on the window in order to retrieve the window's pixel format.  Thank
     // the gods that rust-sdl doesn't require such shenanigans anymore.
     // We still need the event pump for later, so we keep the line.
-    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut event_pump = context.event_pump().unwrap();
 
     // Load the image.  Note that we do this after we get the event_pump,
     // because in order to optimize the surface we need the PixelFormat
@@ -103,16 +100,14 @@ fn main() {
         Ok(renderer) => renderer,
         Err(err) => panic!("Could not obtain renderer: {}", err),
     };
-    let creator = canvas.texture_creator();
 
+    let creator = canvas.texture_creator();
     // Convert the surface to a texture
     let image_texture = surface_to_texture(&stretched_surface, &creator);
-
     // running is 'mut' because we will want to 'flip' it to false when we're ready
-    // to exit the game loop.
+    // to exit the main loop.
     let mut running: bool = true;
-
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {

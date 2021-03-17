@@ -9,8 +9,8 @@ use sdl2::{
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 fn init() -> (Sdl, Window) {
     let sdl = sdl2::init().unwrap();
     let video = sdl.video().unwrap();
@@ -29,7 +29,7 @@ fn init() -> (Sdl, Window) {
 
 fn main() {
     // Initialize SDL2
-    let (sdl_context, window) = init();
+    let (context, window) = init();
 
     // Set texture filtering to linear
     let mut canvas = match window.into_canvas().build() {
@@ -38,11 +38,10 @@ fn main() {
     };
 
     let mut running: bool = true;
-
     // Get a handle to the SDL2 event pump
-    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut event_pump = context.event_pump().unwrap();
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
@@ -80,9 +79,9 @@ fn main() {
             (WIDTH * 2) / 3,
             (HEIGHT * 2) / 3,
         );
+
         canvas.set_draw_color(Color::RGB(0, 0xff, 0));
         canvas.draw_rect(outline_rect).unwrap();
-
         // Draw Blue horizontal line
         canvas.set_draw_color(Color::RGB(0, 0, 0xff));
         canvas
