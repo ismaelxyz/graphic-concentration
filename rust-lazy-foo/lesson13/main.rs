@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
@@ -11,10 +9,10 @@ use sdl2::{
     video::Window,
     Sdl,
 };
+use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-
 const IMG_FADEIN: &'static str = "resources/fadein.png";
 const IMG_FADEOUT: &'static str = "resources/fadeout.png";
 
@@ -136,16 +134,15 @@ fn init() -> (Sdl, Window, Sdl2ImageContext) {
 
 fn main() {
     // Initialize SDL2
-    let (sdl_context, window, _image) = init();
+    let (context, window, _image) = init();
 
-    // obtain the canvas
+    // Obtain the canvas
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
         Err(err) => panic!("Could not obtain canvas: {}", err),
     };
 
     let creator = canvas.texture_creator();
-
     // In the Lazy Foo tutorial, this is delegated to loadMedia(), but since
     // it's so easy to load a texture, we'll just do it here.
     let mut modulated_texture = LTexture::new_from_file(&creator, Path::new(IMG_FADEOUT));
@@ -154,12 +151,12 @@ fn main() {
     let mut running: bool = true;
 
     // Get a handle to the SDL2 event pump
-    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut event_pump = context.event_pump().unwrap();
 
     // Set the current alpha to max (255).
     let mut alpha: u8 = 0xff;
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
@@ -191,14 +188,12 @@ fn main() {
         // Clear and render the texture each pass through the loop
         canvas.set_draw_color(Color::RGB(0x0, 0x0, 0x0));
         canvas.clear();
-
         // Set the alpha on the modulated texture
         modulated_texture.set_alpha(alpha);
         // Blit the background texture
         background_texture.render_to(&mut canvas, 0, 0, None);
         // Blit the modulated texture over the background
         modulated_texture.render_to(&mut canvas, 0, 0, None);
-
         // Update the screen
         canvas.present();
     }

@@ -1,14 +1,13 @@
-extern crate sdl2;
-
-use sdl2::event::Event;
-use sdl2::render::{Texture, TextureCreator};
-use sdl2::surface::Surface;
-use sdl2::video::Window;
-use sdl2::Sdl;
+use sdl2::{
+    event::Event,
+    render::{Texture, TextureCreator},
+    surface::Surface,
+    video::Window,
+    Sdl,
+};
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-
 const X_IMAGE: &'static str = "resources/x.bmp";
 
 /// Break out initialization into a separate function, which
@@ -51,7 +50,7 @@ fn load_texture<'a, T>(path: &'static str, renderer: &'a TextureCreator<T>) -> T
 
 fn main() {
     // Initialize SDL2
-    let (sdl_context, window) = init();
+    let (context, window) = init();
 
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
@@ -59,21 +58,19 @@ fn main() {
     };
 
     let creator = canvas.texture_creator();
-
     // Load the image
     let image_texture = load_texture(X_IMAGE, &creator);
-
     // running is 'mut' because we will want to 'flip' it to false when we're ready
-    // to exit the game loop.
+    // to exit the main loop.
     let mut running: bool = true;
 
     // Get a handle to the SDL2 event pump
-    let mut event_pump = match sdl_context.event_pump() {
+    let mut event_pump = match context.event_pump() {
         Ok(event_pump) => event_pump,
         Err(err) => panic!("Could not obtain event pump: {}", err),
     };
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {

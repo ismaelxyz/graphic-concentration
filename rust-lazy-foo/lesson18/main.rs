@@ -6,14 +6,13 @@ use sdl2::{
     video::Window,
     Sdl,
 };
-use std::collections::HashMap;
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 fn init() -> (Sdl, Window) {
     let sdl = sdl2::init().expect("Unable to initialize SDL!");
     let video = sdl.video().expect("Could not acquire video context!");
@@ -29,8 +28,8 @@ fn init() -> (Sdl, Window) {
     (sdl, win)
 }
 
-/// Take a string describing a path and use it to
-/// load an image, and return its texture
+// Take a string describing a path and use it to
+// load an image, and return its texture
 fn load_texture<'a, T>(path: &'static str, creator: &'a TextureCreator<T>) -> Texture<'a> {
     match creator.load_texture(Path::new(path)) {
         Ok(tex) => tex,
@@ -38,8 +37,8 @@ fn load_texture<'a, T>(path: &'static str, creator: &'a TextureCreator<T>) -> Te
     }
 }
 
-/// Load the textures we're going to use into an
-/// easily indexable HashMap.
+// Load the textures we're going to use into an
+// easily indexable HashMap.
 fn load_media<T>(creator: &TextureCreator<T>) -> HashMap<&'static str, Box<Texture>> {
     let mut map: HashMap<&'static str, Box<Texture>> = HashMap::new();
 
@@ -69,7 +68,7 @@ fn load_media<T>(creator: &TextureCreator<T>) -> HashMap<&'static str, Box<Textu
 
 fn main() {
     // Initialize SDL2
-    let (sdl_context, window) = init();
+    let (context, window) = init();
 
     let mut canvas = window
         .into_canvas()
@@ -85,9 +84,9 @@ fn main() {
     // Blit the initial image to the window.
     //let mut context = canvas.drawer();
 
-    // Start up the game loop
+    // Start up the main loop
     let mut running: bool = true;
-    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut event_pump = context.event_pump().unwrap();
 
     while running {
         // We blit the image to the screen corresponding to the keypress,

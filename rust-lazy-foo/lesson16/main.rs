@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
@@ -11,10 +9,10 @@ use sdl2::{
     video::Window,
     Sdl,
 };
+use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-
 const FONT_FILE: &'static str = "resources/lazy.ttf";
 const FONT_SIZE: u16 = 28;
 
@@ -132,8 +130,8 @@ impl<'a> LTexture<'a> {
     }
 }
 
-/// Load the font, and use it to create and return a new texture with
-/// the creator string
+// Load the font, and use it to create and return a new texture with
+// the creator string
 fn load_media<'a, T>(creator: &'a TextureCreator<T>, ttf: &'a Sdl2TtfContext) -> LTexture<'a> {
     // Load the font, using the font and size specified by the global constants
     let font = ttf
@@ -149,8 +147,8 @@ fn load_media<'a, T>(creator: &'a TextureCreator<T>, ttf: &'a Sdl2TtfContext) ->
     )
 }
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 // Ugh, the SDL font context name!
 fn init() -> (Sdl, Window, Sdl2ImageContext, Sdl2TtfContext) {
     let sdl = sdl2::init().expect("Could not initialize SDL!");
@@ -172,7 +170,7 @@ fn main() {
     // Initialize SDL2
     let (sdl_context, window, _image, ttf_context) = init();
 
-    // obtain the canvas
+    // Obtain the canvas
     let mut canvas = window
         .into_canvas()
         .build()
@@ -187,7 +185,7 @@ fn main() {
         .event_pump()
         .expect("Could not obtain handle to event pump!");
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {

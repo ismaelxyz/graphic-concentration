@@ -1,19 +1,18 @@
-extern crate sdl2;
-
+use sdl2::{
+    event::Event,
+    keyboard::Keycode,
+    render::{Texture, TextureCreator},
+    surface::Surface,
+    video::Window,
+    Sdl,
+};
 use std::collections::HashMap;
-
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use sdl2::render::{Texture, TextureCreator};
-use sdl2::surface::Surface;
-use sdl2::video::Window;
-use sdl2::Sdl;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 fn init() -> (Sdl, Window) {
     let sdl = sdl2::init().unwrap();
     let video = sdl.video().unwrap();
@@ -30,8 +29,8 @@ fn init() -> (Sdl, Window) {
     (sdl, win)
 }
 
-/// Take a string describing a path and use it to load
-/// an image, and return its surface.
+// Take a string describing a path and use it to load
+// an image, and return its surface.
 fn load_image(path: &'static str) -> Surface<'static> {
     use std::path::Path;
     match Surface::load_bmp(&Path::new(path)) {
@@ -40,8 +39,8 @@ fn load_image(path: &'static str) -> Surface<'static> {
     }
 }
 
-/// Take a string describing a path and use it to
-/// load an image, and return its texture
+// Take a string describing a path and use it to
+// load an image, and return its texture
 fn load_texture<'a, T>(path: &'static str, renderer: &'a TextureCreator<T>) -> Texture<'a> {
     let image = load_image(path);
     match renderer.create_texture_from_surface(&image) {
@@ -50,8 +49,8 @@ fn load_texture<'a, T>(path: &'static str, renderer: &'a TextureCreator<T>) -> T
     }
 }
 
-/// Load the textures we're going to use into an
-/// easily indexable HashMap.
+// Load the textures we're going to use into an
+// easily indexable HashMap.
 fn load_media<T>(renderer: &TextureCreator<T>) -> HashMap<&'static str, Box<Texture>> {
     let mut map: HashMap<&'static str, Box<Texture>> = HashMap::new();
     map.insert("up", Box::new(load_texture("resources/up.bmp", renderer)));
@@ -76,7 +75,7 @@ fn load_media<T>(renderer: &TextureCreator<T>) -> HashMap<&'static str, Box<Text
 
 fn main() {
     // Initialize SDL2
-    let (sdl_context, window) = init();
+    let (context, window) = init();
 
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
@@ -84,16 +83,14 @@ fn main() {
     };
 
     let creator = canvas.texture_creator();
-
     // Load the sprite textures into an hashmap
     let sprites: HashMap<&'static str, Box<Texture>> = load_media(&creator);
-
-    // Start up the game loop
+    // Start up the main loop
     let mut running: bool = true;
     let mut current_image: &str = "press";
 
     // Obtain the event pump
-    let mut event_pump = match sdl_context.event_pump() {
+    let mut event_pump = match context.event_pump() {
         Ok(event_pump) => event_pump,
         Err(err) => panic!("Could not obtain event pump: {}", err),
     };

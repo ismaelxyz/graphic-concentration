@@ -1,18 +1,15 @@
-mod util;
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
     keyboard::Keycode,
-    mixer::{open_audio, Channel, Chunk, Music, DEFAULT_FORMAT},
     pixels::Color,
     rect::{Point, Rect},
     render::{BlendMode, Canvas, RenderTarget, Texture, TextureCreator},
     surface::Surface,
-    ttf::Font,
+    ttf::{Font, Sdl2TtfContext},
     video::Window,
-    AudioSubsystem, VideoSubsystem,
+    VideoSubsystem,
 };
-use util::BoxData;
 
 // Screen dimension
 const WIDTH: u32 = 640;
@@ -144,22 +141,22 @@ fn init() -> (
     sdl2::Sdl,
     Window,
     VideoSubsystem,
-    AudioSubsystem,
     Sdl2ImageContext,
+    Sdl2TtfContext,
 ) {
     let sdl = sdl2::init().expect("Unable to initialize SDL!");
     let video = sdl.video().expect("Could not acquire video context!");
-    let audio = sdl.audio().expect("Could not acquire audio context!");
+    let ttf = sdl2::ttf::init().expect("Could not acquire video context!");
 
     // Recuerda es el valor lo que importa no el nombre de la variable
     // #define SDL_HINT_RENDER_SCALE_QUALITY "SDL_RENDER_SCALE_QUALITY"
     sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
-    // Fuera del tutorial pero siempre utilizo esto en linux
+    // Fuera del tutorial. Siempre utilizo esto en Linux.
     // #define SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR "SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR"
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
     let win = video
-        .window("SDL Tutorial 21", WIDTH, HEIGHT)
+        .window("SDL Tutorial 22", WIDTH, HEIGHT)
         .position_centered()
         .opengl()
         .build()
@@ -167,21 +164,14 @@ fn init() -> (
 
     let image = sdl2::image::init(InitFlag::PNG).expect("Unable to initialize sdl2_image!");
 
-    (sdl, win, video, audio, image)
-}
-
-fn load_media<'a, T>(creator: &'a TextureCreator<T>) -> BoxData<'a> {
-    let prompt: LTexture = LTexture::from_file("lesson21/resources/prompt.png", &creator);
-    let beat: Music = Music::from_file("lesson21/resources/beat.wav").unwrap();
-    let scratch: Chunk = Chunk::from_file("lesson21/resources/scratch.wav").unwrap();
-    let high: Chunk = Chunk::from_file("lesson21/resources/high.wav").unwrap();
-    let medium: Chunk = Chunk::from_file("lesson21/resources/medium.wav").unwrap();
-    let low: Chunk = Chunk::from_file("lesson21/resources/low.wav").unwrap();
-    BoxData::new(prompt, beat, scratch, high, medium, low)
+    (sdl, win, video, image, ttf)
 }
 
 fn main() {
-    let (context, win, _video, _audio, _image) = init();
+    let (context, win, _video, _image, ttf) = init();
+    // Initialize TimerSubsystem
+    let mut time = context.timer().unwrap();
+
     // Obtain the canvas
     let mut canvas = win
         .into_canvas()
@@ -193,17 +183,31 @@ fn main() {
     let creator = canvas.texture_creator();
     // Initialize renderer color
     canvas.set_draw_color(Color::RGBA(0xFF, 0xFF, 0xFF, 0xFF));
-    // Initialize SDL_mixer
-    open_audio(44100, DEFAULT_FORMAT, 1, 2048).unwrap();
-    let bxdata = load_media(&creator);
 
     let mut running: bool = true;
+
+    let font = ttf
+        .load_font("lesson22/resources/lazy.ttf", 28)
+        .expect("Could not load font context!");
+
+    // Set text color as black
+    let text_color = Color::RGBA(0, 0, 0, 255);
+    // font.set_style(sdl2::ttf::FontStyle::BOLD);
+
+    // Load prompt texture
+    let prompt = LTexture::from_creator_text(
+        &creator,
+        &font,
+        "Press Enter to Reset Start Time.",
+        text_color,
+    );
 
     // Get a handle to the SDL2 event pump
     let mut event_pump = context
         .event_pump()
         .expect("Unable to obtain event pump handle!");
-    let channel = Channel::all();
+
+    let mut start_time = 0i32;
 
     // Main loop
     while running {
@@ -214,52 +218,37 @@ fn main() {
                 Event::Quit { .. } => running = false,
                 Event::KeyDown { keycode: k, .. } => match k {
                     Some(Keycode::Escape) => running = false,
-                    Some(Keycode::Num0) => sdl2::mixer::Music::halt(),
-                    // EL "unwrap" es divido a que los canales libres son
-                    // limitados
-                    Some(Keycode::Num1) => {
-                        channel.play_timed(&bxdata.hint, 0, -1).unwrap();
-                    }
-                    Some(Keycode::Num2) => {
-                        channel.play_timed(&bxdata.medium, 0, -1).unwrap();
-                    }
-                    Some(Keycode::Num3) => {
-                        channel.play_timed(&bxdata.low, 0, -1).unwrap();
-                    }
-                    Some(Keycode::Num4) => {
-                        channel.play_timed(&bxdata.scratch, 0, -1).unwrap();
-                    }
-                    Some(Keycode::Num9) => {
-                        // If there is music playing
-                        if sdl2::mixer::Music::is_playing() {
-                            // If the music is paused
-                            if sdl2::mixer::Music::is_paused() {
-                                sdl2::mixer::Music::resume();
-                            } else {
-                                // Pause the music
-                                sdl2::mixer::Music::pause();
-                            }
-                        } else {
-                            // Play the music
-                            bxdata.beat.play(0).expect("Can't pause the music");
-                        }
-                    }
-                    // Nothing
-                    Some(_) => (),
-                    None => (),
+                    Some(Keycode::Return) => start_time = time.ticks() as i32,
+                    _ => (),
                 },
-                _ => {}
-            }
+                _ => (),
+            };
         }
 
+        let text: String = format!(
+            "Milliseconds since start time {}",
+            time.ticks() as i32 - start_time
+        );
+        let time_text = LTexture::from_creator_text(&creator, &font, &text.as_str(), text_color);
         // Clear and render the texture each pass through the loop
         canvas.clear();
 
         // Render the Image
-        bxdata.picture.render(
+        prompt.render(
             &mut canvas,
-            (WIDTH - bxdata.picture.width) as i32 / 2,
-            (HEIGHT - bxdata.picture.height) as i32 / 2,
+            (WIDTH - prompt.get_width()) as i32 / 2,
+            0,
+            None,
+            None,
+            None,
+            false,
+            false,
+        );
+
+        time_text.render(
+            &mut canvas,
+            (WIDTH - prompt.get_width()) as i32 / 2,
+            (HEIGHT - prompt.get_height()) as i32 / 2,
             None,
             None,
             None,

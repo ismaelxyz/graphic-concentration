@@ -1,6 +1,3 @@
-use std::path::Path;
-use std::time::Duration;
-
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
@@ -11,12 +8,11 @@ use sdl2::{
     video::Window,
     Sdl,
 };
+use std::{path::Path, thread::sleep, time::Duration};
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-
 const FOO_IMG: &'static str = "resources/foo2.png";
-
 // usize so we can mod the array index with it
 // without having to cast.
 const WALKING_FRAMES: usize = 4;
@@ -114,11 +110,11 @@ impl<'a> LTexture<'a> {
     }
 }
 
-// Note that 'renderer.load_texture' makes this example trivial.  See lesson03
+// Note that 'creator.load_texture' makes this example trivial.  See lesson03
 // to show how we can manually load a surface and convert it to a texture.
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 fn init() -> (Sdl, Window, Sdl2ImageContext) {
     let sdl = sdl2::init().expect("Could not initialize SDL!");
     let video = sdl.video().expect("Could not acquire the video context!");
@@ -154,29 +150,25 @@ fn load_media<'a, T>(ren: &'a TextureCreator<T>) -> (LTexture<'a>, [Rect; 4]) {
 
 fn main() {
     // Initialize SDL2
-    let (sdl_context, window, _image) = init();
+    let (context, window, _image) = init();
 
-    // obtain the canvas
+    // Obtain the canvas
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
         Err(err) => panic!("Could not obtain canvas: {}", err),
     };
 
     let creator = canvas.texture_creator();
-
     let (sprite_sheet, clips) = load_media(&creator);
-
     let mut running: bool = true;
 
     // Get a handle to the SDL2 event pump
-    let mut event_pump = sdl_context
-        .event_pump()
-        .expect("Could not obtain event_pump!");
+    let mut event_pump = context.event_pump().expect("Could not obtain event_pump!");
 
     // Set current frame to 0
     let mut frame: usize = 0;
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
@@ -201,7 +193,6 @@ fn main() {
 
         // Update the screen
         canvas.present();
-
         // Increment the frame
         frame += 1;
         // Set the frame to 0 if we're at 4
@@ -211,6 +202,6 @@ fn main() {
 
         // This isn't in the tutorial, but we're going to pause 100ms
         // to give the animation a more graceful, smooth cadence
-        std::thread::sleep(Duration::from_millis(100));
+        sleep(Duration::from_millis(100));
     }
 }

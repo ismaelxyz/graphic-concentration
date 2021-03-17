@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
@@ -11,10 +9,10 @@ use sdl2::{
     video::Window,
     Sdl,
 };
+use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-
 const IMG_ARROW: &'static str = "resources/arrow.png";
 
 // Create a struct that will track texture data
@@ -125,11 +123,11 @@ impl<'a> LTexture<'a> {
     }
 }
 
-// Note that 'renderer.load_texture' makes this example trivial.  See lesson03
+// Note that 'canvas.load_texture' makes this example trivial.  See lesson03
 // to show how we can manually load a surface and convert it to a texture.
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 fn init() -> (Sdl, Window, Sdl2ImageContext) {
     let sdl = sdl2::init().expect("Could not initialize SDL!");
     let video = sdl
@@ -149,10 +147,9 @@ fn init() -> (Sdl, Window, Sdl2ImageContext) {
 
 fn main() {
     // Initialize SDL2
-    let (sdl_context, window, _image) = init();
+    let (context, window, _image) = init();
 
-    // obtain the renderer
-    // obtain the canvas
+    // Obtain the canvas
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
         Err(err) => panic!("Could not obtain canvas: {}", err),
@@ -165,16 +162,14 @@ fn main() {
     let mut running: bool = true;
 
     // Get a handle to the SDL2 event pump
-    let mut event_pump = sdl_context
-        .event_pump()
-        .expect("Could not obtain event pump!");
+    let mut event_pump = context.event_pump().expect("Could not obtain event pump!");
 
     // Track current rotation and flips
     let mut degrees: f64 = 0.0;
     let mut flip_vertical: bool = false;
     let mut flip_horizontal: bool = false;
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {

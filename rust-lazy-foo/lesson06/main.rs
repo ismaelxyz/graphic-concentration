@@ -4,7 +4,6 @@ use sdl2::{
     video::Window,
     Sdl,
 };
-
 use std::path::Path;
 
 const WIDTH: u32 = 640;
@@ -53,13 +52,12 @@ fn main() {
     };
 
     // running is 'mut' because we will want to 'flip' it to false when we're ready
-    // to exit the game loop.
+    // to exit the main loop.
     let mut running: bool = true;
-
     // Get a handle to the SDL2 event pump
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {

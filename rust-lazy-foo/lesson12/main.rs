@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
@@ -11,10 +9,10 @@ use sdl2::{
     video::Window,
     Sdl,
 };
+use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-
 const IMG_COLORS: &'static str = "resources/colors.png";
 
 // Create a struct that will track texture data
@@ -51,8 +49,6 @@ impl<'a> LTexture<'a> {
             height: h,
         }
     }
-
-    // create a copy of
 
     // Load a texture from a file
     fn new_from_file<T>(ren: &'a TextureCreator<T>, path: &Path) -> LTexture<'a> {
@@ -106,11 +102,11 @@ impl<'a> LTexture<'a> {
     }
 }
 
-// Note that 'renderer.load_texture' makes this example trivial.  See lesson03
+// Note that 'canvas.load_texture' makes this example trivial.  See lesson03
 // to show how we can manually load a surface and convert it to a texture.
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the sdl_context)
 fn init() -> (Sdl, Window, Sdl2ImageContext) {
     let sdl = sdl2::init().unwrap();
     let video = sdl.video().unwrap();
@@ -131,7 +127,7 @@ fn init() -> (Sdl, Window, Sdl2ImageContext) {
 
 fn main() {
     // Initialize SDL2
-    let (sdl_context, window, _image) = init();
+    let (context, window, _image) = init();
 
     // obtain the canvas
     let mut canvas = match window.into_canvas().build() {
@@ -147,7 +143,7 @@ fn main() {
     let mut running: bool = true;
 
     // Get a handle to the SDL2 event pump
-    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut event_pump = context.event_pump().unwrap();
 
     // Create the Color we're going to use to modulate the texture
     // As we're allowing the user to alter this tint, we will make
@@ -156,7 +152,7 @@ fn main() {
     let mut green_tint: u8 = 0xff;
     let mut blue_tint: u8 = 0xff;
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {

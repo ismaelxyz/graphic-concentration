@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
@@ -10,10 +8,10 @@ use sdl2::{
     video::Window,
     Sdl,
 };
+use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-
 const FOO_IMG: &'static str = "resources/foo.png";
 const BG_IMG: &'static str = "resources/background.png";
 
@@ -100,8 +98,8 @@ impl<'a> LTexture<'a> {
 // Note that 'renderer.load_texture' makes this example trivial.  See lesson03
 // to show how we can manually load a surface and convert it to a texture.
 
-/// Break out initialization into a separate function, which
-/// returns only the Window (we don't need the sdl_context)
+// Break out initialization into a separate function, which
+// returns only the Window (we don't need the SDL2Context)
 fn init() -> (Sdl, Window, Sdl2ImageContext) {
     let sdl = sdl2::init().unwrap();
     let video = sdl.video().unwrap();
@@ -124,7 +122,7 @@ fn main() {
     // Initialize SDL2
     let (sdl_context, window, _image) = init();
 
-    // obtain the canvas
+    // Obtain the canvas
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
         Err(err) => panic!("Could not obtain canvas: {}", err),
@@ -139,11 +137,10 @@ fn main() {
     canvas.set_draw_color(Color::RGB(0, 0, 0));
 
     let mut running: bool = true;
-
     // Get a handle to the SDL2 event pump
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    // game loop
+    // Main loop
     while running {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {

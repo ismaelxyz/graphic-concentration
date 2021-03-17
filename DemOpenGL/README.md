@@ -14,8 +14,8 @@ contribute to people's understanding of the PyOpenGL library, which is a standar
 of the library written in C called OpenGL.
 
 If you want to contact the author of DemOpenGL send an email to
-[ismaelbeli.com@gmail.com](ismaelbeli.com@gmail.com) or you can also contact him
-by telegram [@ismaelxyz](t.me/@ismaelxyz).
+[ismaelbeli.com@gmail.com]() or you can also contact him
+by telegram [@ismaelxyz](https://t.me/ismaelxyz).
 
 # Gallery
 ![da](images/da.png)
