@@ -90,3 +90,7 @@ path = "lesson21/main.rs"
 [[bin]]
 name = "lesson22"
 path = "lesson22/main.rs"
+
+[[bin]]
+name = "lesson23"
+path = "lesson23/main.rs"
