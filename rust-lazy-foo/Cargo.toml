@@ -94,3 +94,34 @@ path = "lesson22/main.rs"
 [[bin]]
 name = "lesson23"
 path = "lesson23/main.rs"
+<<<<<<< HEAD
+
+[[bin]]
+name = "lesson24"
+path = "lesson24/main.rs"
+
+[[bin]]
+name = "lesson25"
+path = "lesson25/main.rs"
+
+[[bin]]
+name = "lesson26"
+path = "lesson26/main.rs"
+
+[[bin]]
+name = "lesson27"
+path = "lesson27/main.rs"
+
+[[bin]]
+name = "lesson28"
+path = "lesson28/main.rs"
+
+[[bin]]
+name = "lesson29"
+path = "lesson29/main.rs"
+
+[[bin]]
+name = "lesson30"
+path = "lesson30/main.rs"
+=======
+>>>>>>> main

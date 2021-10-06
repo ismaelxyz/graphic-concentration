@@ -14,10 +14,9 @@ The examples assume 0.34.3 at a minimum.
 
 ## Tutorial Index
 
-I plan to port most of the provided tutorials, though for some I can't
-create a port I lack the resourced - for example, I don't have a
-gamepad or forcefeedback device, and at this point I can't create
-anything for mobile.
+I plan to port most of the provided tutorials, though for some I can't create a
+port I lack the resourced - for example, I don't have a gamepad or forcefeedback
+device, and at this point I can't create anything for mobile.
 
 * Lesson 01 - Hello SDL
 * Lesson 02 - Getting an Image on the Screen
@@ -40,15 +39,15 @@ anything for mobile.
 * (NOT IMPLEMENTED) Lesson 19 - Gamepads and Joysticks
 * (NOT IMPLEMENTED) Lesson 20 - Force Feedback
 * Lesson 21 - Sound Effects and Music
-* (TODO) Lesson 22 - Timing
-* (TODO) Lesson 23 - Advanced Timers
-* (TODO) Lesson 24 - Calculating Frame Rate
-* (TODO) Lesson 25 - Capping Frame Rate
-* (TODO) Lesson 26 - Motion
-* (TODO) Lesson 27 - Collision Detection
-* (TODO) Lesson 28 - Per-pixel Collision Detection
-* (TODO) Lesson 29 - Circular Collision Detection
-* (TODO) Lesson 30 - Scrolling
+* Lesson 22 - Timing
+* Lesson 23 - Advanced Timers
+* Lesson 24 - Calculating Frame Rate
+* Lesson 25 - Capping Frame Rate
+* Lesson 26 - Motion
+* Lesson 27 - Collision Detection
+* Lesson 28 - Per-pixel Collision Detection
+* Lesson 29 - Circular Collision Detection
+* Lesson 30 - Scrolling
 * (TODO) Lesson 31 - Scrolling Backgrounds
 * (TODO) Lesson 32 - Text Input and Clipboard Handling
 * (TODO) Lesson 33 - File Reading and Writing
@@ -86,23 +85,25 @@ will also need the image library, [SDL_Image 2.0](https://www.libsdl.org/project
 library [SDL_TTF 2.0](https://www.libsdl.org/projects/SDL_ttf/), multi-channel audio mixer library [SDL_MIXER 2.0](https://www.libsdl.org/projects/SDL_mixer/).
 
 On Debian and derivatives:
-    sudo apt-get install libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
+    sudo apt install libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
 
 On OS X, you can use Homebrew:
-
-	brew install sdl2
-    brew install sdl2_image
-    brew install sdl2_ttf
-    brew install sdl2_mixer
+```bash
+brew install sdl2
+brew install sdl2_image
+brew install sdl2_ttf
+brew install sdl2_mixer
+```
 
 On Fedora:
-
-    sudo dnf install SDL2-devel SDL2_ttf-devel SDL2_image-devel SDL2_mixer-devel
+```bash
+sudo dnf install SDL2-devel SDL2_ttf-devel SDL2_image-devel SDL2_mixer-devel
+```
 
 On RedHat/Centos:
-
-    sudo yum install SDL2-devel SDL2_ttf-devel SDL2_image-devel SDL2_mixer-devel
-
+```bash
+sudo yum install SDL2-devel SDL2_ttf-devel SDL2_image-devel SDL2_mixer-devel
+```
 
 For other platforms, refer to your existing package documentation.
 
@@ -111,15 +112,14 @@ For other platforms, refer to your existing package documentation.
 Once you have a version of rust installed, you can build all the
 examples with the command
 
-```
+```bash
 cargo build
 ```
 
 To run a specific lesson, run
 
-```
+```bash
 cargo run --bin lesson<NN>
 ```
 
 Where <NN> is the lesson number.
-
