@@ -12,11 +12,6 @@ pub fn load_texture(path: &str, creator: &TCreator<WContext>, color: (u8, u8, u8
         .expect("Can't set color key");
 
     // Create texture from surface pixels
-    let texture = creator.create_texture_from_surface(&surf).unwrap();
+    creator.create_texture_from_surface(&surf).unwrap()
 
-    // Get image dimensions
-    // let (w, h) = surf.size();
-
-    // LTexture::new(texture, w, h)
-    texture
 }

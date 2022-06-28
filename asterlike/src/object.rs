@@ -56,11 +56,11 @@ impl<T> Object<T> {
     }
 
     pub fn clip(&self) -> Rect {
-        self.clip.clone()
+        self.clip
     }
 
     pub fn scale(&self) -> f32 {
-        self.scale.clone()
+        self.scale
     }
 
     pub fn image(&self) -> &Texture {
@@ -73,7 +73,7 @@ impl<T> Object<T> {
 
     /// Move an object relative coordinates (x and y) and set new object coordinates
     pub fn position(&mut self, pos: (i32, i32), canvas: &mut WindowCanvas) {
-        let mut clip = self.clip.clone();
+        let mut clip = self.clip;
         self.pos.0 += pos.0;
         self.pos.1 += pos.1;
         clip.x += clip.w * self.sub_image as i32;
@@ -374,7 +374,7 @@ impl Object<Ship> {
                 continue;
             }
 
-            this.position((0, -1 * speed.bullet as i32), canvas);
+            this.position((0, -(speed.bullet as i32)), canvas);
 
             pos += 1;
         }

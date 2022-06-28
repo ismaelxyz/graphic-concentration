@@ -131,7 +131,7 @@ impl Global {
             }
 
             for bullet in ship.bullets.iter_mut() {
-                if asteroid.is_collision(&bullet) {
+                if asteroid.is_collision(bullet) {
                     asteroid.lives -= 1;
                     bullet.lives = 0;
 
@@ -160,13 +160,18 @@ impl Global {
         let Global { screen, score, .. } = self;
 
         /* Set the HUD bar */
-        let bar = Rect::new(0, 0, screen.width as u32, (Size::Large as usize as f32 / 2.0 + screen.top) as u32);
+        let bar = Rect::new(
+            0,
+            0,
+            screen.width as u32,
+            (Size::Large as usize as f32 / 2.0 + screen.top) as u32,
+        );
         let mut data = score.to_string();
 
-        canvas.set_draw_color(Color::from((0, 51, 102, 0xFF)));
+        canvas.set_draw_color(Color::from((0, 51, 102, 255)));
         canvas.fill_rect(bar).unwrap();
-        canvas.set_draw_color(Color::from((0x0, 0x0, 0x0, 0xFF)));
-        let mut tmp = Text::new(font, "Score".into(), Size::Large, 1.0);
+        canvas.set_draw_color(Color::from((0x0, 0x0, 0x0, 255)));
+        let mut tmp = Text::new(font, "Score", Size::Large, 1.0);
 
         // Display score number
         let mut previous = {
@@ -209,11 +214,9 @@ impl Global {
 
     pub(crate) fn delay(&self, timer: u32, time: &sdl2::TimerSubsystem) {
         if ((time.ticks() - timer) as f32) < 1_000.0 / self.frames_per_second {
-            let frames =( 1_000.0 / self.frames_per_second) as i128;
+            let frames = (1_000.0 / self.frames_per_second) as i128;
             let timer = (time.ticks() - timer) as i128;
-            std::thread::sleep(std::time::Duration::from_nanos(
-                (frames - timer) as u64
-            ));
+            std::thread::sleep(std::time::Duration::from_nanos((frames - timer) as u64));
         }
     }
 }
