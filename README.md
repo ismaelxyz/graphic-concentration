@@ -18,7 +18,7 @@ Possible: GTk+.
 
 # Can I help?
 Yes, you can make push requests, adding new examples or fixing bugs.
-bugs. Please note that the license of the examples is MIT.
+Please note that the license of the examples is MIT.
 
 # Index
 In each folder there is a README.md with information

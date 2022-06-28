@@ -1,14 +1,26 @@
-use crate::global::{rand, Screen, Speed};
+use crate::global::{rand, Screen, Speed, Timer};
 use sdl2::{
+    keyboard::Scancode,
     rect::{Point, Rect},
-    render::Texture,
-    render::WindowCanvas,
+    render::{Texture, WindowCanvas},
+    EventPump, TimerSubsystem,
 };
+
 use std::ops::{Deref, DerefMut};
 
+type ScreenItems<'a> = (
+    Screen,
+    Speed,
+    &'a mut Timer,
+    &'a EventPump,
+    &'a mut WindowCanvas,
+    &'a TimerSubsystem,
+);
+
 #[derive(Copy, Clone, Eq, PartialEq)]
+#[allow(dead_code)]
 pub enum Size {
-    Tiny = 16,
+    Tiny = 16, //  field is never read
     Small = 32,
     Medium = 48,
     Large = 64,
@@ -62,7 +74,8 @@ impl<T> Object<T> {
     /// Move an object relative coordinates (x and y) and set new object coordinates
     pub fn position(&mut self, pos: (i32, i32), canvas: &mut WindowCanvas) {
         let mut clip = self.clip.clone();
-        self.pos = pos;
+        self.pos.0 += pos.0;
+        self.pos.1 += pos.1;
         clip.x += clip.w * self.sub_image as i32;
         self.apply_texture(clip, canvas);
     }
@@ -190,13 +203,14 @@ impl Text {
     }
 }
 
-struct Asteroid {
-    lives: i16,
+pub struct Asteroid {
+    pub(crate) lives: i16,
+    pub(crate) kind: Size,
 }
 
 pub struct Asteroids {
     image: *const Texture,
-    objs: Vec<Object<Asteroid>>,
+    pub(crate) objs: Vec<Object<Asteroid>>,
 }
 
 impl Asteroids {
@@ -214,19 +228,20 @@ impl Asteroids {
         } else {
             1.0
         };
+
         let val = if *asteroid < 30.0 { *asteroid } else { 30.0 };
 
         if rand() % val as i32 == 0 {
-            let (clip, lives) = match rand() % 6 {
-                random if random >= 3 => (Rect::new(0, 32, 32, 32), 1),
-                random if random >= 1 => (Rect::new(32, 32, 64, 64), 3),
-                _ => (Rect::new(96, 32, 96, 96), 6),
+            let (clip, lives, kind) = match rand() % 6 {
+                random if random >= 3 => (Rect::new(0, 32, 32, 32), 1, Size::Small),
+                random if random >= 1 => (Rect::new(32, 32, 64, 64), 3, Size::Medium),
+                _ => (Rect::new(96, 32, 96, 96), 6, Size::Large),
             };
 
             self.objs.push(Object {
-                this: Asteroid { lives },
+                this: Asteroid { lives, kind },
                 pos: ((rand() % screen.width) - (clip.w / 2), -clip.h),
-                ..unsafe { Object::new(Asteroid { lives }, &*self.image, 0, clip, 1.0) }
+                ..unsafe { Object::new(Asteroid { lives, kind }, &*self.image, 0, clip, 1.0) }
             });
         }
 
@@ -246,19 +261,122 @@ impl Asteroids {
     }
 }
 
-crate struct Bullet {
-    lives: i16,
+trait Pressed<T> {
+    fn is_pressed(&self, code: T) -> bool;
 }
 
-crate struct Ship {
-    crate lives: i16,
-    crate bullets: Vec<Object<Bullet>>,
+impl Pressed<Scancode> for EventPump {
+    fn is_pressed(&self, code: Scancode) -> bool {
+        self.keyboard_state().is_scancode_pressed(code)
+    }
+}
+
+impl Pressed<[Scancode; 2]> for EventPump {
+    fn is_pressed(&self, [code, code1]: [Scancode; 2]) -> bool {
+        self.is_pressed(code) || self.is_pressed(code1)
+    }
+}
+
+pub(crate) struct Bullet {
+    pub(crate) lives: i16,
+}
+
+pub(crate) struct Ship {
+    pub(crate) lives: i16,
+    pub(crate) bullets: Vec<Object<Bullet>>,
 }
 
 impl Object<Ship> {
-    crate fn update(&mut self) {
-        self.update_bullets();
+    pub(crate) fn update(&mut self, (screen, speed, timer, events, canvas, tm_sys): ScreenItems) {
+        let (mut ship_x, mut ship_y) = (0i8, 0i8);
+        let mut temp: i32;
+
+        /* User Keyboard  */
+        if events.is_pressed([Scancode::Left, Scancode::A]) {
+            ship_x -= 1;
+        }
+
+        if events.is_pressed([Scancode::Right, Scancode::D]) {
+            ship_x += 1;
+        }
+
+        if events.is_pressed([Scancode::Up, Scancode::W]) {
+            ship_y -= 1;
+        }
+
+        if events.is_pressed([Scancode::Down, Scancode::S]) {
+            ship_y += 1;
+        }
+
+        /* Updating Ship Animation */
+        if ship_x == 0 {
+            self.sub_image = 0;
+        } else if ship_x == -1 {
+            self.sub_image = 1;
+        } else if ship_x == 1 {
+            self.sub_image = 2;
+        }
+
+        ship_x *= speed.ship as i8;
+        ship_y *= speed.ship as i8;
+
+        /* Setting Ship Boundaries */
+        if (self.pos.0 + ship_x as i32) < screen.left as i32 {
+            temp = screen.left as i32 - self.pos.0;
+            ship_x = if temp > 0 { temp as _ } else { 0 };
+        }
+
+        if self.pos.0 + self.clip.w + ship_x as i32 > screen.width - screen.right as i32 {
+            temp = (screen.width - screen.right as i32) - self.pos.0 - self.clip.w;
+            ship_x = if temp > 0 { temp as _ } else { 0 };
+        }
+
+        if (self.pos.1 + ship_y as i32) < screen.top as i32 {
+            temp = screen.top as i32 - self.pos.1;
+            ship_y = if temp > 0 { temp as _ } else { 0 };
+        }
+
+        if self.pos.1 + self.clip.h + ship_y as i32 > screen.height - screen.bottom as i32 {
+            temp = (screen.height - screen.bottom as i32) - self.pos.1 - self.clip.h;
+            ship_y = if temp > 0 { temp as _ } else { 0 };
+        }
+
+        self.position((ship_x as _, ship_y as _), canvas);
+        self.update_bullets((screen, speed, timer, events, canvas, tm_sys));
     }
 
-    fn update_bullets(&mut self) {}
+    fn update_bullets(&mut self, (screen, speed, timer, events, canvas, tm_sys): ScreenItems) {
+        if timer.bullet < tm_sys.ticks() && events.is_pressed([Scancode::Num1, Scancode::Space]) {
+            let mut bullet = Object::new(
+                Bullet { lives: 1 },
+                self.image(),
+                0,
+                Rect::new(0, 144, 16, 16),
+                1.0,
+            );
+
+            bullet.pos = (
+                self.pos.0 + (bullet.clip.w / 2),
+                self.pos.1 - (bullet.clip.w / 2),
+            );
+
+            self.bullets.push(bullet);
+            timer.bullet = tm_sys.ticks() + 150;
+        }
+
+        let mut pos = 0;
+
+        while self.bullets.len() > pos {
+            let this = &mut self.bullets[pos];
+
+            if this.pos.1 <= screen.top as i32 || this.lives <= 0 {
+                self.bullets.remove(pos);
+                continue;
+            }
+
+            this.position((0, -1 * speed.bullet as i32), canvas);
+
+            pos += 1;
+        }
+    }
 }
