@@ -60,6 +60,7 @@ pub struct Screen {
 
 /// Game enumerated states
 #[derive(Eq, PartialEq)]
+#[allow(dead_code)]
 pub enum State {
     Default,
     CutScene,
@@ -68,26 +69,26 @@ pub enum State {
     Pause,
 }
 
-#[derive(Default)]
-crate struct Timer {
-    crate global: u32,
-    crate bullet: u32,
-    crate game: u32,
+#[derive(Copy, Clone, Default)]
+pub(crate) struct Timer {
+    pub(crate) global: u32,
+    pub(crate) bullet: u32,
+    pub(crate) game: u32,
 }
 
-crate struct Global {
-    crate speed: Speed,
-    crate screen: Screen,
-    crate frames_per_second: f32,
-    crate tick_ratio: f32,
-    crate exit: bool,
-    crate state: State,
-    crate timer: Timer,
-    crate score: u32,
+pub(crate) struct Global {
+    pub(crate) speed: Speed,
+    pub(crate) screen: Screen,
+    pub(crate) frames_per_second: f32,
+    pub(crate) tick_ratio: f32,
+    pub(crate) exit: bool,
+    pub(crate) state: State,
+    pub(crate) timer: Timer,
+    pub(crate) score: u32,
 }
 
 impl Global {
-    pub fn new() -> Self {
+    pub fn new((width, height): (u32, u32)) -> Self {
         let frames_per_second = 60.0;
         let tick_ratio = 60.0 / frames_per_second;
 
@@ -99,9 +100,9 @@ impl Global {
                 bullet: 9.0 * tick_ratio,
             },
             screen: Screen {
-                width: 1920,
-                height: 1080,
-                top: 64.0,
+                width: width as _,
+                height: height as _,
+                top: height as f32 * 0.06,
                 bottom: 5.0,
                 left: 5.0,
                 right: 5.0,
@@ -119,6 +120,100 @@ impl Global {
 
             // Global Score
             score: 0,
+        }
+    }
+
+    pub(crate) fn collision(&mut self, ship: &mut Object<Ship>, asteroids: &mut Asteroids) {
+        for asteroid in asteroids.objs.iter_mut() {
+            if asteroid.is_collision(ship) {
+                ship.lives -= 1;
+                asteroid.lives = 0;
+            }
+
+            for bullet in ship.bullets.iter_mut() {
+                if asteroid.is_collision(&bullet) {
+                    asteroid.lives -= 1;
+                    bullet.lives = 0;
+
+                    if asteroid.lives <= 0 {
+                        self.score += match asteroid.kind {
+                            Size::Small => 1,
+                            Size::Medium => 2,
+                            Size::Large => 3,
+                            _ => unreachable!(),
+                        };
+                    } else {
+                        /*
+                        if (bulletsRoot->type == BULLET_TINY)
+                        {
+                            score++;
+                        }
+                        */
+                    }
+                }
+            }
+        }
+    }
+
+    /// Display the user's heads up display
+    pub(crate) fn hud(&mut self, ship: &Ship, font: &Texture, canvas: &mut WindowCanvas) {
+        let Global { screen, score, .. } = self;
+
+        /* Set the HUD bar */
+        let bar = Rect::new(0, 0, screen.width as u32, (Size::Large as usize as f32 / 2.0 + screen.top) as u32);
+        let mut data = score.to_string();
+
+        canvas.set_draw_color(Color::from((0, 51, 102, 0xFF)));
+        canvas.fill_rect(bar).unwrap();
+        canvas.set_draw_color(Color::from((0x0, 0x0, 0x0, 0xFF)));
+        let mut tmp = Text::new(font, "Score".into(), Size::Large, 1.0);
+
+        // Display score number
+        let mut previous = {
+            tmp.position((0, 0), canvas);
+
+            let obj = &tmp.chucks()[0];
+            let len = (tmp.chucks().len() + 2 - data.len()) as f32;
+            obj.pos.0 as f32 + (len * obj.clip.w as f32 * 0.5 * obj.scale)
+        } as i32;
+
+        tmp = Text::new(font, &data, Size::Large, 1.0);
+        tmp.position((previous, 0), canvas);
+
+        // Display lives text
+        let mut obj = &tmp.chucks()[0];
+        previous += ((tmp.chucks().len() + 3) as f32 * obj.clip.w as f32 * 0.5 * obj.scale) as i32;
+
+        tmp = Text::new(font, "Lives", Size::Large, 1.0);
+        tmp.position((previous, 0), canvas);
+
+        // Display lives number
+        data = ship.lives.to_string();
+        obj = &tmp.chucks()[0];
+
+        previous = {
+            let len = (tmp.chucks().len() + 3 - data.len()) as f32;
+            obj.pos.0 as f32 + (len * obj.clip.w as f32 * 0.5 * obj.scale)
+        } as i32;
+
+        Text::new(font, &data, Size::Large, 1.0).position((previous, 0), canvas);
+
+        // Display Timer
+        tmp = Text::new(font, &self.timer.game.to_string()[..], Size::Large, 1.0);
+        let (w, len) = (self.screen.width as usize, tmp.chucks().len());
+        tmp.position(
+            ((w - (len * tmp.chucks()[0].clip.w as usize)) as i32, 0),
+            canvas,
+        );
+    }
+
+    pub(crate) fn delay(&self, timer: u32, time: &sdl2::TimerSubsystem) {
+        if ((time.ticks() - timer) as f32) < 1_000.0 / self.frames_per_second {
+            let frames =( 1_000.0 / self.frames_per_second) as i128;
+            let timer = (time.ticks() - timer) as i128;
+            std::thread::sleep(std::time::Duration::from_nanos(
+                (frames - timer) as u64
+            ));
         }
     }
 }
@@ -152,57 +247,3 @@ pub fn game_over(font: &Texture, screen: Screen, canvas: &mut WindowCanvas) {
     canvas.present();
     std::thread::sleep(std::time::Duration::new(0, 1_000_000_000u32 * 2));
 }
-
-/// Display the user's heads up display
-crate fn hud(ship: &Ship, font: &Texture, global: &Global, canvas: &mut WindowCanvas) {
-    let Global { screen, score, .. } = global;
-
-    /* Set the HUD bar */
-    let bar = Rect::new(0, 0, screen.width as u32, screen.top as u32);
-    let mut data = score.to_string();
-
-    canvas.set_draw_color(Color::from((0, 51, 102, 0xFF)));
-    canvas.fill_rect(bar);
-    canvas.set_draw_color(Color::from((0x0, 0x0, 0x0, 0xFF)));
-    let mut tmp = Text::new(font, "Score".into(), Size::Large, 1.0);
-
-    // Display score number
-    let mut previous = {
-        tmp.position((0, 0), canvas);
-
-        let obj = &tmp.chucks()[0];
-        let len = (tmp.chucks().len() + 2 - data.len()) as f32;
-        obj.pos.0 as f32 + (len * obj.clip.w as f32 * 0.5 * obj.scale)
-    } as i32;
-
-    tmp = Text::new(font, &data, Size::Large, 1.0);
-    tmp.position((previous, 0), canvas);
-
-    // Display lives text
-    let mut obj = &tmp.chucks()[0];
-    previous += ((tmp.chucks().len() + 3) as f32 * obj.clip.w as f32 * 0.5 * obj.scale) as i32;
-
-    tmp = Text::new(font, "Lives", Size::Large, 1.0);
-    tmp.position((previous, 0), canvas);
-
-    // Display lives number
-    data = ship.lives.to_string();
-    obj = &tmp.chucks()[0];
-
-    previous = {
-        let len = (tmp.chucks().len() + 3 - data.len()) as f32;
-        obj.pos.0 as f32 + (len * obj.clip.w as f32 * 0.5 * obj.scale)
-    } as i32;
-
-    Text::new(font, &data, Size::Large, 1.0).position((previous, 0), canvas);
-
-    // Display Timer
-    tmp = Text::new(font, &global.timer.game.to_string()[..], Size::Large, 1.0);
-    let (w, len) = (global.screen.width as usize, tmp.chucks().len());
-    tmp.position(
-        ((w - (len * tmp.chucks()[0].clip.w as usize)) as i32, 0),
-        canvas,
-    );
-}
-
-crate fn collision(ship: &Ship, asteroids: &Asteroids) {}
