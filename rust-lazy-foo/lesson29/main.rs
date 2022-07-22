@@ -1,4 +1,3 @@
-#![allow(clippy::too_many_arguments)]
 mod utils;
 
 use sdl2::{
@@ -6,8 +5,8 @@ use sdl2::{
     image::LoadSurface,
     keyboard::Keycode,
     pixels::Color,
-    rect::{Point, Rect},
-    render::{Canvas, RenderTarget, Texture, TextureCreator},
+    rect::Rect,
+    render::{Canvas, Texture, TextureCreator},
     surface::Surface,
     video::Window,
 };
@@ -54,25 +53,17 @@ impl<'a> LTexture<'a> {
     }
 
     /// Renders texture at given point
-    pub fn render<T: RenderTarget>(
-        &self,
-        canvas: &mut Canvas<T>,
-        x: i32,
-        y: i32,
-        clip: Option<Rect>,
-        rotation: Option<f64>,
-        center: Option<Point>,
-        flip_h: bool,
-        flip_v: bool,
-    ) {
-        let clip_rect = match clip {
-            Some(rect) => Rect::new(x, y, rect.width(), rect.height()),
-            None => Rect::new(x, y, self.width, self.height),
-        };
-        let rot: f64 = rotation.unwrap_or(0.0);
-
+    pub fn render(&self, canvas: &mut Canvas<Window>, x: i32, y: i32) {
         canvas
-            .copy_ex(&self.texture, clip, clip_rect, rot, center, flip_h, flip_v)
+            .copy_ex(
+                &self.texture,
+                None,
+                Rect::new(x, y, self.width, self.height),
+                0.0,
+                None,
+                false,
+                false,
+            )
             .expect("Could not blit texture to render target!");
     }
 }
@@ -175,16 +166,11 @@ impl<'a> Dot<'a> {
     }
 
     /// Shows the dot on the screen
-    fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>) {
+    fn render(&self, canvas: &mut Canvas<Window>) {
         self.texture.render(
             canvas,
             self.pos.0 - self.collider.rot,
             self.pos.1 - self.collider.rot,
-            None,
-            None,
-            None,
-            false,
-            false,
         );
     }
 
@@ -261,7 +247,7 @@ fn main() {
         canvas.clear();
 
         // Render wall
-        canvas.set_draw_color(Color::RGBA(0x00, 0x00, 0x00, 0xFF));
+        canvas.set_draw_color(Color::BLACK);
         canvas.draw_rect(wall).unwrap();
 
         // Render objects

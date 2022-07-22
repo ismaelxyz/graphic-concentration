@@ -11,109 +11,109 @@ features = ["image", "ttf", "mixer"]
 
 [[bin]]
 name = "lesson01"
-path = "lesson01/main.rs"
+path = "src/lesson01.rs"
 
 [[bin]]
 name = "lesson02"
-path = "lesson02/main.rs"
+path = "src/lesson02.rs"
 
 [[bin]]
 name = "lesson03"
-path = "lesson03/main.rs"
+path = "src/lesson03.rs"
 
 [[bin]]
 name = "lesson04"
-path = "lesson04/main.rs"
+path = "src/lesson04.rs"
 
 [[bin]]
 name = "lesson05"
-path = "lesson05/main.rs"
+path = "src/lesson05.rs"
 
 [[bin]]
 name = "lesson06"
-path = "lesson06/main.rs"
+path = "src/lesson06.rs"
 
 [[bin]]
 name = "lesson07"
-path = "lesson07/main.rs"
+path = "src/lesson07.rs"
 
 [[bin]]
 name = "lesson08"
-path = "lesson08/main.rs"
+path = "src/lesson08.rs"
 
 [[bin]]
 name = "lesson09"
-path = "lesson09/main.rs"
+path = "src/lesson09.rs"
 
 [[bin]]
 name = "lesson10"
-path = "lesson10/main.rs"
+path = "src/lesson10.rs"
 
 [[bin]]
 name = "lesson11"
-path = "lesson11/main.rs"
+path = "src/lesson11.rs"
 
 [[bin]]
 name = "lesson12"
-path = "lesson12/main.rs"
+path = "src/lesson12.rs"
 
 [[bin]]
 name = "lesson13"
-path = "lesson13/main.rs"
+path = "src/lesson13.rs"
 
 [[bin]]
 name = "lesson14"
-path = "lesson14/main.rs"
+path = "src/lesson14.rs"
 
 [[bin]]
 name = "lesson15"
-path = "lesson15/main.rs"
+path = "src/lesson15.rs"
 
 [[bin]]
 name = "lesson16"
-path = "lesson16/main.rs"
+path = "src/lesson16.rs"
 
 [[bin]]
 name = "lesson17"
-path = "lesson17/main.rs"
+path = "src/lesson17.rs"
 
 [[bin]]
 name = "lesson18"
-path = "lesson18/main.rs"
+path = "src/lesson18.rs"
 
 # Skip 19 20
 
 [[bin]]
 name = "lesson21"
-path = "lesson21/main.rs"
+path = "src/lesson21.rs"
 
 [[bin]]
 name = "lesson22"
-path = "lesson22/main.rs"
+path = "src/lesson22.rs"
 
 [[bin]]
 name = "lesson23"
-path = "lesson23/main.rs"
+path = "src/lesson23.rs"
 
 [[bin]]
 name = "lesson24"
-path = "lesson24/main.rs"
+path = "src/lesson24.rs"
 
 [[bin]]
 name = "lesson25"
-path = "lesson25/main.rs"
+path = "src/lesson25.rs"
 
 [[bin]]
 name = "lesson26"
-path = "lesson26/main.rs"
+path = "src/lesson26.rs"
 
 [[bin]]
 name = "lesson27"
-path = "lesson27/main.rs"
+path = "src/lesson27.rs"
 
 [[bin]]
 name = "lesson28"
-path = "lesson28/main.rs"
+path = "src/lesson28.rs"
 
 [[bin]]
 name = "lesson29"
@@ -121,12 +121,18 @@ path = "lesson29/main.rs"
 
 [[bin]]
 name = "lesson30"
-path = "lesson30/main.rs"
+path = "src/lesson30.rs"
 
 [[bin]]
 name = "lesson32"
-path = "lesson32/main.rs"
+path = "src/lesson32.rs"
 
 [[bin]]
 name = "lesson33"
-path = "lesson33/main.rs"
+path = "src/lesson33.rs"
+
+# Skip 34
+
+#[[bin]]
+#name = "lesson35"
+#path = "src/lesson35.rs"
