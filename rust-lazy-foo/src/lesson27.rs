@@ -260,7 +260,7 @@ fn main() {
         canvas.set_draw_color(Color::WHITE);
         canvas.clear();
 
-        canvas.set_draw_color(Color::RGBA(0x00, 0x00, 0x00, 0xFF));
+        canvas.set_draw_color(Color::BLACK);
         canvas.draw_rect(wall).unwrap();
 
         // Render objects
