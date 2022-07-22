@@ -131,8 +131,7 @@ fn main() {
     // Load a font
     let font_path = std::path::Path::new("./resources/lazy.ttf");
     let font = ttf_ctx.load_font(font_path, 28).unwrap();
-    let prompt =
-        LTexture::from_creator_text(&creator, &font, "Enter Text:", Color::BLACK);
+    let prompt = LTexture::from_creator_text(&creator, &font, "Enter Text:", Color::BLACK);
 
     //The current input text.
     let mut input_text = String::from("Some Text");
@@ -160,7 +159,7 @@ fn main() {
                     (Keycode::V, Mod::LCTRLMOD | Mod::RCTRLMOD) => {
                         input_text = clipboard.clipboard_text().unwrap()
                     }
-                    Keycode::Escape => break 'running,
+                    (Keycode::Escape, _) => break 'running,
                     _ => (),
                 },
                 // Special text input event

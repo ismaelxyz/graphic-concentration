@@ -8,7 +8,7 @@ use sdl2::{
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-const X_IMAGE: &'static str = "resources/x.bmp";
+const X_IMAGE: &str = "resources/x.bmp";
 
 /// Break out initialization into a separate function, which
 /// returns only the Window (we don't need the video context)
@@ -60,9 +60,6 @@ fn main() {
     let creator = canvas.texture_creator();
     // Load the image
     let image_texture = load_texture(X_IMAGE, &creator);
-    // running is 'mut' because we will want to 'flip' it to false when we're ready
-    // to exit the main loop.
-    let mut running: bool = true;
 
     // Get a handle to the SDL2 event pump
     let mut event_pump = match context.event_pump() {
@@ -70,14 +67,12 @@ fn main() {
         Err(err) => panic!("Could not obtain event pump: {}", err),
     };
 
-    // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
-            match event {
-                Event::Quit { .. } => running = false,
-                _ => {}
+            if let Event::Quit { .. } = event {
+                break 'running;
             }
         }
         // render the texture each pass through the loop

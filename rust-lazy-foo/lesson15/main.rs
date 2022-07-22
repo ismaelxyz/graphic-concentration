@@ -3,7 +3,7 @@ use sdl2::{
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
     keyboard::Keycode,
     pixels::Color,
-    rect::{Point, Rect},
+    rect::Rect,
     render::{Canvas, RenderTarget, Texture, TextureCreator},
     surface::Surface,
     video::Window,
@@ -13,7 +13,7 @@ use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-const IMG_ARROW: &'static str = "resources/arrow.png";
+const IMG_ARROW: &str = "resources/arrow.png";
 
 // Create a struct that will track texture data
 struct LTexture<'a> {
@@ -79,30 +79,17 @@ impl<'a> LTexture<'a> {
     fn render_to<T: RenderTarget>(
         &self,
         canvas: &mut Canvas<T>,
-        x: i32,
-        y: i32,
-        clip: Option<Rect>,
-        rotation: Option<f64>,
-        center: Option<Point>,
-        flip_h: bool,
-        flip_v: bool,
+        (x, y): (i32, i32),
+        rotation: f64,
+        (flip_h, flip_v): (bool, bool),
     ) {
-        let clip_rect = match clip {
-            Some(rect) => rect,
-            None => Rect::new(0, 0, self.width, self.height),
-        };
-        let rot: f64 = match rotation {
-            Some(rot) => rot,
-            None => 0.0,
-        };
-
         canvas
             .copy_ex(
                 &self.texture,
-                Some(clip_rect),
-                Some(Rect::new(x, y, clip_rect.width(), clip_rect.height())),
-                rot,
-                center,
+                Some(Rect::new(0, 0, self.width, self.height)),
+                Some(Rect::new(x, y, self.width, self.height)),
+                rotation,
+                None,
                 flip_h,
                 flip_v,
             )
@@ -159,8 +146,6 @@ fn main() {
 
     let arrow = LTexture::new_from_file(&creator, Path::new(IMG_ARROW));
 
-    let mut running: bool = true;
-
     // Get a handle to the SDL2 event pump
     let mut event_pump = context.event_pump().expect("Could not obtain event pump!");
 
@@ -170,12 +155,12 @@ fn main() {
     let mut flip_horizontal: bool = false;
 
     // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
             match event {
-                Event::Quit { .. } => running = false,
+                Event::Quit { .. } => break 'running,
                 Event::KeyDown { keycode: k, .. } => match k {
                     Some(Keycode::A) => {
                         degrees -= 60.0;
@@ -193,9 +178,7 @@ fn main() {
                     Some(Keycode::E) => {
                         flip_vertical = !flip_vertical;
                     }
-                    Some(Keycode::Escape) => {
-                        running = false;
-                    }
+                    Some(Keycode::Escape) => break 'running,
                     Some(_) => {}
                     None => {}
                 },
@@ -209,13 +192,12 @@ fn main() {
         // Render the arrow
         arrow.render_to(
             &mut canvas,
-            (WIDTH - arrow.width) as i32 / 2,
-            (HEIGHT - arrow.height) as i32 / 2,
-            None,
-            Some(degrees),
-            None,
-            flip_horizontal,
-            flip_vertical,
+            (
+                (WIDTH - arrow.width) as i32 / 2,
+                (HEIGHT - arrow.height) as i32 / 2,
+            ),
+            degrees,
+            (flip_horizontal, flip_vertical),
         );
 
         // Update the screen

@@ -9,6 +9,8 @@ __pycache__
 /Old
 /asterlike/inside
 
+# Auto generate
+/rust-lazy-foo/resources/nums.bin
+
 # Files
 Cargo.lock
-

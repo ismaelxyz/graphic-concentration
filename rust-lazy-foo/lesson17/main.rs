@@ -16,7 +16,7 @@ const HEIGHT: u32 = 480;
 const BUTTON_WIDTH: u32 = 300;
 const BUTTON_HEIGHT: u32 = 200;
 const TOTAL_BUTTONS: u32 = 4;
-const BUTTON_SPRITESHEET: &'static str = "resources/button.png";
+const BUTTON_SPRITESHEET: &str = "resources/button.png";
 
 // Rust enums are powerful, allowing you to create algebraic data types,
 // but in the simplest case they can be used like C enums.
@@ -25,12 +25,11 @@ const BUTTON_SPRITESHEET: &'static str = "resources/button.png";
 // will try to pull the enum out, which leads to the common "cannot
 // move out of borrowed content" error.
 #[derive(Copy, Clone)]
-enum LButtonSprite {
-    ButtonSpriteMouseOut = 0,
-    ButtonSpriteMouseOverMotion,
-    ButtonSpriteMouseDown,
-    ButtonSpriteMouseUp,
-    //ButtonSpriteTotal,
+enum ButtonSprite {
+    Out,
+    OverMotion,
+    Down,
+    Up,
 }
 
 // Create a struct that will track texture data
@@ -87,18 +86,10 @@ impl<'a> LTexture<'a> {
         x: i32,
         y: i32,
         clip: Option<Rect>,
-        rotation: Option<f64>,
-        center: Option<Point>,
-        flip_h: bool,
-        flip_v: bool,
     ) {
         let clip_rect = match clip {
             Some(rect) => rect,
             None => Rect::new(0, 0, self.width, self.height),
-        };
-        let rot: f64 = match rotation {
-            Some(rot) => rot,
-            None => 0.0,
         };
 
         canvas
@@ -106,10 +97,10 @@ impl<'a> LTexture<'a> {
                 &self.texture,
                 Some(clip_rect),
                 Some(Rect::new(x, y, clip_rect.width(), clip_rect.height())),
-                rot,
-                center,
-                flip_h,
-                flip_v,
+                0.0,
+                None,
+                false,
+                false,
             )
             .expect("Could not blit texture to render target!");
     }
@@ -153,7 +144,7 @@ struct LButton {
     // Current position of the mouse
     position: Point,
     // Currently used sprite
-    current_sprite: LButtonSprite,
+    current_sprite: ButtonSprite,
     pressed: bool,
 }
 
@@ -164,7 +155,7 @@ impl LButton {
     fn new() -> LButton {
         LButton {
             position: Point::new(0, 0),
-            current_sprite: LButtonSprite::ButtonSpriteMouseOut,
+            current_sprite: ButtonSprite::Out,
             pressed: false,
         }
     }
@@ -173,7 +164,7 @@ impl LButton {
     fn new_from_point(p: Point) -> LButton {
         LButton {
             position: p,
-            current_sprite: LButtonSprite::ButtonSpriteMouseOut,
+            current_sprite: ButtonSprite::Out,
             pressed: false,
         }
     }
@@ -196,18 +187,18 @@ impl LButton {
             || (s.y() < self.position.y())
             || (s.y() > self.position.y() + BUTTON_HEIGHT as i32)
         {
-            self.current_sprite = LButtonSprite::ButtonSpriteMouseOut;
+            self.current_sprite = ButtonSprite::Out;
         } else {
             self.current_sprite = match s.left() {
                 true => {
                     self.pressed = true;
-                    LButtonSprite::ButtonSpriteMouseDown
+                    ButtonSprite::Down
                 }
                 false => {
-                    if self.pressed == true {
-                        LButtonSprite::ButtonSpriteMouseUp
+                    if self.pressed {
+                        ButtonSprite::Up
                     } else {
-                        LButtonSprite::ButtonSpriteMouseOverMotion
+                        ButtonSprite::OverMotion
                     }
                 }
             }
@@ -216,12 +207,7 @@ impl LButton {
 
     // Render a button.  In order to do this, we need the SDL context
     // as well as the LTexture for the button.
-    fn render<T: RenderTarget>(
-        &self,
-        canvas: &mut Canvas<T>,
-        texture: &LTexture,
-        clips: &Vec<Rect>,
-    ) {
+    fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>, texture: &LTexture, clips: &[Rect]) {
         // This is why we need to derive the Copy trait for the enum.
         let indx = self.current_sprite as usize;
         texture.render_to(
@@ -229,10 +215,6 @@ impl LButton {
             self.position.x(),
             self.position.y(),
             Some(clips[indx]),
-            None,
-            None,
-            false,
-            false,
         );
     }
 }
@@ -305,19 +287,16 @@ fn main() {
     let (button_texture, clip_rects) = load_media(&creator);
     let mut buttons = initialize_buttons();
 
-    let mut running: bool = true;
-
     // Get a handle to the SDL2 event pump
     let mut event_pump = sdl_context
         .event_pump()
         .expect("Unable to obtain event pump handle!");
 
-    // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
-            match event {
+            if let Event::Quit { .. } = event {
                 // Pass off the events to the buttons for handling.
                 // Note that unlike the tutorial, we actually check it's
                 // a mouse event before handing it off.  Otherwise in an
@@ -325,16 +304,7 @@ fn main() {
                 // UPDATE: This is the old way of doing it.  Now mouse events
                 // are not generated events - instead you pull the status of
                 // the mouse right from the event pump (see below).
-
-                // Event::MouseMotion {..} |
-                // Event::MouseButtonDown {..} |
-                // Event::MouseButtonUp {..} => {
-                //     for i in 0..TOTAL_BUTTONS {
-                //         buttons[i as usize].handle_event(&event);
-                //     }
-                // },
-                Event::Quit { .. } => running = false,
-                _ => {}
+                break 'running;
             }
         }
 

@@ -13,8 +13,8 @@ use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-const IMG_FADEIN: &'static str = "resources/fadein.png";
-const IMG_FADEOUT: &'static str = "resources/fadeout.png";
+const IMG_FADEIN: &str = "resources/fadein.png";
+const IMG_FADEOUT: &str = "resources/fadeout.png";
 
 // Create a struct that will track texture data
 struct LTexture<'a> {

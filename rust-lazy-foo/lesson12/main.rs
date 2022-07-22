@@ -13,7 +13,7 @@ use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-const IMG_COLORS: &'static str = "resources/colors.png";
+const IMG_COLORS: &str = "resources/colors.png";
 
 // Create a struct that will track texture data
 struct LTexture<'a> {

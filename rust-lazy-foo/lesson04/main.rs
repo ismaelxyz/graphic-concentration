@@ -85,8 +85,6 @@ fn main() {
     let creator = canvas.texture_creator();
     // Load the sprite textures into an hashmap
     let sprites: HashMap<&'static str, Box<Texture>> = load_media(&creator);
-    // Start up the main loop
-    let mut running: bool = true;
     let mut current_image: &str = "press";
 
     // Obtain the event pump
@@ -95,39 +93,16 @@ fn main() {
         Err(err) => panic!("Could not obtain event pump: {}", err),
     };
 
-    while running {
+    // Start up the main loop
+    'running: loop {
         // We blit the image to the screen corresponding to the keypress,
         // or 'press' otherwise.  Using 'Esc' or 'q' will quit the program.
-        // for event in event_pump.poll_iter() {
-        //     match event {
-        //         Event::Quit {..} |
-        //         Event::KeyDown { keycode: Keycode::Escape, .. } |
-        //         Event::KeyDown { keycode: Keycode::Q, .. } => {
-        //             running = false
-        //         },
-        //         Event::KeyDown { keycode: Keycode::Up, .. } => {
-        //             current_image = "up"
-        //         },
-        //         Event::KeyDown { keycode: Keycode::Down, .. } => {
-        //             current_image = "down"
-        //         },
-        //         Event::KeyDown { keycode: Keycode::Left, .. } => {
-        //             current_image = "left"
-        //         },
-        //         Event::KeyDown { keycode: Keycode::Right, .. } => {
-        //             current_image = "right"
-        //         },
-        //         Event::KeyDown { .. } => {
-        //             current_image = "press"
-        //         },
-        //         _ => {}
-        //     }
-        // }
+
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit { .. } => running = false,
+                Event::Quit { .. } => break 'running,
                 Event::KeyDown { keycode: k, .. } => match k {
-                    Some(Keycode::Escape) | Some(Keycode::Q) => running = false,
+                    Some(Keycode::Escape) | Some(Keycode::Q) => break 'running,
                     Some(Keycode::Up) => current_image = "up",
                     Some(Keycode::Down) => current_image = "down",
                     Some(Keycode::Right) => current_image = "right",
