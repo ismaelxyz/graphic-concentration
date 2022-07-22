@@ -12,7 +12,7 @@ use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-const IMG_DOTS: &'static str = "resources/dots.png";
+const IMG_DOTS: &str = "resources/dots.png";
 
 // Create a struct that will track texture data
 struct LTexture<'a> {
@@ -150,18 +150,15 @@ fn main() {
     let creator = canvas.texture_creator();
     // Create the textures we are going to use.
     let (sprite_sheet, sprite_clips) = load_media(&creator, Path::new(IMG_DOTS));
-    let mut running: bool = true;
     // Get a handle to the SDL2 event pump
     let mut event_pump = context.event_pump().unwrap();
 
-    // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
-            match event {
-                Event::Quit { .. } => running = false,
-                _ => {}
+            if let Event::Quit { .. } = event {
+                break 'running;
             }
         }
         // Clear and render the texture each pass through the loop

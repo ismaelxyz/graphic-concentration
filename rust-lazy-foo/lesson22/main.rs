@@ -3,7 +3,7 @@ use sdl2::{
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
     keyboard::Keycode,
     pixels::Color,
-    rect::{Point, Rect},
+    rect::Rect,
     render::{BlendMode, Canvas, RenderTarget, Texture, TextureCreator},
     surface::Surface,
     ttf::{Font, Sdl2TtfContext},
@@ -95,35 +95,16 @@ impl<'a> LTexture<'a> {
     }
 
     // Renders texture at given point
-    fn render<T: RenderTarget>(
-        &self,
-        canvas: &mut Canvas<T>,
-        x: i32,
-        y: i32,
-        clip: Option<Rect>,
-        rotation: Option<f64>,
-        center: Option<Point>,
-        flip_h: bool,
-        flip_v: bool,
-    ) {
-        let clip_rect = match clip {
-            Some(rect) => rect,
-            None => Rect::new(0, 0, self.width, self.height),
-        };
-        let rot: f64 = match rotation {
-            Some(rot) => rot,
-            None => 0.0,
-        };
-
+    fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>, x: i32, y: i32) {
         canvas
             .copy_ex(
                 &self.texture,
-                Some(clip_rect),
-                Some(Rect::new(x, y, clip_rect.width(), clip_rect.height())),
-                rot,
-                center,
-                flip_h,
-                flip_v,
+                Some(Rect::new(0, 0, self.width, self.height)),
+                Some(Rect::new(x, y, self.width, self.height)),
+                0.0,
+                None,
+                false,
+                false,
             )
             .expect("Could not blit texture to render target!");
     }
@@ -170,7 +151,7 @@ fn init() -> (
 fn main() {
     let (context, win, _video, _image, ttf) = init();
     // Initialize TimerSubsystem
-    let mut time = context.timer().unwrap();
+    let time = context.timer().unwrap();
 
     // Obtain the canvas
     let mut canvas = win
@@ -183,8 +164,6 @@ fn main() {
     let creator = canvas.texture_creator();
     // Initialize renderer color
     canvas.set_draw_color(Color::RGBA(0xFF, 0xFF, 0xFF, 0xFF));
-
-    let mut running: bool = true;
 
     let font = ttf
         .load_font("lesson22/resources/lazy.ttf", 28)
@@ -209,15 +188,14 @@ fn main() {
 
     let mut start_time = 0i32;
 
-    // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
             match event {
-                Event::Quit { .. } => running = false,
+                Event::Quit { .. } => break 'running,
                 Event::KeyDown { keycode: k, .. } => match k {
-                    Some(Keycode::Escape) => running = false,
+                    Some(Keycode::Escape) => break 'running,
                     Some(Keycode::Return) => start_time = time.ticks() as i32,
                     _ => (),
                 },
@@ -229,31 +207,17 @@ fn main() {
             "Milliseconds since start time {}",
             time.ticks() as i32 - start_time
         );
-        let time_text = LTexture::from_creator_text(&creator, &font, &text.as_str(), text_color);
+        let time_text = LTexture::from_creator_text(&creator, &font, text.as_str(), text_color);
         // Clear and render the texture each pass through the loop
         canvas.clear();
 
         // Render the Image
-        prompt.render(
-            &mut canvas,
-            (WIDTH - prompt.get_width()) as i32 / 2,
-            0,
-            None,
-            None,
-            None,
-            false,
-            false,
-        );
+        prompt.render(&mut canvas, (WIDTH - prompt.get_width()) as i32 / 2, 0);
 
         time_text.render(
             &mut canvas,
             (WIDTH - prompt.get_width()) as i32 / 2,
             (HEIGHT - prompt.get_height()) as i32 / 2,
-            None,
-            None,
-            None,
-            false,
-            false,
         );
 
         // Update the screen

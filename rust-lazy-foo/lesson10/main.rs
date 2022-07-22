@@ -12,8 +12,8 @@ use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-const FOO_IMG: &'static str = "resources/foo.png";
-const BG_IMG: &'static str = "resources/background.png";
+const FOO_IMG: &str = "resources/foo.png";
+const BG_IMG: &str = "resources/background.png";
 
 // Create a struct that will track texture data
 struct LTexture<'a> {
@@ -136,18 +136,15 @@ fn main() {
     // Set renderer color using the context
     canvas.set_draw_color(Color::RGB(0, 0, 0));
 
-    let mut running: bool = true;
     // Get a handle to the SDL2 event pump
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
-            match event {
-                Event::Quit { .. } => running = false,
-                _ => {}
+            if let Event::Quit { .. } = event {
+                break 'running;
             }
         }
         // Clear and render the texture each pass through the loop

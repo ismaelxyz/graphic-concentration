@@ -2,8 +2,8 @@ use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
     pixels::Color,
-    rect::{Point, Rect},
-    render::{Canvas, RenderTarget, Texture, TextureCreator},
+    rect::Rect,
+    render::{Canvas, Texture, TextureCreator},
     surface::Surface,
     ttf::{Font, Sdl2TtfContext},
     video::Window,
@@ -13,7 +13,7 @@ use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-const FONT_FILE: &'static str = "resources/lazy.ttf";
+const FONT_FILE: &str = "resources/lazy.ttf";
 const FONT_SIZE: u16 = 28;
 
 // Create a struct that will track texture data
@@ -65,35 +65,16 @@ impl<'a> LTexture<'a> {
     // to provide additional function signatures for this, so we're
     // going to wrap rotation and flipping args in Option<> so we can
     // provide None when we don't care about it.
-    fn render_to<T: RenderTarget>(
-        &self,
-        canvas: &mut Canvas<T>,
-        x: i32,
-        y: i32,
-        clip: Option<Rect>,
-        rotation: Option<f64>,
-        center: Option<Point>,
-        flip_h: bool,
-        flip_v: bool,
-    ) {
-        let clip_rect = match clip {
-            Some(rect) => rect,
-            None => Rect::new(0, 0, self.width, self.height),
-        };
-        let rot: f64 = match rotation {
-            Some(rot) => rot,
-            None => 0.0,
-        };
-
+    fn render_to(&self, canvas: &mut Canvas<Window>, x: i32, y: i32) {
         canvas
             .copy_ex(
                 &self.texture,
-                Some(clip_rect),
-                Some(Rect::new(x, y, clip_rect.width(), clip_rect.height())),
-                rot,
-                center,
-                flip_h,
-                flip_v,
+                Some(Rect::new(0, 0, self.width, self.height)),
+                Some(Rect::new(x, y, self.width, self.height)),
+                0.0,
+                None,
+                false,
+                false,
             )
             .expect("Could not blit texture to render target!");
     }
@@ -178,21 +159,17 @@ fn main() {
     let creator = canvas.texture_creator();
     let text = load_media(&creator, &ttf_context);
 
-    let mut running: bool = true;
-
     // Get a handle to the SDL2 event pump
     let mut event_pump = sdl_context
         .event_pump()
         .expect("Could not obtain handle to event pump!");
 
-    // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
-            match event {
-                Event::Quit { .. } => running = false,
-                _ => {}
+            if let Event::Quit { .. } = event {
+                break 'running;
             }
         }
         // Clear and render the texture each pass through the loop
@@ -204,11 +181,6 @@ fn main() {
             &mut canvas,
             (WIDTH - text.width) as i32 / 2,
             (HEIGHT - text.height) as i32 / 2,
-            None,
-            None,
-            None,
-            false,
-            false,
         );
 
         // Update the screen

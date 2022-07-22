@@ -104,17 +104,14 @@ fn main() {
     let creator = canvas.texture_creator();
     // Convert the surface to a texture
     let image_texture = surface_to_texture(&stretched_surface, &creator);
-    // running is 'mut' because we will want to 'flip' it to false when we're ready
-    // to exit the main loop.
-    let mut running: bool = true;
+
     // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
-            match event {
-                Event::Quit { .. } => running = false,
-                _ => {}
+            if let Event::Quit { .. } = event {
+                break 'running;
             }
         }
         // Clear and render the texture each pass through the loop

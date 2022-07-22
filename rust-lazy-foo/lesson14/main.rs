@@ -5,14 +5,14 @@ use sdl2::{
     rect::Rect,
     render::{Canvas, RenderTarget, Texture, TextureCreator},
     surface::Surface,
-    video::Window,
+    video::{Window, WindowContext},
     Sdl,
 };
 use std::{path::Path, thread::sleep, time::Duration};
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-const FOO_IMG: &'static str = "resources/foo2.png";
+const FOO_IMG: &str = "resources/foo2.png";
 // usize so we can mod the array index with it
 // without having to cast.
 const WALKING_FRAMES: usize = 4;
@@ -135,7 +135,7 @@ fn init() -> (Sdl, Window, Sdl2ImageContext) {
 // We want to avoid the use of global variables (it's not really
 // a Rust, or functional, idiom) so we return a tuple containing
 // the data
-fn load_media<'a, T>(ren: &'a TextureCreator<T>) -> (LTexture<'a>, [Rect; 4]) {
+fn load_media(ren: &TextureCreator<WindowContext>) -> (LTexture<'_>, [Rect; 4]) {
     // Return the teuple
     (
         LTexture::new_from_file(ren, Path::new(FOO_IMG)),
@@ -160,7 +160,6 @@ fn main() {
 
     let creator = canvas.texture_creator();
     let (sprite_sheet, clips) = load_media(&creator);
-    let mut running: bool = true;
 
     // Get a handle to the SDL2 event pump
     let mut event_pump = context.event_pump().expect("Could not obtain event_pump!");
@@ -168,14 +167,12 @@ fn main() {
     // Set current frame to 0
     let mut frame: usize = 0;
 
-    // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
-            match event {
-                Event::Quit { .. } => running = false,
-                _ => {}
+            if let Event::Quit { .. } = event {
+                break 'running;
             }
         }
         // Clear and render the texture each ass through the loop

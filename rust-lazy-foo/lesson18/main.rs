@@ -84,17 +84,15 @@ fn main() {
     // Blit the initial image to the window.
     //let mut context = canvas.drawer();
 
-    // Start up the main loop
-    let mut running: bool = true;
     let mut event_pump = context.event_pump().unwrap();
 
-    while running {
+    // Start up the main loop
+    'running: loop {
         // We blit the image to the screen corresponding to the keypress,
         // or 'press' otherwise.  Using 'Esc' or 'q' will quit the program.
         for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit { .. } => running = false,
-                _ => {}
+            if let Event::Quit { .. } = event {
+                break 'running;
             }
         }
 

@@ -10,7 +10,7 @@ use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-const IMG_NAME: &'static str = "resources/viewport.png";
+const IMG_NAME: &str = "resources/viewport.png";
 
 // Note that 'creator.load_texture' makes this example trivial.  See lesson03
 // to show how we can manually load a surface and convert it to a texture.
@@ -53,20 +53,16 @@ fn main() {
 
     // Set renderer color using the context
     canvas.set_draw_color(Color::RGB(0, 0, 0));
-    // running is 'mut' because we will want to 'flip' it to false when we're ready
-    // to exit the main loop.
-    let mut running: bool = true;
+
     // Get a handle to the SDL2 event pump
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
-            match event {
-                Event::Quit { .. } => running = false,
-                _ => {}
+            if let Event::Quit { .. } = event {
+                break 'running;
             }
         }
         // Clear and render the texture each pass through the loop

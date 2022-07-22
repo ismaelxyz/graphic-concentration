@@ -3,7 +3,7 @@ use sdl2::{
     image::{InitFlag, LoadSurface, Sdl2ImageContext},
     keyboard::Keycode,
     pixels::Color,
-    rect::{Point, Rect},
+    rect::Rect,
     render::{BlendMode, Canvas, RenderTarget, Texture, TextureCreator},
     surface::Surface,
     ttf::{Font, Sdl2TtfContext},
@@ -95,35 +95,18 @@ impl<'a> LTexture<'a> {
     }
 
     // Renders texture at given point
-    fn render<T: RenderTarget>(
-        &self,
-        canvas: &mut Canvas<T>,
-        x: i32,
-        y: i32,
-        clip: Option<Rect>,
-        rotation: Option<f64>,
-        center: Option<Point>,
-        flip_h: bool,
-        flip_v: bool,
-    ) {
-        let clip_rect = match clip {
-            Some(rect) => rect,
-            None => Rect::new(0, 0, self.width, self.height),
-        };
-        let rot: f64 = match rotation {
-            Some(rot) => rot,
-            None => 0.0,
-        };
+    fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>, x: i32, y: i32) {
+        let clip_rect = Rect::new(0, 0, self.width, self.height);
 
         canvas
             .copy_ex(
                 &self.texture,
                 Some(clip_rect),
                 Some(Rect::new(x, y, clip_rect.width(), clip_rect.height())),
-                rot,
-                center,
-                flip_h,
-                flip_v,
+                0.0,
+                None,
+                false,
+                false,
             )
             .expect("Could not blit texture to render target!");
     }
@@ -353,7 +336,7 @@ fn main() {
             ltime.get_ticks(time.ticks() as i32) as f32 / 1000.0f32
         );
 
-        let time_text = LTexture::from_creator_text(&creator, &font, &text.as_str(), text_color);
+        let time_text = LTexture::from_creator_text(&creator, &font, text.as_str(), text_color);
         // Clear and render the texture each pass through the loop
         canvas.clear();
 
@@ -362,33 +345,18 @@ fn main() {
             &mut canvas,
             (WIDTH - prompt_start.get_width()) as i32 / 2,
             0,
-            None,
-            None,
-            None,
-            false,
-            false,
         );
 
         prompt_pause.render(
             &mut canvas,
             (WIDTH - prompt_pause.get_width()) as i32 / 2,
             prompt_start.get_height() as i32,
-            None,
-            None,
-            None,
-            false,
-            false,
         );
 
         time_text.render(
             &mut canvas,
             (WIDTH - time_text.get_width()) as i32 / 2,
             (HEIGHT - time_text.get_height()) as i32 / 2,
-            None,
-            None,
-            None,
-            false,
-            false,
         );
 
         // Update the screen

@@ -5,11 +5,11 @@ use sdl2::{
     keyboard::Keycode,
     mixer::{open_audio, Channel, Chunk, Music, DEFAULT_FORMAT},
     pixels::Color,
-    rect::{Point, Rect},
+    rect::Rect,
     render::{BlendMode, Canvas, RenderTarget, Texture, TextureCreator},
     surface::Surface,
     ttf::Font,
-    video::Window,
+    video::{Window, WindowContext},
     AudioSubsystem, VideoSubsystem,
 };
 use util::BoxData;
@@ -98,35 +98,16 @@ impl<'a> LTexture<'a> {
     }
 
     // Renders texture at given point
-    fn render<T: RenderTarget>(
-        &self,
-        canvas: &mut Canvas<T>,
-        x: i32,
-        y: i32,
-        clip: Option<Rect>,
-        rotation: Option<f64>,
-        center: Option<Point>,
-        flip_h: bool,
-        flip_v: bool,
-    ) {
-        let clip_rect = match clip {
-            Some(rect) => rect,
-            None => Rect::new(0, 0, self.width, self.height),
-        };
-        let rot: f64 = match rotation {
-            Some(rot) => rot,
-            None => 0.0,
-        };
-
+    fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>, x: i32, y: i32) {
         canvas
             .copy_ex(
                 &self.texture,
-                Some(clip_rect),
-                Some(Rect::new(x, y, clip_rect.width(), clip_rect.height())),
-                rot,
-                center,
-                flip_h,
-                flip_v,
+                Some(Rect::new(0, 0, self.width, self.height)),
+                Some(Rect::new(x, y, self.width, self.height)),
+                0.0,
+                None,
+                false,
+                false,
             )
             .expect("Could not blit texture to render target!");
     }
@@ -170,8 +151,8 @@ fn init() -> (
     (sdl, win, video, audio, image)
 }
 
-fn load_media<'a, T>(creator: &'a TextureCreator<T>) -> BoxData<'a> {
-    let prompt: LTexture = LTexture::from_file("lesson21/resources/prompt.png", &creator);
+fn load_media(creator: &TextureCreator<WindowContext>) -> BoxData<'_> {
+    let prompt: LTexture = LTexture::from_file("lesson21/resources/prompt.png", creator);
     let beat: Music = Music::from_file("lesson21/resources/beat.wav").unwrap();
     let scratch: Chunk = Chunk::from_file("lesson21/resources/scratch.wav").unwrap();
     let high: Chunk = Chunk::from_file("lesson21/resources/high.wav").unwrap();
@@ -197,8 +178,6 @@ fn main() {
     open_audio(44100, DEFAULT_FORMAT, 1, 2048).unwrap();
     let bxdata = load_media(&creator);
 
-    let mut running: bool = true;
-
     // Get a handle to the SDL2 event pump
     let mut event_pump = context
         .event_pump()
@@ -206,14 +185,14 @@ fn main() {
     let channel = Channel::all();
 
     // Main loop
-    while running {
+    'running: loop {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
             match event {
-                Event::Quit { .. } => running = false,
+                Event::Quit { .. } => break 'running,
                 Event::KeyDown { keycode: k, .. } => match k {
-                    Some(Keycode::Escape) => running = false,
+                    Some(Keycode::Escape) => break 'running,
                     Some(Keycode::Num0) => sdl2::mixer::Music::halt(),
                     // EL "unwrap" es divido a que los canales libres son
                     // limitados
@@ -260,11 +239,6 @@ fn main() {
             &mut canvas,
             (WIDTH - bxdata.picture.width) as i32 / 2,
             (HEIGHT - bxdata.picture.height) as i32 / 2,
-            None,
-            None,
-            None,
-            false,
-            false,
         );
 
         // Update the screen

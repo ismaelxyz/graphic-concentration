@@ -1,8 +1,8 @@
 [package]
 name = "lazy-foo"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Ysgard <ysgard@gmail.com>", "Ismaelxyz <ismaelbeli.com@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies.sdl2]
 version = "*"
@@ -94,7 +94,6 @@ path = "lesson22/main.rs"
 [[bin]]
 name = "lesson23"
 path = "lesson23/main.rs"
-<<<<<<< HEAD
 
 [[bin]]
 name = "lesson24"
@@ -123,5 +122,11 @@ path = "lesson29/main.rs"
 [[bin]]
 name = "lesson30"
 path = "lesson30/main.rs"
-=======
->>>>>>> main
+
+[[bin]]
+name = "lesson32"
+path = "lesson32/main.rs"
+
+[[bin]]
+name = "lesson33"
+path = "lesson33/main.rs"
