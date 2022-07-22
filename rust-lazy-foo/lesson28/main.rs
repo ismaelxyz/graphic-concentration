@@ -297,7 +297,7 @@ fn main() {
         // Move the dot
         dot.r#move(other_dot.colliders());
 
-        canvas.set_draw_color(Color::RGBA(0xFF, 0xFF, 0xFF, 0xFF));
+        canvas.set_draw_color(Color::WHITE);
         canvas.clear();
 
         // Render objects

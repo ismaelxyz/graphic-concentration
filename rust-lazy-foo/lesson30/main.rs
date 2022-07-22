@@ -225,7 +225,7 @@ fn main() {
             camera.set_y(LEVEL_HEIGHT - camera.height() as i32);
         }
 
-        canvas.set_draw_color(Color::RGBA(0xFF, 0xFF, 0xFF, 0xFF));
+        canvas.set_draw_color(Color::WHITE);
         canvas.clear();
 
         //Render background

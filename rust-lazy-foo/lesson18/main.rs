@@ -6,10 +6,38 @@ use sdl2::{
     video::Window,
     Sdl,
 };
-use std::{collections::HashMap, path::Path};
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
+
+struct Direction<'a> {
+    up: Texture<'a>,
+    down: Texture<'a>,
+    left: Texture<'a>,
+    right: Texture<'a>,
+    press: Texture<'a>,
+}
+
+// Take a string describing a path and use it to
+// load an image, and return its texture
+fn load_texture<'a, T>(path: &'a str, creator: &'a TextureCreator<T>) -> Texture<'a> {
+    match creator.load_texture(std::path::Path::new(path)) {
+        Ok(tex) => tex,
+        Err(err) => panic!("Could not load texture: {}", err),
+    }
+}
+
+// Load the textures
+fn load_media<T>(creator: &TextureCreator<T>) -> Direction<'_> {
+    // Path relative to root of crate
+    Direction {
+        up: load_texture("resources/up.png", creator),
+        down: load_texture("resources/down.png", creator),
+        left: load_texture("resources/left.png", creator),
+        right: load_texture("resources/right.png", creator),
+        press: load_texture("resources/press.png", creator),
+    }
+}
 
 // Break out initialization into a separate function, which
 // returns only the Window (we don't need the sdl_context)
@@ -28,44 +56,6 @@ fn init() -> (Sdl, Window) {
     (sdl, win)
 }
 
-// Take a string describing a path and use it to
-// load an image, and return its texture
-fn load_texture<'a, T>(path: &'static str, creator: &'a TextureCreator<T>) -> Texture<'a> {
-    match creator.load_texture(Path::new(path)) {
-        Ok(tex) => tex,
-        Err(err) => panic!("Could not load texture: {}", err),
-    }
-}
-
-// Load the textures we're going to use into an
-// easily indexable HashMap.
-fn load_media<T>(creator: &TextureCreator<T>) -> HashMap<&'static str, Box<Texture>> {
-    let mut map: HashMap<&'static str, Box<Texture>> = HashMap::new();
-
-    // Path relative to root of crate
-    map.insert(
-        "up",
-        Box::new(load_texture("lesson18/resources/up.png", creator)),
-    );
-    map.insert(
-        "down",
-        Box::new(load_texture("lesson18/resources/down.png", creator)),
-    );
-    map.insert(
-        "left",
-        Box::new(load_texture("lesson18/resources/left.png", creator)),
-    );
-    map.insert(
-        "right",
-        Box::new(load_texture("lesson18/resources/right.png", creator)),
-    );
-    map.insert(
-        "press",
-        Box::new(load_texture("lesson18/resources/press.png", creator)),
-    );
-    map
-}
-
 fn main() {
     // Initialize SDL2
     let (context, window) = init();
@@ -76,10 +66,11 @@ fn main() {
         .build()
         .map_err(|e| e.to_string())
         .unwrap();
+
     let creator = canvas.texture_creator();
 
     // Load the sprite textures into an hashmap
-    let sprites: HashMap<&'static str, Box<Texture>> = load_media(&creator);
+    let sprites = load_media(&creator);
 
     // Blit the initial image to the window.
     //let mut context = canvas.drawer();
@@ -96,29 +87,26 @@ fn main() {
             }
         }
 
-        // Instead of using keyboard events to toggle the images,
-        // use keyboard state.
-
-        //.pressed_scancodes().filter_map(Keycode::from_scancode).collect();
-
-        let keys = event_pump.keyboard_state();
-        let current_image = if keys.is_scancode_pressed(Scancode::Up) {
-            "up"
-        } else if keys.is_scancode_pressed(Scancode::Down) {
-            "down"
-        } else if keys.is_scancode_pressed(Scancode::Right) {
-            "right"
-        } else if keys.is_scancode_pressed(Scancode::Left) {
-            "left"
-        } else {
-            "press"
-        };
-
         // Clear and render the currently selected image
         canvas.clear();
+
+        // Instead of using keyboard events to toggle the images,
+        // use keyboard state.
+        let keys = event_pump.keyboard_state();
+
         // sprites[current_image] yields a Box<Texture>, so we use
         // a '&' to reference it.
-        canvas.copy(&sprites[current_image], None, None).unwrap();
+        if keys.is_scancode_pressed(Scancode::Up) {
+            canvas.copy(&sprites.up, None, None).unwrap();
+        } else if keys.is_scancode_pressed(Scancode::Down) {
+            canvas.copy(&sprites.down, None, None).unwrap();
+        } else if keys.is_scancode_pressed(Scancode::Right) {
+            canvas.copy(&sprites.right, None, None).unwrap();
+        } else if keys.is_scancode_pressed(Scancode::Left) {
+            canvas.copy(&sprites.left, None, None).unwrap();
+        } else {
+            canvas.copy(&sprites.press, None, None).unwrap();
+        }
         canvas.present();
     }
 }
