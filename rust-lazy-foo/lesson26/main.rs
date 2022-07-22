@@ -192,7 +192,7 @@ fn main() {
 
     let creator = canvas.texture_creator();
     // Initialize renderer color
-    canvas.set_draw_color(Color::RGBA(0xFF, 0xFF, 0xFF, 0xFF));
+    canvas.set_draw_color(Color::WHITE);
 
     // Get a handle to the SDL2 event pump
     let mut event_pump = context

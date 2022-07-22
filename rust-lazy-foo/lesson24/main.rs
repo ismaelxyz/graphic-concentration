@@ -127,14 +127,14 @@ fn main() {
     let creator = canvas.texture_creator();
 
     // Initialize renderer color
-    canvas.set_draw_color(Color::RGBA(0xFF, 0xFF, 0xFF, 0xFF));
+    canvas.set_draw_color(Color::WHITE);
 
     let font = ttf
         .load_font("lesson22/resources/lazy.ttf", 28)
         .expect("Could not load font context!");
 
     // Set text color as black
-    let text_color = Color::RGBA(0, 0, 0, 255);
+    let text_color = Color::BLACK;
 
     // Get a handle to the SDL2 event pump
     let mut event_pump = context

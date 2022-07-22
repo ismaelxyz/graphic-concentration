@@ -171,7 +171,7 @@ fn main() {
         }
 
         // Clear and render the texture each pass through the loop
-        canvas.set_draw_color(Color::RGBA(0xFF, 0xFF, 0xFF, 0xFF));
+        canvas.set_draw_color(Color::WHITE);
         canvas.clear();
 
         prompt.render(&mut canvas, (WIDTH - prompt.width as i32) / 2, 0, None);

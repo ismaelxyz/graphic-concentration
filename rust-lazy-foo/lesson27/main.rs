@@ -257,7 +257,7 @@ fn main() {
         // Move the dot
         dot.r#move(wall);
 
-        canvas.set_draw_color(Color::RGBA(0xFF, 0xFF, 0xFF, 0xFF));
+        canvas.set_draw_color(Color::WHITE);
         canvas.clear();
 
         canvas.set_draw_color(Color::RGBA(0x00, 0x00, 0x00, 0xFF));
