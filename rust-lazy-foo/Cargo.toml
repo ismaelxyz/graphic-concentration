@@ -133,6 +133,6 @@ path = "src/lesson33.rs"
 
 # Skip 34
 
-#[[bin]]
-#name = "lesson35"
-#path = "src/lesson35.rs"
+[[bin]]
+name = "lesson35"
+path = "src/lesson35.rs"

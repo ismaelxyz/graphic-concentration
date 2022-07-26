@@ -52,7 +52,7 @@ device, and at this point I can't create anything for mobile.
 * Lesson 32 - Text Input and Clipboard Handling
 * Lesson 33 - File Reading and Writing
 * (NOT IMPLEMENTED) Lesson 34 - Audio Recording
-* (TODO) Lesson 35 - Window Events
+* Lesson 35 - Window Events
 * (TODO) Lesson 36 - Multiple Windows
 * (TODO) Lesson 37 - Multiple Displays
 * (TODO) Lesson 38 - Particle Engines

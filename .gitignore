@@ -14,5 +14,3 @@ __pycache__
 
 # Files
 Cargo.lock
-
-/rust-lazy-foo/src/lesson35.rs
