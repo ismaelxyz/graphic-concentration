@@ -1,6 +1,6 @@
 use sdl2::{
     event::Event,
-    image::{InitFlag, LoadSurface, Sdl2ImageContext},
+    image::{InitFlag, Sdl2ImageContext},
     pixels::Color,
     rect::Rect,
     render::{Canvas, Texture, TextureCreator},
@@ -9,7 +9,6 @@ use sdl2::{
     video::Window,
     Sdl,
 };
-use std::path::Path;
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
@@ -25,9 +24,6 @@ struct LTexture<'a> {
     height: u32,
 }
 
-// Note the use of the #[allow(dead_code)] which turns off
-// warnings about functions we don't use in this lesson.
-#[allow(dead_code)]
 impl<'a> LTexture<'a> {
     // create a new texture
     fn new(tex: Texture<'a>) -> LTexture {
@@ -38,25 +34,6 @@ impl<'a> LTexture<'a> {
             width: w,
             height: h,
         }
-    }
-
-    // Load a texture from a file
-    fn new_from_file<T>(ren: &'a TextureCreator<T>, path: &Path) -> LTexture<'a> {
-        // Load the surface first, so we can set the color key
-        let mut surface = Surface::from_file(path).expect("Could not load surface from file!");
-
-        // Now set the color key on the surface
-        surface
-            .set_color_key(true, Color::RGB(0, 0xff, 0xff))
-            .expect("Could not set color_key on surface!");
-
-        // Convert the surface to a texture and pass it to
-        // LTexture::new to be wrapped
-        let tex = ren
-            .create_texture_from_surface(&surface)
-            .expect("Could not create texture from surface!");
-
-        LTexture::new(tex)
     }
 
     // Renders a texture to a given point using a provided creator
@@ -79,20 +56,7 @@ impl<'a> LTexture<'a> {
             .expect("Could not blit texture to render target!");
     }
 
-    // Modulate the LTexture using a Color - this will 'tint' the texture
-    // Note that LTextures are immutable, so we have to create a new one
-    // and return it - we can't mutate ourselves.
-    fn set_color(&mut self, color: Color) {
-        let (r, g, b) = color.rgb();
-        self.texture.set_color_mod(r, g, b);
-    }
-
-    // Set the alpha channel of the texture, controlling its transparency
-    fn set_alpha(&mut self, alpha: u8) {
-        self.texture.set_alpha_mod(alpha);
-    }
-
-    fn load_from_creator_text<T>(
+    fn from_creator_text<T>(
         creator: &'a TextureCreator<T>,
         font: &Font,
         text: &str,
@@ -116,11 +80,11 @@ impl<'a> LTexture<'a> {
 fn load_media<'a, T>(creator: &'a TextureCreator<T>, ttf: &'a Sdl2TtfContext) -> LTexture<'a> {
     // Load the font, using the font and size specified by the global constants
     let font = ttf
-        .load_font(Path::new(FONT_FILE), FONT_SIZE)
+        .load_font(std::path::Path::new(FONT_FILE), FONT_SIZE)
         .expect("Could not load font from file!");
 
     // Now return a new LTexture using the supplied font and creator
-    LTexture::load_from_creator_text(
+    LTexture::from_creator_text(
         creator,
         &font,
         "The quick brown fox jumps over the lazy dog",
