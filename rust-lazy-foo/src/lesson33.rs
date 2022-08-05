@@ -16,7 +16,7 @@ use std::io::{Read, Write};
 const WIDTH: u32 = 650;
 const HEIGHT: u32 = 480;
 
-//Number of data integers
+// Number of data integers
 const TOTAL_DATA: usize = 10;
 
 // Create a struct that will track texture data
