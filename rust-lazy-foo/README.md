@@ -53,7 +53,7 @@ device, and at this point I can't create anything for mobile.
 * Lesson 33 - File Reading and Writing
 * (NOT IMPLEMENTED) Lesson 34 - Audio Recording
 * Lesson 35 - Window Events
-* (TODO) Lesson 36 - Multiple Windows
+* Lesson 36 - Multiple Windows
 * (TODO) Lesson 37 - Multiple Displays
 * (TODO) Lesson 38 - Particle Engines
 * (TODO) Lesson 39 - Tiling

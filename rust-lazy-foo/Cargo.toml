@@ -136,3 +136,7 @@ path = "src/lesson33.rs"
 [[bin]]
 name = "lesson35"
 path = "src/lesson35.rs"
+
+[[bin]]
+name = "lesson36"
+path = "src/lesson36.rs"
