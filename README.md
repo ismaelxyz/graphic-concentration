@@ -13,7 +13,7 @@ Rust, Python and C++.
 Possible: Lua, C and D.
 
 # Libraries included?
-SDL2, OpenGL, GLUT, Qt5/6.
+SDL2, OpenGL, GLUT, GLFW, Qt5/6.
 Possible: GTk+.
 
 # Can I help?
