@@ -97,9 +97,11 @@ def mouse(button, state, x, y):
             glutIdleFunc(None)
 
 
-#  Request double buffer display mode.
-#  Register mouse input callback functions
 def main():
+    """
+        Request double buffer display mode.
+        Register mouse input callback functions
+    """
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
     glutInitWindowSize(250, 250)
