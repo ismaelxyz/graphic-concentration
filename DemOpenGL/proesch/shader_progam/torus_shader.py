@@ -8,25 +8,25 @@ Animated torus with procedural texture.
 
 from time import sleep
 import sys
-from shaderProg import ShaderProgram
-
+from shader_prog import ShaderProgram
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GL.ARB.shader_objects import *
 from OpenGL.GL.ARB.fragment_shader import *
 from OpenGL.GL.ARB.vertex_shader import *
+import logging
 
 frameRate = 25
 time = 0.0
-
+sP = None
+torusList = None
 
 def animationStep():
     """Update animated parameters."""
-    global frameRate
-    global time
+    global frameRate, time, sP
+    
     time += 0.05
-    global sP
     if sP and sP.enable():
         glUseProgramObjectARB(1)
         glUniform1fARB(sP.indexOfUniformVariable("Time"), time)
@@ -51,9 +51,6 @@ def display():
     glutSwapBuffers()
 
 
-sP = None
-
-
 def initShaders():
     """Initialise shaderProg object."""
     global sP
@@ -75,15 +72,12 @@ def initShaders():
                     (0.9, 0.85))
 
 
-torusList = None
-
-
 def init():
     """Glut init function."""
+    global torusList
     glClearColor(0.3, 0.3, 0.3, 1)
     glEnable(GL_DEPTH_TEST)
     glShadeModel(GL_SMOOTH)
-    global torusList
     torusList = glGenLists(1)
     glNewList(torusList, GL_COMPILE)
     glutSolidTorus(0.5, 1, 40, 50)
@@ -92,8 +86,6 @@ def init():
 
 
 def main():
-
-    import logging
     logging.basicConfig()
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)

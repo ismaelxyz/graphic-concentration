@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -85,8 +84,8 @@ def specialKeyPressed(key, x, y):
     """Callback function (special key pressed).
 
     Arrow keys are used to shift the object displayed."""
-    stepSize = 0.1
     global rP
+    stepSize = 0.1
     if key == GLUT_KEY_LEFT:
         rP.tVec[0] -= stepSize
     elif key == GLUT_KEY_RIGHT:
@@ -162,6 +161,7 @@ def init():
     glClearColor(0, 0, 0, 0)
     glShadeModel(GL_SMOOTH)
 
+
 def main():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
@@ -170,6 +170,7 @@ def main():
     glutCreateWindow(sys.argv[0])
     init()
     glutMainLoop()
+
 
 if __name__ == '__main__':
     main()

@@ -5,9 +5,7 @@
 
 import sys
 import math
-
-from interactionMatrix import InteractionMatrix
-
+from interaction_matrix import InteractionMatrix
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *

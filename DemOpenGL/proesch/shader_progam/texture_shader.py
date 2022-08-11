@@ -2,17 +2,17 @@
 # -*- coding: utf-8 -*-
 
 """
-This code is licensed under the PyOpenGL License.
-Details are given in the file license.txt included in this distribution.
+    This code is licensed under the PyOpenGL License.
+    Details are given in the file license.txt included in this distribution.
 """
 
 from time import sleep
 import sys
 import array
+import logging
 from PIL import Image
 import random
-from shaderProg import *
-
+from shader_prog import *
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -20,6 +20,12 @@ from OpenGL.GL.ARB.shader_objects import *
 from OpenGL.GL.ARB.fragment_shader import *
 from OpenGL.GL.ARB.vertex_shader import *
 
+frameRate = 30
+sP = None
+quadList = None
+rgbTransformMatrix = [0.0 for i in range(16)]
+rgbTransformMatrix[0] = rgbTransformMatrix[5] = rgbTransformMatrix[10] \
+    = rgbTransformMatrix[15] = 1.0
 
 class Texture(object):
     def __init__(self):
@@ -44,12 +50,9 @@ class FileTexture(Texture):
         self.rawReference = im.tobytes("raw", "RGB", 0, -1)
 
 
-frameRate = 30
-
-
 def animationStep(*args):
-    global frameRate
-    global sP
+    global frameRate, sP, rgbTransformMatrix
+    
     if not quadList:
         if len(sys.argv) > 1:
             init(sys.argv[1])
@@ -57,7 +60,6 @@ def animationStep(*args):
             init(None)
         assert quadList
     if sP.isEnabled():
-        global rgbTransformMatrix
         row = random.randint(0, 3)
         column = random.randint(0, 3)
         rgbTransformMatrix[row*4+column] += random.normalvariate(0, 0.05)
@@ -101,27 +103,19 @@ def display(*args):
     glutSwapBuffers()
 
 
-sP = None
-
-
 def initShaders():
-    global sP
+    global sP, rgbTransformMatrix
     sP = ShaderProgram()
     sP.addShader(GL_FRAGMENT_SHADER_ARB, "rgbMorph.frag")
     sP.linkShaders()
     sP.enable()
-    global rgbTransformMatrix
     glUniformMatrix4fvARB(sP.indexOfUniformVariable("RGBTransformationMatrix"),
                           1, False, rgbTransformMatrix)
 
 
-quadList = None
-rgbTransformMatrix = [0.0 for i in range(16)]
-rgbTransformMatrix[0] = rgbTransformMatrix[5] = rgbTransformMatrix[10] \
-    = rgbTransformMatrix[15] = 1.0
-
-
 def init(fileName):
+    global quadList
+
     try:
         texture = FileTexture(fileName)
     except:
@@ -136,7 +130,6 @@ def init(fileName):
     glTexImage2D(GL_TEXTURE_2D, 0, 3, texture.xSize, texture.ySize, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, texture.rawReference)
     glEnable(GL_TEXTURE_2D)
-    global quadList
     quadList = glGenLists(1)
     glNewList(quadList, GL_COMPILE)
     glBegin(GL_QUADS)
@@ -154,7 +147,6 @@ def init(fileName):
 
 
 def main():
-    import logging
     logging.basicConfig()
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)

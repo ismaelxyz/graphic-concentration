@@ -4,13 +4,9 @@
 import math
 import sys
 from time import sleep
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-
-import psyco
-psyco.full()
 
 animationAngle = 0.0
 frameRate = 25
