@@ -39,10 +39,9 @@ Converted to Python 6/00 by Jason Petrone
  *
  * OpenGL(R) is a registered trademark of Silicon Graphics, Inc.
  */
+ 
+    This is a simple, introductory OpenGL program.
 '''
-
-# hello.c
-# This is a simple, introductory OpenGL program.
 
 import sys
 from OpenGL.GLUT import *

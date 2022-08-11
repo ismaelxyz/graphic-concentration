@@ -55,11 +55,12 @@ import sys
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 window = None
-#  Initialize depth buffer, fog, light source,
-#  material property, and lighting model.
-
 
 def init():
+    """
+        Initialize depth buffer, fog, light source,
+        material property, and lighting model.
+    """
     position = [0.5, 0.5, 3.0, 0.0]
     glEnable(GL_DEPTH_TEST)
     glLightfv(GL_LIGHT0, GL_POSITION, position)
@@ -97,10 +98,9 @@ def renderSphere(x, y, z):
     glutSolidSphere(0.4, 16, 16)
     glPopMatrix()
 
-# display() draws 5 spheres at different z positions.
-
 
 def display():
+    """ display() draws 5 spheres at different z positions. """
     print('Redisplay')
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     renderSphere(-2., -0.5, -1.0)
@@ -146,10 +146,12 @@ def keyboard(key, x, y):
         glutDestroyWindow(window)
 
 
-#  Main Loop
-#  Open window with initial window size, title bar,
-#  RGBA display mode, depth buffer, and handle input events.
 def main():
+    """
+        Main Loop
+        Open window with initial window size, title bar,
+        RGBA display mode, depth buffer, and handle input events.
+    """
     global window
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH)
