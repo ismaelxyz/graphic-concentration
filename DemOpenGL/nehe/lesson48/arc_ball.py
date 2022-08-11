@@ -23,21 +23,7 @@ Second transform
  [ 0.          0.          0.          1.00000001]]
 """
 
-try:
-    import numpy as Numeric
-
-    def sumDot(a, b):
-        return Numeric.dot(a, b)
-except ImportError, err:
-    try:
-        import Numeric
-
-        def sumDot(a, b):
-            return sum(Numeric.dot(a, b))
-    except ImportError, err:
-        print "This demo requires the numpy or Numeric extension, sorry"
-        import sys
-        sys.exit()
+import numpy
 import copy
 from math import sqrt
 

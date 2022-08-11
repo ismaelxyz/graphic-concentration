@@ -43,22 +43,23 @@ Converted to Python by Jason Petrone 6/00
  */
 '''
 
-#  teapots.c
-#  This program demonstrates lots of material properties.
-#  A single light source illuminates the objects.
+"""
+    This program demonstrates lots of material properties.
+    A single light source illuminates the objects.
+"""
 
 import sys
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 window = None
 
 
-# Initialize depth buffer, projection matrix, light source, and lighting
-# model.  Do not specify a material property here.
-
 def init():
+    """
+        Initialize depth buffer, projection matrix, light source, and lighting
+        model.  Do not specify a material property here.
+    """
     ambient = [0.0, 0.0, 0.0, 1.0]
     diffuse = [1.0, 1.0, 1.0, 1.0]
     specular = [1.0, 1.0, 1.0, 1.0]
@@ -87,12 +88,14 @@ def init():
     glutSolidTeapot(1.0)
     glEndList()
 
-# Move object into position.  Use 3rd through 12th
-# parameters to specify the material property.  Draw a teapot.
 
-
-def renderTeapot(x, y, ambr, ambg, ambb, difr, difg,
-                 difb, specr, specg, specb, shine):
+def renderTeapot(
+    x, y, ambr, ambg, ambb, difr, difg, difb, specr, specg, specb, shine
+):
+    """
+        Move object into position.  Use 3rd through 12th
+        parameters to specify the material property.  Draw a teapot.
+    """
     mat = [0, 0, 0, 0]
 
     glPushMatrix()
@@ -121,8 +124,10 @@ def renderTeapot(x, y, ambr, ambg, ambb, difr, difg,
 #  4th column:  black, cyan, green, red, white, yellow rubber
 def display():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    renderTeapot(2.0, 17.0, 0.0215, 0.1745, 0.0215,
-                 0.07568, 0.61424, 0.07568, 0.633, 0.727811, 0.633, 0.6)
+    renderTeapot(
+        2.0, 17.0, 0.0215, 0.1745, 0.0215, 0.07568, 0.61424, 0.07568, 0.633,
+        0.727811, 0.633, 0.6
+    )
     renderTeapot(2.0, 14.0, 0.135, 0.2225, 0.1575,
                  0.54, 0.89, 0.63, 0.316228, 0.316228, 0.316228, 0.1)
     renderTeapot(2.0, 11.0, 0.05375, 0.05, 0.06625,
@@ -188,8 +193,6 @@ def keyboard(key, x, y):
 
     if key == b'\x1b':
         glutDestroyWindow(window)
-
-# Main Loop
 
 
 def main():

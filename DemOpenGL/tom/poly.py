@@ -1,26 +1,8 @@
 #!/usr/bin/python
 
-# This is statement is required by the build system to query build info
-if __name__ == '__build__':
-    raise Exception
-
-
-import string
-__version__ = string.split('$Revision: 1.1.1.1 $')[1]
-__date__ = string.join(string.split('$Date: 2007/02/15 19:25:40 $')[1:3], ' ')
-__author__ = 'Tarn Weisner Burton <twburton@users.sourceforge.net>'
-
 from OpenGL.GL import *
 from OpenGL.Tk import *
-try:
-    from numpy import *
-except ImportError as err:
-    try:
-        from Numeric import *
-    except ImportError as err:
-        print("This demo requires the numpy or Numeric extension, sorry")
-        import sys
-        sys.exit()
+from numpy import *
 
 n = 50
 a = arange(0, n)
@@ -42,7 +24,7 @@ colors[25] = [1, 1, 0]
 colors.shape = (n, 3)
 
 
-def redraw(o):
+def redraw(_):
     global n
     glClearColor(0.5, 0.5, 0.5, 0)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -54,17 +36,18 @@ def redraw(o):
 
 def main():
     global n, colors, vertices
-    o = Opengl(width=400, height=400, double=1)
-    o.redraw = redraw
-    o.autospin_allowed = 1
+    gl = Opengl(width=400, height=400, double=1)
+    gl.redraw = redraw
+    gl.autospin_allowed = 1
 
     glVertexPointerd(vertices)
     glColorPointerd(colors)
     glEnableClientState(GL_VERTEX_ARRAY)
     glEnableClientState(GL_COLOR_ARRAY)
 
-    o.pack(side='top', expand=1, fill='both')
-    o.mainloop()
+    gl.pack(side='top', expand=1, fill='both')
+    gl.mainloop()
 
 
-main()
+if __name__ == "__main__":
+    main()

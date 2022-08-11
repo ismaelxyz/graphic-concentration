@@ -2,14 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-Plot a curve with control points positioned on a circle
-using NURBS.
+Plot a circle using NURBS
 """
 
 import sys
 import math
 from time import sleep
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -30,25 +28,30 @@ def animationStep():
     glutPostRedisplay()
 
 
-# position points on a circle
-angleNum = 5
-radius = 1
-angles = [2*math.pi*float(i)/angleNum for i in range(angleNum)]
-
-circlePoints = [
-    [radius*math.cos(theta), radius*math.sin(theta), 0] for theta in angles]
-
-# make sure the curve is closed properly
 degree = 3
-for i in range(degree-1):
-    circlePoints = circlePoints + [circlePoints[i]]
+s2 = math.sqrt(2)/2.0
 
-knotNum = len(circlePoints) + degree
-circleKnots = [float(i)/(knotNum-1) for i in range(knotNum)]
+# Initialise circle control points.
+circlePoints = [
+    [0.0, 1.0, 0.0, 1.0],
+    [s2, s2, 0.0, s2],
+    [1.0, 0.0, 0.0, 1.0],
+    [s2, -s2, 0.0, s2],
+    [0.0, -1.0, 0.0, 1.0],
+    [-s2, -s2, 0.0, s2],
+    [-1.0, 0.0, 0.0, 1.0],
+    [-s2, s2, 0.0, s2],
+]
+
+# make sure circle is closed properly
+circlePoints = circlePoints + [circlePoints[0], circlePoints[1]]
+
+# initialise circle knots
+circleKnots = [0.0] + \
+    [float(i/2) for i in range(len(circlePoints) + degree - 1)]
 
 
 def display():
-    """Glut display function."""
     glClear(GL_COLOR_BUFFER_BIT)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -67,7 +70,7 @@ def display():
     global nurb
     glColor3f(1, 1, 1)
     gluBeginCurve(nurb)
-    gluNurbsCurve(nurb, circleKnots, circlePoints, GL_MAP1_VERTEX_3)
+    gluNurbsCurve(nurb, circleKnots, circlePoints, GL_MAP1_VERTEX_4)
     gluEndCurve(nurb)
     glutSwapBuffers()
 
@@ -79,7 +82,6 @@ samplingTolerance = 1.0
 def init():
     """Glut init function."""
     glClearColor(0, 0, 0, 0)
-    glShadeModel(GL_FLAT)
     global nurb
     nurb = gluNewNurbsRenderer()
     global samplingTolerance
@@ -97,6 +99,6 @@ def main():
     glutDisplayFunc(display)
     glutIdleFunc(animationStep)
     glutMainLoop()
-
+    
 if __name__ == '__main__':
     main()

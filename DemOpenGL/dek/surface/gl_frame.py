@@ -11,7 +11,7 @@ WIDTH = 800
 HEIGHT = 600
 
 
-class OglFrame:
+class GLFrame:
 
     def __init__(self, master=None, redraw=None, *arguments, **keywords):
         self.imagename = "photo.ppm"
@@ -78,5 +78,5 @@ class OglFrame:
 
 
 if __name__ == '__main__':
-    x = OglFrame(None, None, width=320, height=200, double=1, depth=1)
+    x = GLFrame(None, None, width=320, height=200, double=1, depth=1)
     x.mainloop()

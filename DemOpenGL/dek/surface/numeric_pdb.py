@@ -2,7 +2,7 @@ import sys
 import os
 import string
 from numpy import sin, cos, array, add, subtract, concatenate
-import Geometry
+import geometry
 import copy
 
 GUAAtoms = ['N2', 'O6', 'C6', 'C5', 'N7', 'C8', 'N9', 'C4', 'N3', 'C2', 'N1']

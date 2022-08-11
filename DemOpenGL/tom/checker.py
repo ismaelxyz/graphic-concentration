@@ -1,22 +1,11 @@
 #!/usr/bin/python
 
-# This is statement is required by the build system to query build info
-if __name__ == '__build__':
-    raise Exception
-
-
-import string
-__version__ = string.split('$Revision: 1.1.1.1 $')[1]
-__date__ = string.join(string.split('$Date: 2007/02/15 19:25:38 $')[1:3], ' ')
-__author__ = 'Tarn Weisner Burton <twburton@users.sourceforge.net>'
-
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.Tk import *
 import sys
 
-
-def redraw(o):
+def redraw(_):
     glClearColor(1, 0, 1, 0)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glColor3f(0, 1, 0)
@@ -39,20 +28,21 @@ def redraw(o):
 
 
 def main():
-    f = Frame()
-    f.pack(side='top')
-    o = Opengl(width=200, height=200, double=1, depth=1)
+    frame = Frame()
+    frame.pack(side='top')
+    gl = Opengl(width=200, height=200, double=1, depth=1)
     glutInit([])
-    o.redraw = redraw
-    quit = Button(f, text='Quit', command=sys.exit)
+    gl.redraw = redraw
+    quit = Button(frame, text='Quit', command=sys.exit)
     quit.pack({'side': 'top', 'side': 'left'})
-    help = Button(f, text='Help', command=o.help)
+    help = Button(frame, text='Help', command=gl.help)
     help.pack({'side': 'top', 'side': 'left'})
-    reset = Button(f, text='Reset', command=o.reset)
+    reset = Button(frame, text='Reset', command=gl.reset)
     reset.pack({'side': 'top', 'side': 'left'})
-    o.pack(side='top', expand=1, fill='both')
-    o.set_eyepoint(20.)
-    o.mainloop()
+    gl.pack(side='top', expand=1, fill='both')
+    gl.set_eyepoint(20.)
+    gl.mainloop()
 
 
-main()
+if __name__ == '__main__':
+    main()

@@ -1,20 +1,9 @@
 #!/usr/bin/python
 
-# This is statement is required by the build system to query build info
-if __name__ == '__build__':
-    raise Exception
-
-
-import string
-__version__ = string.split('$Revision: 1.1.1.1 $')[1]
-__date__ = string.join(string.split('$Date: 2007/02/15 19:25:38 $')[1:3], ' ')
-__author__ = 'Tarn Weisner Burton <twburton@users.sourceforge.net>'
-
 from OpenGL.GL import *
 from OpenGL.Tk import *
 from OpenGL.GLUT import *
 import sys
-
 
 def redraw_checker(o):
     glClearColor(1, 0, 1, 0)
@@ -64,23 +53,24 @@ def redraw_cone(o):
 
 
 def main():
-    f = Frame()
-    f.pack(side=TOP)
-    o1 = Opengl(width=200, height=200, double=1, depth=1)
+    frame = Frame()
+    frame.pack(side=TOP)
+    gl = Opengl(width=200, height=200, double=1, depth=1)
     glutInit([])
-    o1.redraw = redraw_checker
-    quit = Button(f, text='Quit', command=sys.exit)
+    gl.redraw = redraw_checker
+    quit = Button(frame, text='Quit', command=sys.exit)
     quit.pack(side=TOP, expand=YES, fill=BOTH)
-    o1.pack(side=TOP, expand=YES, fill=BOTH)
-    o1.set_eyepoint(20.)
+    gl.pack(side=TOP, expand=YES, fill=BOTH)
+    gl.set_eyepoint(20.)
 
-    o2 = Opengl(width=200, height=200, double=1)
-    o2.redraw = redraw_cone
-    o2.autospin_allowed = 1
-    o2.pack(side=TOP, expand=YES, fill=BOTH)
+    gl2 = Opengl(width=200, height=200, double=1)
+    gl2.redraw = redraw_cone
+    gl2.autospin_allowed = 1
+    gl2.pack(side=TOP, expand=YES, fill=BOTH)
     init()
 
-    o1.mainloop()
+    gl.mainloop()
 
 
-main()
+if __name__ == '__main__':
+    main()

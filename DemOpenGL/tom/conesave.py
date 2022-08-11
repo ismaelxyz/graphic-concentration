@@ -1,23 +1,30 @@
 #!/usr/bin/python
 
-# This is statement is required by the build system to query build info
-if __name__ == '__build__':
-    raise Exception
-
-
-import string
-__version__ = string.split('$Revision: 1.1.1.1 $')[1]
-__date__ = string.join(string.split('$Date: 2007/02/15 19:25:38 $')[1:3], ' ')
-__author__ = 'Tarn Weisner Burton <twburton@users.sourceforge.net>'
-
 from OpenGL.GL import *
 from OpenGL.Tk import *
 from OpenGL.GLUT import *
 from tkinter import *
+from PIL import Image
 import sys
 
 
-class MyApp(Frame):
+class App(Frame):
+    def __init__(self):
+        self.frame = Frame()
+        self.frame.pack()
+
+        self.gl = Opengl(width=400, height=400, double=1, depth=1)
+        self.gl.redraw = self.redraw
+        self.gl.autospin_allowed = 1
+        self.gl.pack(side=TOP, expand=YES, fill=BOTH)
+        self.gl.set_background(255, 255, 255)
+        self.init()
+
+        self.b = Button(self.frame, text="Save", command=self.save)
+        self.b.pack(side='top')
+        self.quit = Button(self.frame, text='Quit', command=sys.exit)
+        self.quit.pack(side='top')
+        self.gl.mainloop()
 
     def init(self):
         glutInit([])
@@ -42,36 +49,15 @@ class MyApp(Frame):
         glPopMatrix()
 
     def save(self, filename='test.jpg', format="JPEG"):
-        import Image  # get PIL's functionality...
         width, height = 400, 400
         glPixelStorei(GL_PACK_ALIGNMENT, 1)
         data = glReadPixelsub(0, 0, width, height, GL_RGB)
-        assert data.shape == (width, height, 3), """Got back array of shape %r, expected %r""" % (
-            data.shape,
-            (width, height, 3),
-        )
-        image = Image.fromstring("RGB", (width, height), data.tostring())
-        image = image.transpose(Image.FLIP_TOP_BOTTOM)
+        image = Image.frombytes("RGB", (width, height), data)
+        image = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
         image.save(filename, format)
         print('Saved image to %s' % (os.path.abspath(filename)))
         return image
+        
 
-    def __init__(self):
-        self.f = Frame()
-        self.f.pack()
-
-        self.gl = Opengl(width=400, height=400, double=1, depth=1)
-        self.gl.redraw = self.redraw
-        self.gl.autospin_allowed = 1
-        self.gl.pack(side=TOP, expand=YES, fill=BOTH)
-        self.gl.set_background(255, 255, 255)
-        self.init()
-
-        self.b = Button(self.f, text="Save", command=self.save)
-        self.b.pack(side='top')
-        self.quit = Button(self.f, text='Quit', command=sys.exit)
-        self.quit.pack(side='top')
-        self.gl.mainloop()
-
-
-app = MyApp()
+if __name__ == '__main__':
+    App()

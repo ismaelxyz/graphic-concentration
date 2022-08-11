@@ -15,15 +15,15 @@ of the library written in C called OpenGL.
 
 If you want to contact the author of DemOpenGL send an email to
 [ismaelbeli.com@gmail.com]() or you can also contact him
-by telegram [@ismaelxyz](https://t.me/ismaelxyz).
+by telegram [@ismaelxyz](https://t.me/asraelxyz).
 
-# Gallery
-![da](images/da.png)
-![GLE](images/GLE.png)
-![GLUT](images/GLUT.png)
-![dek](images/dek.png)
-![proesch](images/proesch.png)
-![tom](images/tom.png)
-![NeHe](images/NeHe.png)
-![redbook](images/redbook.png)
+## Gallery
+![da](gallery/da.png)
+![GLE](gallery/GLE.png)
+![GLUT](gallery/GLUT.png)
+![dek](gallery/dek.png)
+![proesch](gallery/proesch.png)
+![tom](gallery/tom.png)
+![NeHe](gallery/NeHe.png)
+![redbook](gallery/redbook.png)
 
