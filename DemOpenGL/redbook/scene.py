@@ -42,28 +42,24 @@ Converted to Python by Jason Petrone(jp@demonseed.net) 8/00
  * OpenGL(R) is a registered trademark of Silicon Graphics, Inc.
  */
 
-/*
- *  scene.c
- *  This program demonstrates the use of the GL lighting model.
- *  Objects are drawn using a grey material characteristic. 
- *  A single light source illuminates the objects.
- */
+    This program demonstrates the use of the GL lighting model.
+    Objects are drawn using a grey material characteristic. 
+    A single light source illuminates the objects.
 
 '''
 
 import sys
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 window = None
 
 
-#  Initialize material property and light source.
 def init():
+    """Initialize material property and light source."""
     light_ambient = [0.0, 0.0, 0.0, 1.0]
     light_diffuse = [1.0, 1.0, 1.0, 1.0]
     light_specular = [1.0, 1.0, 1.0, 1.0]
-#  light_position is NOT default value
+    #  light_position is NOT default value
     light_position = [1.0, 1.0, 1.0, 0.0]
 
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient)
@@ -120,10 +116,12 @@ def keyboard(key, x, y):
         glutDestroyWindow(window)
 
 
-#  Main Loop
-#  Open window with initial window size, title bar,
-#  RGBA display mode, and handle input events.
 def main():
+    """
+        Main Loop
+        Open window with initial window size, title bar,
+        RGBA display mode, and handle input events.
+    """
     global window
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH)

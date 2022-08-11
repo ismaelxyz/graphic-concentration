@@ -1,19 +1,8 @@
 #!/usr/bin/python
 
-# This is statement is required by the build system to query build info
-if __name__ == '__build__':
-    raise Exception
-
-
-import string
-__version__ = string.split('$Revision: 1.1.1.1 $')[1]
-__date__ = string.join(string.split('$Date: 2007/02/15 19:25:38 $')[1:3], ' ')
-__author__ = 'Tarn Weisner Burton <twburton@users.sourceforge.net>'
-
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.Tk import *
-
 
 def init():
     glutInit([])
@@ -42,12 +31,13 @@ def redraw(o):
 
 
 def main():
-    o = Opengl(width=200, height=200, double=1, depth=1)
-    o.redraw = redraw
-    o.autospin_allowed = 1
-    o.pack(side=TOP, expand=YES, fill=BOTH)
+    gl = Opengl(width=200, height=200, double=1, depth=1)
+    gl.redraw = redraw
+    gl.autospin_allowed = 1
+    gl.pack(side=TOP, expand=YES, fill=BOTH)
     init()
-    o.mainloop()
+    gl.mainloop()
 
 
-main()
+if __name__ == '__main__':
+    main()

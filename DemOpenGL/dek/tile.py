@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-from PIL.Image import open as plOpen
+from PIL.Image import open as pil_open
 from OpenGL.GL import *
 from OpenGL.Tk import *
 import math
@@ -9,7 +9,7 @@ import math
 const = math.pi
 
 
-class checker:
+class Checker:
 
     def __init__(self):
         self.filename = 'image.ppm'
@@ -26,8 +26,8 @@ class checker:
         self.SetupTexture()
         self.ogl.mainloop()
 
-    def makeImage(self):
-        with plOpen(self.filename) as im:
+    def make_image(self):
+        with pil_open(self.filename) as im:
             self.imageWidth = im.size[0]
             self.imageHeight = im.size[1]
             self.image = im.tobytes("raw", "RGBX", 0, -1)
@@ -63,7 +63,7 @@ class checker:
         self.ogl.redraw = self.display
 
     def SetupTexture(self):
-        self.makeImage()
+        self.make_image()
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
         glTexImage2D(GL_TEXTURE_2D, 0, 3, self.imageWidth,
                      self.imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,  self.image)
@@ -79,4 +79,4 @@ class checker:
 
 
 if __name__ == '__main__':
-    checker()
+    Checker()

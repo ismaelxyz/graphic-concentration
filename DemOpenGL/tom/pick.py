@@ -1,38 +1,31 @@
 #!/usr/bin/python
 
-# This is statement is required by the build system to query build info
-if __name__ == '__build__':
-    raise Exception
-
-
-import string
-__version__ = string.split('$Revision: 1.1.1.1 $')[1]
-__date__ = string.join(string.split('$Date: 2007/02/15 19:25:40 $')[1:3], ' ')
-__author__ = 'Tarn Weisner Burton <twburton@users.sourceforge.net>'
 
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.Tk import *
+import tkinter
+import sys
 
 
-def redraw(o):
+def redraw(gl):
     """The main scene redraw function."""
 
     # Clear the background and depth buffer.
 
-    for i in range(0, len(o.spheres)):
-        if i == o.picked_sphere:
+    for i in range(0, len(gl.spheres)):
+        if i == gl.picked_sphere:
             glMaterialfv(GL_FRONT, GL_DIFFUSE, [1., 1., 0., 0.])
         else:
             glMaterialfv(GL_FRONT, GL_DIFFUSE, [0.3, 0.9, 0.3, 0.])
-        s = o.spheres[i]
+        s = gl.spheres[i]
         glPushMatrix()
         glTranslatef(s[0], s[1], s[2])
         glutSolidSphere(1.4, 20, 20)
         glPopMatrix()
 
 
-def pick(o, p1, p2, event=None):
+def pick(gl, p1, p2, event=None):
     """A pick function.
     The end points of the picked line are passed as p1 and p2.
     glDistFromLine can be used to measure distances from the line."""
@@ -40,38 +33,32 @@ def pick(o, p1, p2, event=None):
     inear = -1
     dmin = 1.e10
 
-    for i in range(0, len(o.spheres)):
-        s = o.spheres[i]
+    for i in range(0, len(gl.spheres)):
+        s = gl.spheres[i]
         d = glDistFromLine(s, p1, p2)
 
         if d < dmin:
             inear = i
             dmin = d
 
-    o.picked_sphere = inear
+    gl.picked_sphere = inear
 
     """If we want the viewer to redraw we return a true value."""
 
     return 1
 
-#
-# Demo starts here really.
-
 
 def main():
-    import tkinter
-    import sys
-
-    o = Opengl(None, width=200, height=200, double=1, depth=1)
+    gl = Opengl(None, width=200, height=200, double=1, depth=1)
     glutInit([])
-    o.pack(expand=1, fill='both')
+    gl.pack(expand=1, fill='both')
 
-    o.redraw = redraw
-    o.pick = pick
-    o.set_centerpoint(-2., 35., 24.)
-    o.set_eyepoint(30.)
+    gl.redraw = redraw
+    gl.pick = pick
+    gl.set_centerpoint(-2., 35., 24.)
+    gl.set_eyepoint(30.)
 
-    o.spheres = [
+    gl.spheres = [
         [-4.322, 30.55, 21.011],
         [-4.394, 29.355, 21.739],
         [-5.645, 28.807, 21.86],
@@ -106,8 +93,8 @@ def main():
         [-7.29, 40.706, 22.617],
         [-7.707, 39.325, 24.755]]
 
-    o.picked_sphere = -1
-    o.autospin_allowed = 1
+    gl.picked_sphere = -1
+    gl.autospin_allowed = 1
 
     l = tkinter.Label(
         None, text='Press Shift-Button-1 over an\natom to highlight')

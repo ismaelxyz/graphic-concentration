@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -7,7 +7,6 @@ import numpy
 import sys
 
 THE_LIST = None
-
 
 def display():
     glutSetWindow(context)

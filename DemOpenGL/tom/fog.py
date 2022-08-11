@@ -7,32 +7,35 @@ from OpenGL.Tk import *
 
 
 class Fog:
+
     def __init__(self):
-        self.o = Opengl(width=250, height=140, double=1, depth=1)
-        self.o.redraw = self.redraw
-        self.o.pack(side='top', expand=1, fill='both')
-        self.mode = IntVar(self.o)
-        self.mode.set(GL_EXP)
+        self.gl = Opengl(width=250, height=140, double=1, depth=1)
+        self.gl.redraw = self.redraw
+        self.gl.pack(side='top', expand=1, fill='both')
+        self.mode = IntVar(self.gl)
+        self.mode.set(int(GL_EXP))
         r1 = Radiobutton(text='GL_LINEAR', anchor=W, variable=self.mode,
-                         value=GL_LINEAR, command=self.selectFog)
+                         value=int(GL_LINEAR), command=self.selectFog)
         r1.pack(side='top', expand=1, fill='both')
         r2 = Radiobutton(text='GL_EXP', anchor=W, variable=self.mode,
-                         value=GL_EXP, command=self.selectFog)
+                         value=int(GL_EXP), command=self.selectFog)
         r2.pack(side='top', expand=1, fill='both')
 
     def run(self):
         self.init()
-        self.o.mainloop()
+        self.gl.mainloop()
 
     def selectFog(self):
         val = self.mode.get()
-        if val == GL_LINEAR:
+        
+        if val == int(GL_LINEAR):
             glFogf(GL_FOG_START, 1.0)
             glFogf(GL_FOG_END, 5.0)
             glFogi(GL_FOG_MODE, val)
-        elif val == GL_EXP:
+        elif val == int(GL_EXP):
             glFogi(GL_FOG_MODE, val)
-        self.o.tkRedraw()
+            
+        self.gl.tkRedraw()
 
     def init(self):
         glutInit([])
@@ -75,8 +78,8 @@ class Fog:
 
 
 def main():
-    f = Fog()
-    f.run()
+    fog = Fog()
+    fog.run()
 
 if __name__ == '__main__':
     main()

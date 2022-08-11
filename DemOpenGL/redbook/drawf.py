@@ -43,11 +43,8 @@ Converted to Python by Jason L. Petrone 7/00
 '''
 
 '''
-/*
- *  drawf.c
- *  Draws the bitmapped letter F on the screen(several times).
- *  This demonstrates use of the glBitmap() call.
- */
+    Draws the bitmapped letter F on the screen(several times).
+    This demonstrates use of the glBitmap() call.
 '''
 
 
@@ -56,14 +53,12 @@ import struct
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 window = None
-rasterBytes = (
+RASTERBYTES = (
     0xc0, 0x00, 0xc0, 0x00, 0xc0, 0x00, 0xc0, 0x00, 0xc0, 0x00,
     0xff, 0x00, 0xff, 0x00, 0xc0, 0x00, 0xc0, 0x00, 0xc0, 0x00,
-    0xff, 0xc0, 0xff, 0xc0)
-
-rasters = b''
-for byte in rasterBytes:
-    rasters = rasters + struct.pack('B', byte)
+    0xff, 0xc0, 0xff, 0xc0
+)
+RASTERS =  b''.join([struct.pack('B', byte) for byte in RASTERBYTES])
 
 
 def init():
@@ -77,9 +72,9 @@ def display():
     glColor3f(1.0, 1.0, 1.0)
     glRasterPos2i(20, 20)
     print('Beginning bitmaps')
-    glBitmap(10, 12, 0.0, 0.0, 11.0, 0.0, rasters)
-    glBitmap(10, 12, 0.0, 0.0, 11.0, 0.0, rasters)
-    glBitmap(10, 12, 0.0, 0.0, 11.0, 0.0, rasters)
+    glBitmap(10, 12, 0.0, 0.0, 11.0, 0.0, RASTERS)
+    glBitmap(10, 12, 0.0, 0.0, 11.0, 0.0, RASTERS)
+    glBitmap(10, 12, 0.0, 0.0, 11.0, 0.0, RASTERS)
     print('Flushing')
     glFlush()
 

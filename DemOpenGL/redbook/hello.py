@@ -45,7 +45,6 @@ Converted to Python 6/00 by Jason Petrone
 # This is a simple, introductory OpenGL program.
 
 import sys
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -79,20 +78,21 @@ def init():
     glLoadIdentity()
     glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0)
 
-#  Declare initial window size, position, and display mode
-#  (single buffer and RGBA).  Open window with "hello"
-#  in its title bar.  Call initialization routines.
-#  Register callback function to display graphics.
-#  Enter main loop and process events.
-
 
 def main():
+    """
+        Declare initial window size, position, and display mode
+        (single buffer and RGBA).  Open window with "hello"
+        in its title bar.  Call initialization routines.
+        Register callback function to display graphics.
+        Enter main loop and process events.
+    """
     global window
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
     glutInitWindowSize(250, 250)
     glutInitWindowPosition(100, 100)
-    glutCreateWindow('Hello')
+    window = glutCreateWindow('Hello')
     init()
     glutDisplayFunc(display)
     glutMainLoop()

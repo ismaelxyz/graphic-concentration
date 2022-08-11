@@ -42,15 +42,12 @@ Converted to Python by Jason L. Petrone 7/00
 '''
 
 '''
-/*
- *  fog.c
- *  This program draws 5 red spheres, each at a different 
- *  z distance from the eye, in different types of fog.  
- *  Pressing the f key chooses between 3 types of 
- *  fog:  exponential, exponential squared, and linear.  
- *  In this program, there is a fixed density value, as well 
- *  as fixed start and end values for the linear fog.
- */
+    This program draws 5 red spheres, each at a different 
+    z distance from the eye, in different types of fog.  
+    Pressing the f key chooses between 3 types of 
+    fog:  exponential, exponential squared, and linear.  
+    In this program, there is a fixed density value, as well 
+    as fixed start and end values for the linear fog.
 '''
 
 

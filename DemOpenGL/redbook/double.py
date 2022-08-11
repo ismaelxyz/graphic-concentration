@@ -43,13 +43,10 @@ Converted to Python by Jason L. Petrone 6/00
 '''
 
 '''
-/*
- *  double.c
- *  This is a simple double buffered program.
- *  Pressing the left mouse button rotates the rectangle.
- *  Pressing the middle mouse button stops the rotation.
- */
- '''
+  This is a simple double buffered program.
+  Pressing the left mouse button rotates the rectangle.
+  Pressing the middle mouse button stops the rotation.
+'''
 
 
 import sys

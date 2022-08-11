@@ -3,7 +3,6 @@
 '''
 Converted to Python 6/00 by Jason Petrone(jp@demonseed.net)
 
-
 /*
  * Copyright (c) 1993-1997, Silicon Graphics, Inc.
  * ALL RIGHTS RESERVED 
@@ -41,26 +40,21 @@ Converted to Python 6/00 by Jason Petrone(jp@demonseed.net)
  * OpenGL(R) is a registered trademark of Silicon Graphics, Inc.
  */
 
-/*
- *  movelight.c
- *  This program demonstrates when to issue lighting and
- *  transformation commands to render a model with a light
- *  which is moved by a modeling transformation (rotate or
- *  translate).  The light position is reset after the modeling
- *  transformation is called.  The eye position does not change.
- *
- *  A sphere is drawn using a grey material characteristic.
- *  A single light source illuminates the object.
- *
- *  Interaction:  pressing the left mouse button alters
- *  the modeling transformation (x rotation) by 30 degrees.
- *  The scene is then redrawn with the light in a new position.
- */
-
+   This program demonstrates when to issue lighting and
+   transformation commands to render a model with a light
+   which is moved by a modeling transformation (rotate or
+   translate).  The light position is reset after the modeling
+   transformation is called.  The eye position does not change.
+ 
+   A sphere is drawn using a grey material characteristic.
+   A single light source illuminates the object.
+ 
+   Interaction:  pressing the left mouse button alters
+   the modeling transformation (x rotation) by 30 degrees.
+   The scene is then redrawn with the light in a new position.
 '''
 
 import sys
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -68,24 +62,25 @@ from OpenGL.GLU import *
 window = None
 spin = 0
 
-#  Initialize material property, light source, lighting model,
-#  and depth buffer.
-
-
 def init():
+    """
+        Initialize material property, light source, lighting model,
+        and depth buffer.
+    """
     glClearColor(0.0, 0.0, 0.0, 0.0)
     glShadeModel(GL_SMOOTH)
     glEnable(GL_LIGHTING)
     glEnable(GL_LIGHT0)
     glEnable(GL_DEPTH_TEST)
 
-#  Here is where the light position is reset after the modeling
-#  transformation (glRotated) is called.  This places the
-#  light at a new position in world coordinates.  The cube
-#  represents the position of the light.
-
 
 def display():
+    """
+        Here is where the light position is reset after the modeling
+        transformation (glRotated) is called.  This places the
+        light at a new position in world coordinates.  The cube
+        represents the position of the light.
+    """
     position = [0.0, 0.0, 1.5, 1.0]
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)

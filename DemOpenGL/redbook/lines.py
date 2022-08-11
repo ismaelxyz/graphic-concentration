@@ -4,12 +4,8 @@
 lines.c from the Redbook examples.  
 Converted to Python by Jason L. Petrone 6/00
 
-/*
- *  lines.c
- *  This program demonstrates geometric primitives and
- *  their attributes.
-*/
-
+    This program demonstrates geometric primitives and
+    their attributes.
 
 
 Copyright (c) 1993-1997, Silicon Graphics, Inc.
@@ -50,7 +46,6 @@ OpenGL(R) is a registered trademark of Silicon Graphics, Inc.
 '''
 
 import sys
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
