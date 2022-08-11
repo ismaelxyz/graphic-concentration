@@ -4,8 +4,7 @@
 # Demo for interactive object motion
 
 import sys
-from mouseInteractor import MouseInteractor
-
+from mouse_interactor import MouseInteractor
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *

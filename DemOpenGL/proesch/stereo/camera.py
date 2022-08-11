@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Helper class for stereo visualisation using OpenGL
+    Helper class for stereo visualisation using OpenGL
 """
 
 import sys
 import math
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -106,9 +105,8 @@ class StereoCamera(object):
             self.whRatio*perpDelta-self.eyeSeparation/2.0*parallaxCorrection,
             -perpDelta, perpDelta, self.near, self.far)
 
-
-# test program
-if __name__ == '__main__':
+def test():
+    """ test program """
     sC = StereoCamera()
     a = [1, 0, 0]
     b = [0, 0, 1]
@@ -118,3 +116,6 @@ if __name__ == '__main__':
     print(sC.frustumLeft)
     print(sC.lookAtRight)
     print(sC.frustumRight)
+    
+if __name__ == '__main__':
+    test()

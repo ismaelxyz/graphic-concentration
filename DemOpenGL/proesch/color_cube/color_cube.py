@@ -4,7 +4,6 @@
 from time import sleep
 import sys
 import array
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *

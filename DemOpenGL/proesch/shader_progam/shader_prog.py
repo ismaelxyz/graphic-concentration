@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-Class to simplify the incorporation of GLSL programs.
+    Class to simplify the incorporation of GLSL programs.
 """
 
 import sys
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *

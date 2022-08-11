@@ -2,17 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-OpenGL stereo demo using stereoCamera class
+    OpenGL stereo demo using stereoCamera class
 """
 
 from time import sleep
 from sys import argv, exit
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-
-from stereoCamera import StereoCamera
+from camera import StereoCamera
 sC = StereoCamera()
 
 animationAngle = 0.0
@@ -26,7 +24,7 @@ lightColors = {
 }
 
 lightPosition = (5.0, 5.0, 20.0, 1.0)
-
+teapotList = 0
 
 def animationStep():
     """Update animated parameters."""
@@ -99,9 +97,6 @@ def display():
     glutSwapBuffers()
 
 
-teapotList = 0
-
-
 def init():
     """Glut init function."""
     glClearColor(0, 0, 0, 0)
@@ -145,12 +140,12 @@ def reshape(width, height):
     sC.whRatio = float(width)/float(height)
     sC.update()
 
-
-if len(argv) != 2:
-    print("Usage:")
-    print("python stereDemo.py SHUTTER | ANAGLYPH | NONE \n")
-
-else:
+def main():
+    if len(argv) != 2:
+        print("Usage:")
+        print("python stereDemo.py SHUTTER | ANAGLYPH | NONE \n")
+        return;
+    
     glutInit(sys.argv)
     stereoMode = sys.argv[1].upper()
     if stereoMode == "SHUTTER":
@@ -165,3 +160,6 @@ else:
     glutReshapeFunc(reshape)
     glutIdleFunc(animationStep)
     glutMainLoop()
+    
+if __name__ == '__main__':
+    main()

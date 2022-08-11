@@ -3,7 +3,6 @@
 
 import sys
 from time import sleep
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -16,8 +15,7 @@ def doAnimationStep():
     """Update animated parameters.
 
     This Function is made active by glutSetIdleFunc"""
-    global animationAngle
-    global frameRate
+    global animationAngle, frameRate
     animationAngle += 1
     while animationAngle > 360:
         animationAngle -= 360

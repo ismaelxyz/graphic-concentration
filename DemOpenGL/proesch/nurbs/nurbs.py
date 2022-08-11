@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-Plot nurbs surface corresponding to a 2D damped oscillation.
-The surface has two holes. A Teapot below the surface is
-visible through these holes.
+    Plot nurbs surface corresponding to a 2D damped oscillation.
+    The surface has two holes. A Teapot below the surface is
+    visible through these holes.
 """
 
 import sys
 import math
 from time import sleep
 import traceback
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -20,43 +19,10 @@ animationAngle = 0.0
 frameRate = 25
 curr_time = 0.0
 nurbsID = 0
-
-
-def animationStep():
-    """Update animated parameters"""
-    global animationAngle
-    global frameRate
-    animationAngle += 1
-    while animationAngle > 360:
-        animationAngle -= 360
-    global curr_time
-    curr_time += 0.05
-    global nurbsID
-    glDeleteLists(nurbsID, 1)
-    nurbsID = glGenLists(1)
-    glNewList(nurbsID, GL_COMPILE)
-    plotSurface(curr_time)
-    glEndList()
-    sleep(1 / float(frameRate))
-    glutPostRedisplay()
-
-
 sigma = 0.5
 twoSigSq = 2. * sigma * sigma
-
-
-def dampedOscillation(u, v, t):
-    """Calculation of a R2 -> R1 function at position u,v at curr_time t.
-
-    A t-dependent cosine function is multiplied with a 2D gaussian.
-    Both functions depend on the distance of (u,v) to the origin."""
-
-    distSq = u * u + v * v
-    dist = math.pi * 4 * math.sqrt(distSq)
-    global twoSigSq
-    return 0.5 * math.exp(-distSq / twoSigSq) * math.cos(dist - t)
-
-
+teapotID = 0
+nurb = None
 nPts = 15
 degree = 4
 samplingTolerance = 2.0
@@ -96,6 +62,33 @@ circleKnots = [float(i)/(knotNum-1) for i in range(knotNum)]
 squareHolePoints = [[0.4, 0.4], [0.4, 0.45], [0.45, 0.45],
                     [0.45, 0.4], [0.4, 0.4]]
 
+def animationStep():
+    """Update animated parameters"""
+    global animationAngle, frameRate, curr_time, nurbsID
+    animationAngle += 1
+    while animationAngle > 360:
+        animationAngle -= 360
+
+    curr_time += 0.05
+    glDeleteLists(nurbsID, 1)
+    nurbsID = glGenLists(1)
+    glNewList(nurbsID, GL_COMPILE)
+    plotSurface(curr_time)
+    glEndList()
+    sleep(1 / float(frameRate))
+    glutPostRedisplay()
+
+def dampedOscillation(u, v, t):
+    """Calculation of a R2 -> R1 function at position u,v at curr_time t.
+
+    A t-dependent cosine function is multiplied with a 2D gaussian.
+    Both functions depend on the distance of (u,v) to the origin."""
+    global twoSigSq
+
+    distSq = u * u + v * v
+    dist = math.pi * 4 * math.sqrt(distSq)
+    return 0.5 * math.exp(-distSq / twoSigSq) * math.cos(dist - t)
+
 
 def updateControlPoints(t):
     """Calculate function values for all 2D grid points."""
@@ -107,27 +100,23 @@ def updateControlPoints(t):
 def plotSurface(t):
     # display surface
     updateControlPoints(t)
-    global controlPoints, knots
-    global nurb
+    global controlPoints, knots, nurb, enclosing, squareHolePoints, circlePoints, circleKnots
 
     gluBeginSurface(nurb)
     gluNurbsSurface(nurb, knots, knots, controlPoints, GL_MAP2_VERTEX_3)
 
     # trim curve enclosing
     gluBeginTrim(nurb)
-    global enclosing
     gluPwlCurve(nurb, enclosing, GLU_MAP1_TRIM_2)
     gluEndTrim(nurb)
 
     # trim using square
     gluBeginTrim(nurb)
-    global squareHolePoints
     gluPwlCurve(nurb, squareHolePoints, GLU_MAP1_TRIM_2)
     gluEndTrim(nurb)
 
     # trim using circle
     gluBeginTrim(nurb)
-    global circlePoints, circleKnots
     gluNurbsCurve(nurb, circleKnots, circlePoints, GLU_MAP1_TRIM_2)
     gluEndTrim(nurb)
 
@@ -160,12 +149,10 @@ def display():
     glutSwapBuffers()
 
 
-teapotID = 0
-nurb = None
-
-
 def init():
     """Glut init function."""
+    global nurb, samplingTolerance, teapotID, nurbsID, curr_time
+    
     glClearColor(0, 0, 0, 0)
     glEnable(GL_DEPTH_TEST)
     glShadeModel(GL_SMOOTH)
@@ -182,20 +169,16 @@ def init():
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [0.5, 0.5, 0.5, 1])
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50)
     glEnable(GL_AUTO_NORMAL)
-    global nurb
+    
     nurb = gluNewNurbsRenderer()
-    global samplingTolerance
     gluNurbsProperty(nurb, GLU_SAMPLING_TOLERANCE, samplingTolerance)
     gluNurbsProperty(nurb, GLU_DISPLAY_MODE, GLU_FILL)
-    global teapotID
     teapotID = glGenLists(1)
     glNewList(teapotID, GL_COMPILE)
     glutSolidTeapot(1.0)
     glEndList()
-    global nurbsID
     nurbsID = glGenLists(1)
     glNewList(nurbsID, GL_COMPILE)
-    global curr_time
     plotSurface(curr_time)
     glEndList()
 

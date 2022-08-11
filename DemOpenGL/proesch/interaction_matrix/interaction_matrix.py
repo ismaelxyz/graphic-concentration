@@ -4,7 +4,6 @@
 # helper class for interactive object motion
 
 import sys
-
 from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -50,7 +49,7 @@ class InteractionMatrix (object):
         return self.__currentMatrix
 
 
-if __name__ == '__main__':
+def main():
     glutInit(sys.argv)
     glutCreateWindow(sys.argv[0])
     m = InteractionMatrix()
@@ -61,3 +60,6 @@ if __name__ == '__main__':
     print(m.getCurrentMatrix())
     m.addTranslation(1, 2, 3)
     print(m.getCurrentMatrix())
+    
+if __name__ == '__main__':
+    main()
