@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 '''
- This program demonstrates smooth shading.
- A smooth shaded polygon is drawn in a 2-D projection.
+    This program demonstrates smooth shading.
+    A smooth shaded polygon is drawn in a 2-D projection.
 '''
 
 import sys

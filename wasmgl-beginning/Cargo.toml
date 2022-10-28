@@ -1,0 +1,43 @@
+[package]
+name = "wasmgl-beginning"
+version = "0.1.0"
+edition = "2021"
+description = "Web Assembly (WASM) and WebGL tutorial for beginners"
+repository  = "https://github.com/algorithmssite/wasmgl-beginning.git"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+glow ="*"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+js-sys = "*"
+wasm-bindgen = "*"
+web-sys = { version = "*", features = [
+    "Node",
+    "Element",
+    "HtmlElement",
+    "EventTarget",
+    "HtmlCanvasElement",
+    "HtmlButtonElement",
+    "HtmlImageElement",
+    "Document", "ImageBitmap",
+    "WebGlActiveInfo", "WebGlBuffer", "WebGlFramebuffer", "WebGlProgram",
+    "WebGlRenderbuffer", "WebGlRenderingContext", "WebGl2RenderingContext",
+    "WebGlSampler", "WebGlShader", "WebGlSync", "WebGlTexture", "WebGlTransformFeedback",
+    "WebGlUniformLocation", "WebGlVertexArrayObject", "Window", "AngleInstancedArrays",
+    "ExtBlendMinmax", "ExtColorBufferFloat", "ExtColorBufferHalfFloat",
+    "ExtDisjointTimerQuery", "ExtFragDepth", "ExtShaderTextureLod", "ExtSRgb",
+    "ExtTextureFilterAnisotropic", "OesElementIndexUint", "OesStandardDerivatives",
+    "OesTextureFloat", "OesTextureFloatLinear", "OesTextureHalfFloat",
+    "OesTextureHalfFloatLinear", "OesVertexArrayObject", "WebglColorBufferFloat",
+    "WebglCompressedTextureAstc", "WebglCompressedTextureEtc", "WebGlQuery",
+    "WebglCompressedTextureEtc1", "WebglCompressedTexturePvrtc",
+    "WebglCompressedTextureS3tc", "WebglCompressedTextureS3tcSrgb",
+    "WebglDebugRendererInfo", "WebglDebugShaders", "WebglDepthTexture",
+    "WebglDrawBuffers", "WebglLoseContext"
+] }

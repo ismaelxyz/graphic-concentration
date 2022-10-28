@@ -15,8 +15,8 @@ window = 0
 # A general OpenGL initialization function.  Sets all of the initial parameters.
 
 
-# We call this right after our OpenGL window is created.
 def InitGL(Width, Height):
+    ''' We call this right after our OpenGL window is created. '''
     # This Will Clear The Background Color To Black
     glClearColor(0.0, 0.0, 0.0, 0.0)
     glClearDepth(1.0)                    # Enables Clearing Of The Depth Buffer
@@ -31,11 +31,13 @@ def InitGL(Width, Height):
 
     glMatrixMode(GL_MODELVIEW)
 
-# The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
-
 
 def ReSizeGLScene(Width, Height):
-    if Height == 0:                        # Prevent A Divide By Zero If The Window Is Too Small
+    ''' The function called when our window is resized (which shouldn't happen
+        if you enable fullscreen, below)
+    '''
+    # Prevent A Divide By Zero If The Window Is Too Small
+    if Height == 0:
         Height = 1
 
     # Reset The Current Viewport And Perspective Transformation
@@ -45,10 +47,9 @@ def ReSizeGLScene(Width, Height):
     gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
     glMatrixMode(GL_MODELVIEW)
 
-# The main drawing function.
-
 
 def DrawGLScene():
+    ''' The main drawing fu'''
     # Clear The Screen And The Depth Buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()                    # Reset The View

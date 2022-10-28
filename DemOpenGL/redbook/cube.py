@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-This program demonstrates a single modeling transformation,
-glScalef() and a single viewing transformation, gluLookAt().
-A wireframe cube is rendered.
+    This program demonstrates a single modeling transformation,
+    glScalef() and a single viewing transformation, gluLookAt().
+    A wireframe cube is rendered.
 """
 
 import sys

@@ -31,11 +31,13 @@ def InitGL(Width, Height):
 
     glMatrixMode(GL_MODELVIEW)
 
-# The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
-
 
 def ReSizeGLScene(Width, Height):
-    if Height == 0:                        # Prevent A Divide By Zero If The Window Is Too Small
+    ''' The function called when our window is resized (which shouldn't happen
+        if you enable fullscreen, below)
+    '''
+    # Prevent A Divide By Zero If The Window Is Too Small
+    if Height == 0:
         Height = 1
 
     # Reset The Current Viewport And Perspective Transformation
@@ -45,10 +47,10 @@ def ReSizeGLScene(Width, Height):
     gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
     glMatrixMode(GL_MODELVIEW)
 
-# The main drawing function.
-
 
 def DrawGLScene():
+    ''' The main drawing function. '''
+
     # Clear The Screen And The Depth Buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()                    # Reset The View

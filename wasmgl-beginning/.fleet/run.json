@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "cargo",
+            "name": "cargo build",
+            "cargoArgs": ["+nightly build --target wasm32-unknown-unknown"],
+        },
+        // cargo install -f wasm-bindgen-cli
+        // cargo update -p wasm-bindgen
+        {
+            "type": "cargo",
+            "name": "cargo clippy",
+            "cargoArgs": ["+nightly clippy --target wasm32-unknown-unknown"],
+        },
+        {
+            "type": "command",
+            "name": "wasm build",
+            "program": "wasm-bindgen",
+            "args": ["--target web target/wasm32-unknown-unknown/debug/wasmgl_beginning.wasm --out-dir public/wasm --no-typescript"],
+        }
+    ]
+}
