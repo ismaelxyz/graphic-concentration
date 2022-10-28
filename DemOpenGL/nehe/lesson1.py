@@ -51,11 +51,12 @@ def InitGL(Width, Height):
 
     glMatrixMode(GL_MODELVIEW)
 
-# The function called when our window is resized (which shouldn't happen if you
-#  enable fullscreen, below)
-
 
 def ReSizeGLScene(Width, Height):
+    """
+        The function called when our window is resized (which shouldn't happen if you
+        enable fullscreen, below)
+    """
     if Height == 0:  # Prevent A Divide By Zero If The Window Is Too Small
         Height = 1
 
@@ -67,10 +68,9 @@ def ReSizeGLScene(Width, Height):
     gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
     glMatrixMode(GL_MODELVIEW)
 
-# The main drawing function.
-
 
 def DrawGLScene():
+    ''' The main drawing function. '''
     # Clear The Screen And The Depth Buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()                    # Reset The View
@@ -79,11 +79,12 @@ def DrawGLScene():
     #  drawn.
     glutSwapBuffers()
 
-# The function called whenever a key is pressed. Note the use of Python tuples
-# to pass in: (key, x, y)
-
 
 def keyPressed(*args):
+    '''
+        The function called whenever a key is pressed. Note the use of Python tuples
+        to pass in: (key, x, y)
+    '''
     # If escape is pressed, kill everything.
     if args[0] == ESCAPE:
         glutDestroyWindow(window)

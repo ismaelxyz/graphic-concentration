@@ -4,6 +4,11 @@ version = "0.2.0"
 authors = ["Ysgard <ysgard@gmail.com>", "Ismaelxyz <ismaelbeli.com@gmail.com>"]
 edition = "2021"
 
+# Clipboard
+[dependencies.arboard]
+version = "*"
+default-features = false
+
 [dependencies.sdl2]
 version = "*"
 default-features = false

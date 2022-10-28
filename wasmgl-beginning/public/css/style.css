@@ -1,0 +1,24 @@
+#screen {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-end;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.flat-btn {
+    width: 10%;
+    font-size: 14px;
+    background-image: linear-gradient(45deg, #d0efed45, #0e8a8a);
+    border-radius: 10px;
+    height: 150px;
+    cursor: pointer;
+    border: none;
+}
+
+#app-canvas {
+    width: 60%;
+    height: 70%;
+}

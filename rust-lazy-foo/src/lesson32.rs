@@ -1,5 +1,4 @@
 use sdl2::{
-    clipboard::ClipboardUtil,
     event::Event,
     image::LoadSurface,
     keyboard::{Keycode, Mod, TextInputUtil},
@@ -11,6 +10,9 @@ use sdl2::{
     video::Window,
     VideoSubsystem,
 };
+
+// use it better Clipboard instance of sld2c::lipboard::ClipboardUtil
+use arboard::Clipboard;
 
 // Screen dimension
 const WIDTH: i32 = 650;
@@ -104,12 +106,12 @@ fn init() -> (sdl2::Sdl, Sdl2TtfContext, VideoSubsystem, Window) {
 }
 
 /*
-    # Nota: El Clipboard de sdl no es el de la pc, es uno propio : (.
+    # Nota: El Clipboard de sdl no es el de la pc, es uno propio :(.
     # Nota: El Clipboard de sdl no debería llamarse como tal.
 */
 fn main() {
     let (context, ttf_ctx, video, win) = init();
-    let clipboard: ClipboardUtil = video.clipboard();
+    let mut clipboard = Clipboard::new().unwrap();
     let text_util: TextInputUtil = video.text_input();
     text_util.start();
 
@@ -153,11 +155,11 @@ fn main() {
                     }
                     // Handle copy
                     (Keycode::C, Mod::LCTRLMOD | Mod::RCTRLMOD) => {
-                        clipboard.set_clipboard_text(&input_text).unwrap()
+                        clipboard.set_text(input_text.clone()).unwrap()
                     }
                     // Handle paste
                     (Keycode::V, Mod::LCTRLMOD | Mod::RCTRLMOD) => {
-                        input_text = clipboard.clipboard_text().unwrap()
+                        input_text = clipboard.get_text().unwrap()
                     }
                     (Keycode::Escape, _) => break 'running,
                     _ => (),
