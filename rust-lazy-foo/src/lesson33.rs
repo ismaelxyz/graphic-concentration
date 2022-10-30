@@ -87,7 +87,7 @@ fn init() -> (sdl2::Sdl, Sdl2TtfContext, Window) {
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
     let win = video
-        .window("SDL Tutorial 33", WIDTH as u32, HEIGHT as u32)
+        .window("SDL Tutorial 33", WIDTH, HEIGHT)
         .position_centered()
         .opengl()
         .build()

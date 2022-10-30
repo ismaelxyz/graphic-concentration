@@ -22,9 +22,9 @@ struct Direction<'a> {
 // an image, and return its surface.
 fn load_image(path: &str) -> Surface<'static> {
     use std::path::Path;
-    match Surface::load_bmp(&Path::new(path)) {
+    match Surface::load_bmp(Path::new(path)) {
         Ok(surface) => surface,
-        Err(err) => panic!("Could not load image: {}", err),
+        Err(err) => panic!("Could not load image: {err}"),
     }
 }
 
@@ -34,7 +34,7 @@ fn load_texture<'a, T>(path: &str, renderer: &'a TextureCreator<T>) -> Texture<'
     let image = load_image(path);
     match renderer.create_texture_from_surface(&image) {
         Ok(tex) => tex,
-        Err(err) => panic!("Could not load texture: {}", err),
+        Err(err) => panic!("Could not load texture: {err}"),
     }
 }
 
@@ -63,7 +63,7 @@ fn init() -> (Sdl, Window) {
         .build()
     {
         Ok(window) => window,
-        Err(err) => panic!("Failed to create Window!: {}", err),
+        Err(err) => panic!("Failed to create Window!: {err}"),
     };
     (sdl, win)
 }
@@ -74,7 +74,7 @@ fn main() {
 
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
-        Err(err) => panic!("Could not obtain renderer: {}", err),
+        Err(err) => panic!("Could not obtain renderer: {err}"),
     };
 
     let creator = canvas.texture_creator();
@@ -85,7 +85,7 @@ fn main() {
     // Obtain the event pump
     let mut event_pump = match context.event_pump() {
         Ok(event_pump) => event_pump,
-        Err(err) => panic!("Could not obtain event pump: {}", err),
+        Err(err) => panic!("Could not obtain event pump: {err}"),
     };
 
     // Start up the main loop

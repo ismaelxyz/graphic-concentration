@@ -170,7 +170,7 @@ fn main() {
         }
 
         // Set text to be rendered
-        let text: String = format!("Average Frames Per Second (With Cap) {}", avg_fps);
+        let text: String = format!("Average Frames Per Second (With Cap) {avg_fps}");
         let time_text = LTexture::from_creator_text(&creator, &font, &text, text_color);
 
         // Clear and render the texture each pass through the loop

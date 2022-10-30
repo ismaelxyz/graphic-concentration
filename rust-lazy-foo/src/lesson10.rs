@@ -55,7 +55,7 @@ impl<'a> LTexture<'a> {
         // Load the surface first, so we can set the color key
         let mut surface = match Surface::from_file(path) {
             Ok(surface) => surface,
-            Err(err) => panic!("Could not load surface: {}", err),
+            Err(err) => panic!("Could not load surface: {err}"),
         };
 
         // Now set the color key on the surface
@@ -67,7 +67,7 @@ impl<'a> LTexture<'a> {
         // LTexture::new to be wrapped
         let tex = match ren.create_texture_from_surface(&surface) {
             Ok(texture) => texture,
-            Err(err) => panic!("Could not convert surface to texture: {}", err),
+            Err(err) => panic!("Could not convert surface to texture: {err}"),
         };
         LTexture::new(tex)
     }
@@ -110,7 +110,7 @@ fn init() -> (Sdl, Window, Sdl2ImageContext) {
         .build()
     {
         Ok(window) => window,
-        Err(err) => panic!("Failed to create Window!: {}", err),
+        Err(err) => panic!("Failed to create Window!: {err}"),
     };
 
     let image = sdl2::image::init(InitFlag::PNG).unwrap();
@@ -125,7 +125,7 @@ fn main() {
     // Obtain the canvas
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
-        Err(err) => panic!("Could not obtain canvas: {}", err),
+        Err(err) => panic!("Could not obtain canvas: {err}"),
     };
     let creator = canvas.texture_creator();
 

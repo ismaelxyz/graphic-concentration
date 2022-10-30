@@ -167,7 +167,7 @@ fn main() {
         }
 
         // Set text to be rendered
-        let text: String = format!("Average Frames Per Second {}", avg_fps);
+        let text: String = format!("Average Frames Per Second {avg_fps}");
 
         // Load prompt texture
         let time_text = LTexture::from_creator_text(&creator, &font, &text, text_color);

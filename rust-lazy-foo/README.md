@@ -54,8 +54,8 @@ device, and at this point I can't create anything for mobile.
 * (NOT IMPLEMENTED) Lesson 34 - Audio Recording
 * Lesson 35 - Window Events
 * Lesson 36 - Multiple Windows
-* (TODO) Lesson 37 - Multiple Displays
-* (TODO) Lesson 38 - Particle Engines
+* Lesson 37 - Multiple Displays
+* Lesson 38 - Particle Engines
 * (TODO) Lesson 39 - Tiling
 * (TODO) Lesson 40 - Texture Manipulation
 * (TODO) Lesson 41 - Bitmap Fonts

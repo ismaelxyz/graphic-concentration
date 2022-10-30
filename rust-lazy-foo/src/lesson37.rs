@@ -3,14 +3,17 @@ use sdl2::{
     keyboard::Keycode,
     pixels::Color,
     render::Canvas,
-    video::Window,
+    video::{Window, WindowPos},
     Sdl, VideoSubsystem,
 };
 
+// Screen dimension
+const WIDTH: i32 = 640;
+const HEIGHT: i32 = 480;
+
 #[derive(Default)]
 struct WindowState {
-    // int mWindowID;
-    // int mWindowDisplayID;
+    display_id: usize,
     is_keyboard_focus: bool,
     is_mouse_focus: bool,
     is_minimized: bool,
@@ -24,11 +27,6 @@ struct XWindow {
 
 impl XWindow {
     fn new(video: &VideoSubsystem) -> Self {
-        let state = WindowState {
-            shown: true,
-            ..Default::default()
-        };
-
         let win = video
             .window("SDL Tutorial 37", 650, 480)
             .resizable()
@@ -40,17 +38,14 @@ impl XWindow {
         let mut canvas = win.into_canvas().build().unwrap();
         canvas.set_draw_color(Color::WHITE);
 
-        XWindow { canvas, state }
-    }
-
-    fn focus(&mut self) {
-        //Restore window if needed
-        if !self.state.shown {
-            self.canvas.window_mut().show();
+        XWindow {
+            state: WindowState {
+                shown: true,
+                display_id: canvas.window().display_index().unwrap() as usize,
+                ..Default::default()
+            },
+            canvas,
         }
-
-        //Move window forward
-        self.canvas.window_mut().raise();
     }
 
     fn render(&mut self) {
@@ -58,16 +53,13 @@ impl XWindow {
         self.canvas.present();
     }
 
-    fn handle_event(&mut self, event: &Event) -> bool {
+    fn handle_event(&mut self, event: &Event, mut update_caption: bool) {
         match event {
-            Event::Quit { .. } => return true,
             Event::Window {
                 win_event,
                 window_id,
                 ..
             } if *window_id == self.canvas.window().id() => {
-                let mut update_caption: bool = false;
-
                 match win_event {
                     WindowEvent::Shown => self.state.shown = true,
                     WindowEvent::Hidden => self.state.shown = false,
@@ -100,8 +92,9 @@ impl XWindow {
                     self.canvas
                         .window_mut()
                         .set_title(&format!(
-                            "SDL Tutorial - ID: {}; MouseFocus: {}; KeyboardFocus: {}",
+                            "SDL Tutorial - ID: {} Display: {} MouseFocus: {} KeyboardFocus: {}",
                             window_id,
+                            self.state.display_id,
                             if self.state.is_mouse_focus {
                                 "On"
                             } else {
@@ -118,8 +111,6 @@ impl XWindow {
             }
             _ => (),
         }
-
-        false
     }
 }
 
@@ -130,58 +121,63 @@ fn init() -> (Sdl, VideoSubsystem) {
     sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
-    let total_displays = video.num_video_displays().unwrap();
-    if total_displays < 2 {
-        eprintln!("Warning: Only one display connected!");
-    }
-
-    let display_bounds = (0..total_displays).map(|i| video.display_bounds(i)).collect::<Vec<_>>();
-    video.display_index()
     (sdl, video)
 }
 
 fn main() {
     let (context, video) = init();
-    let mut windows = [
-        XWindow::new(&video),
-        XWindow::new(&video),
-        XWindow::new(&video),
-    ];
+
+    let total_displays = video.num_video_displays().unwrap() as usize;
+    if total_displays < 2 {
+        eprintln!("Warning: Only one display connected!");
+    }
+
+    let display_bounds = (0..total_displays)
+        .map(|i| video.display_bounds(i as i32))
+        .collect::<Result<Vec<_>, String>>()
+        .unwrap();
+    let mut window = XWindow::new(&video);
     let mut event_pump = context.event_pump().unwrap();
 
     'running: loop {
+        let mut update_caption: bool = false;
+
         for event in event_pump.poll_iter() {
-            for window in &mut windows {
-                if window.handle_event(&event) {
-                    break 'running;
-                }
-            }
-
-            if let Event::KeyDown {
-                keycode: Some(k), ..
-            } = event
-            {
-                match k {
+            match event {
+                Event::Quit { .. } => break 'running,
+                Event::KeyDown {
+                    keycode: Some(k), ..
+                } => match k {
                     Keycode::Escape => break 'running,
-                    Keycode::Num1 => windows[0].focus(),
-                    Keycode::Num2 => windows[1].focus(),
-                    Keycode::Num3 => windows[2].focus(),
+                    k @ (Keycode::Up | Keycode::Down) => {
+                        update_caption = true;
+
+                        if k == Keycode::Up {
+                            if window.state.display_id + 1 == total_displays {
+                                window.state.display_id = 0;
+                            } else {
+                                window.state.display_id += 1;
+                            }
+                        } else if window.state.display_id.overflowing_sub(1).1 {
+                            window.state.display_id = total_displays - 1;
+                        } else {
+                            window.state.display_id -= 1;
+                        }
+
+                        let bound = display_bounds[window.state.display_id];
+                        window.canvas.window_mut().set_position(
+                            WindowPos::Positioned(bound.x + (bound.w - WIDTH) / 2),
+                            WindowPos::Positioned(bound.y + (bound.h - HEIGHT) / 2),
+                        );
+                    }
                     _ => (),
-                }
+                },
+                _ => (),
             }
+
+            window.handle_event(&event, update_caption);
         }
 
-        if windows
-            .iter_mut()
-            .map(|window| {
-                window.render();
-                window.state.shown
-            })
-            .collect::<Vec<_>>()
-            .iter()
-            .all(|b| !b)
-        {
-            break 'running;
-        }
+        window.render();
     }
 }

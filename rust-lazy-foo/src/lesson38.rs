@@ -1,3 +1,4 @@
+use rand::{thread_rng, Rng};
 use sdl2::{
     event::Event,
     image::LoadSurface,
@@ -6,12 +7,16 @@ use sdl2::{
     rect::Rect,
     render::{Canvas, RenderTarget, Texture, TextureCreator},
     surface::Surface,
-    video::Window,
+    video::{Window, WindowContext},
 };
 
+type CreatorWindow = TextureCreator<WindowContext>;
 // Screen dimension
 const WIDTH: u32 = 650;
 const HEIGHT: u32 = 480;
+
+//Particle count
+const TOTAL_PARTICLES: usize = 20;
 
 /// Texture wrapper
 pub struct LTexture<'a> {
@@ -32,8 +37,9 @@ impl<'a> LTexture<'a> {
     }
 
     /// Loads image at specified path
-    pub fn from_file<T>(path: &str, creator: &'a TextureCreator<T>) -> LTexture<'a> {
-        let mut surf = Surface::from_file(path).expect("Could not load surface from file!");
+    pub fn from_file(name: &str, creator: &'a CreatorWindow) -> LTexture<'a> {
+        let mut surf = Surface::from_file(format!("resources/{name}.bmp"))
+            .expect("Could not load surface from file!");
 
         // Color key image
         surf.set_color_key(true, Color::RGB(0, 0xFF, 0xFF))
@@ -49,7 +55,7 @@ impl<'a> LTexture<'a> {
     }
 
     /// Renders texture at given point
-    pub fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>, x: i32, y: i32) {
+    pub fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>, (x, y): (i32, i32)) {
         let clip_rect = Rect::new(0, 0, self.width, self.height);
         canvas
             .copy_ex(
@@ -65,7 +71,59 @@ impl<'a> LTexture<'a> {
     }
 }
 
-// The dot that will move around on the screen
+struct Particle<'a> {
+    /// Offsets
+    pos: (i32, i32),
+
+    /// Current frame of animation
+    frame: usize,
+
+    /// Type of particle
+    texture_index: LTexture<'a>,
+}
+
+impl<'a> Particle<'a> {
+    /// Initialize position and animation
+    fn new((x, y): (i32, i32), creator: &'a CreatorWindow) -> Self {
+        let mut rng = thread_rng();
+        let mut texture = match rng.gen_range(0..3) {
+            0 => LTexture::from_file("red", creator),
+            1 => LTexture::from_file("green", creator),
+            2 => LTexture::from_file("blue", creator),
+            _ => unreachable!(),
+        };
+
+        texture.texture.set_alpha_mod(192);
+
+        Self {
+            // Set offsets
+            pos: (x - 5 + rng.gen_range(0..25), y - 5 + rng.gen_range(0..25)),
+            // Initialize animation
+            frame: rng.gen_range(0..5),
+            texture,
+        }
+    }
+
+    fn render(&mut self, canvas: &mut Canvas<Window>, shimmer_texture: &'a LTexture<'a>) {
+        // Show image
+        self.texture.render(canvas, self.pos);
+
+        // Show shimmer
+        if self.frame % 2 == 0 {
+            shimmer_texture.render(canvas, self.pos);
+        }
+
+        // Animate
+        self.frame += 1;
+    }
+
+    /// Checks if particle is dead
+    fn is_dead(&self) -> bool {
+        self.frame > 10
+    }
+}
+
+/// The dot that will move around on the screen
 struct Dot<'a> {
     /// The X and Y offsets of the dot
     pos: (i32, i32),
@@ -74,6 +132,7 @@ struct Dot<'a> {
     vel: (i32, i32),
 
     pub texture: LTexture<'a>,
+    particles: Vec<Particle<'a>>,
 }
 
 impl<'a> Dot<'a> {
@@ -85,12 +144,15 @@ impl<'a> Dot<'a> {
     const VEL: i32 = 10;
 
     /// Initializes the variables
-    fn new(texture: LTexture<'a>) -> Self {
-        //Initialize the offsets and the velocity
+    fn new(creator: &'a CreatorWindow) -> Self {
+        // Initialize the offsets and the velocity
         Dot {
             pos: (0, 0),
             vel: (0, 0),
-            texture,
+            texture: LTexture::from_file("dot", creator),
+            particles: (0..=TOTAL_PARTICLES)
+                .map(move |_| Particle::new((0, 0), creator))
+                .collect(),
         }
     }
 
@@ -138,8 +200,26 @@ impl<'a> Dot<'a> {
     }
 
     /// Shows the dot on the screen
-    fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>) {
-        self.texture.render(canvas, self.pos.0, self.pos.1);
+    fn render(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        creator: &'a CreatorWindow,
+        shimmer_texture: &'a LTexture,
+    ) {
+        self.texture.render(canvas, self.pos);
+
+        // # Show particles on top of dot
+
+        // Go through particles
+        for particle in self.particles.iter_mut() {
+            // Replace dead particles
+            if particle.is_dead() {
+                *particle = Particle::new(self.pos, creator)
+            }
+
+            // Show particles
+            particle.render(canvas, shimmer_texture);
+        }
     }
 }
 
@@ -151,7 +231,7 @@ fn init() -> (sdl2::Sdl, Window) {
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
     let win = video
-        .window("SDL Tutorial 27", WIDTH, HEIGHT)
+        .window("SDL Tutorial 38", WIDTH, HEIGHT)
         .position_centered()
         .opengl()
         .build()
@@ -180,10 +260,11 @@ fn main() {
         .event_pump()
         .expect("Unable to obtain event pump handle!");
 
-    let dot_texture = LTexture::from_file("resources/dot.bmp", &creator);
+    let mut shimmer_texture = LTexture::from_file("shimmer", &creator);
+    shimmer_texture.texture.set_alpha_mod(192);
 
     //The dot that will be moving around on the screen
-    let mut dot = Dot::new(dot_texture);
+    let mut dot = Dot::new(&creator);
 
     'running: loop {
         // Extract any pending events from from the event pump and process them
@@ -204,7 +285,7 @@ fn main() {
         canvas.clear();
 
         // Render objects
-        dot.render(&mut canvas);
+        dot.render(&mut canvas, &creator, &shimmer_texture);
 
         // Update the screen
         canvas.present();

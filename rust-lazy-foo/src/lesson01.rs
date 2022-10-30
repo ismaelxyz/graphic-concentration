@@ -14,16 +14,13 @@ fn main() {
     // We eschew .unwrap() here so we can output the exact SDL error that caused the failure.
     let sdl_context = match sdl2::init() {
         Ok(sdl_context) => sdl_context,
-        Err(err) => panic!("SDL could not initialize!  SDL_Error: {}", err),
+        Err(err) => panic!("SDL could not initialize!  SDL_Error: {err}"),
     };
 
     // Get a handle to the underlying video subsystem
     let video = match sdl_context.video() {
         Ok(video) => video,
-        Err(err) => panic!(
-            "Could not obtain handle to the video subsystem! SDL_Error: {}",
-            err
-        ),
+        Err(err) => panic!("Could not obtain handle to the video subsystem! SDL_Error: {err}"),
     };
 
     // Create a Window
@@ -37,7 +34,7 @@ fn main() {
         .build()
     {
         Ok(window) => window,
-        Err(err) => panic!("SDL could not create a window! SDL_Error: {}", err),
+        Err(err) => panic!("SDL could not create a window! SDL_Error: {err}"),
     };
 
     // There's a major deviation from Lazy Foo's Lesson 1 here,
@@ -49,7 +46,7 @@ fn main() {
     // the main window.
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
-        Err(err) => panic!("SDL could not create a renderer! SDL_Error: {}", err),
+        Err(err) => panic!("SDL could not create a renderer! SDL_Error: {err}"),
     };
 
     // Use the canvas it to clear and render the screen

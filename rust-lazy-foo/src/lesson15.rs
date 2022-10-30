@@ -139,7 +139,7 @@ fn main() {
     // Obtain the canvas
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
-        Err(err) => panic!("Could not obtain canvas: {}", err),
+        Err(err) => panic!("Could not obtain canvas: {err}"),
     };
 
     let creator = canvas.texture_creator();

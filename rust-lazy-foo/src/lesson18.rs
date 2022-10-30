@@ -23,7 +23,7 @@ struct Direction<'a> {
 fn load_texture<'a, T>(path: &'a str, creator: &'a TextureCreator<T>) -> Texture<'a> {
     match creator.load_texture(std::path::Path::new(path)) {
         Ok(tex) => tex,
-        Err(err) => panic!("Could not load texture: {}", err),
+        Err(err) => panic!("Could not load texture: {err}"),
     }
 }
 

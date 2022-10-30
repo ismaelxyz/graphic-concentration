@@ -4,15 +4,19 @@ version = "0.2.0"
 authors = ["Ysgard <ysgard@gmail.com>", "Ismaelxyz <ismaelbeli.com@gmail.com>"]
 edition = "2021"
 
-# Clipboard
-[dependencies.arboard]
-version = "*"
-default-features = false
-
 [dependencies.sdl2]
 version = "*"
 default-features = false
 features = ["image", "ttf", "mixer"]
+
+[dependencies.arboard]
+version = "*"
+default-features = false
+optional = true
+
+[dependencies.rand]
+version = "*"
+optional = true
 
 [[bin]]
 name = "lesson01"
@@ -131,6 +135,7 @@ path = "src/lesson30.rs"
 [[bin]]
 name = "lesson32"
 path = "src/lesson32.rs"
+required-features = ["arboard"]
 
 [[bin]]
 name = "lesson33"
@@ -145,3 +150,12 @@ path = "src/lesson35.rs"
 [[bin]]
 name = "lesson36"
 path = "src/lesson36.rs"
+
+[[bin]]
+name = "lesson37"
+path = "src/lesson37.rs"
+
+[[bin]]
+name = "lesson38"
+path = "src/lesson38.rs"
+required-features = ["rand"]
