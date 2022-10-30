@@ -21,7 +21,7 @@ fn init() -> (Sdl, Window) {
         .build()
     {
         Ok(window) => window,
-        Err(err) => panic!("Failed to create Window!: {}", err),
+        Err(err) => panic!("Failed to create Window!: {err}"),
     };
 
     (sdl, win)
@@ -34,7 +34,7 @@ fn main() {
     // Set texture filtering to linear
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
-        Err(err) => panic!("Could not obtain canvas: {}", err),
+        Err(err) => panic!("Could not obtain canvas: {err}"),
     };
 
     // Get a handle to the SDL2 event pump
@@ -91,9 +91,7 @@ fn main() {
         // Draw vertical line of yellow dots
         canvas.set_draw_color(Color::RGB(0xff, 0xff, 0));
         for i in (0..HEIGHT as i32).step_by(4) {
-            canvas
-                .draw_point(Point::new(WIDTH as i32 / 2, i as i32))
-                .unwrap();
+            canvas.draw_point(Point::new(WIDTH as i32 / 2, i)).unwrap();
         }
 
         // Update the screen

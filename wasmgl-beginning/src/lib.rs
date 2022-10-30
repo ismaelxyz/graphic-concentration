@@ -6,19 +6,6 @@ use std::sync::{Arc, Mutex};
 use wasm_bindgen::{prelude::*, JsCast};
 use web_sys::{WebGl2RenderingContext, WebGlProgram, WebGlShader};
 
-#[macro_export]
-macro_rules! console_log {
-    ($($t:tt)*) => (
-        log(&format_args!( $( $t )* ).to_string())
-    )
-}
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace=console)]
-    fn log(s: &str);
-}
-
 pub(crate) fn compile_shader(
     context: &WebGl2RenderingContext,
     shader_type: u32,
@@ -122,7 +109,6 @@ impl LessonCursor {
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
     let document = web_sys::window().unwrap().document().unwrap();
-    let body = document.body().unwrap();
     let lessons = Arc::new(Mutex::new(LessonCursor::new("app-canvas")));
     let qlessons = Arc::clone(&lessons);
 

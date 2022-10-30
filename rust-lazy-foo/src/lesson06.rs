@@ -22,7 +22,7 @@ fn init() -> (Sdl, Window, Sdl2ImageContext) {
         .build()
     {
         Ok(window) => window,
-        Err(err) => panic!("Failed to create Window!: {}", err),
+        Err(err) => panic!("Failed to create Window!: {err}"),
     };
 
     // As of rust-sdl2 0.27.2, SDL2_IMAGE is now part of the core
@@ -40,7 +40,7 @@ fn main() {
 
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
-        Err(err) => panic!("Could not obtain canvas: {}", err),
+        Err(err) => panic!("Could not obtain canvas: {err}"),
     };
 
     let creator = canvas.texture_creator();
@@ -48,7 +48,7 @@ fn main() {
     // Load the image
     let image_texture = match creator.load_texture(Path::new("resources/loaded.png")) {
         Ok(texture) => texture,
-        Err(err) => panic!("Could not load texture: {}", err),
+        Err(err) => panic!("Could not load texture: {err}"),
     };
 
     // Get a handle to the SDL2 event pump

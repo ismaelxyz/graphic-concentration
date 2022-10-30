@@ -28,7 +28,7 @@ fn init() -> (Sdl, Window, Sdl2ImageContext) {
         .build()
     {
         Ok(window) => window,
-        Err(err) => panic!("Failed to create Window!: {}", err),
+        Err(err) => panic!("Failed to create Window!: {err}"),
     };
     let image = sdl2::image::init(InitFlag::PNG).unwrap();
 
@@ -41,7 +41,7 @@ fn main() {
 
     let mut canvas = match window.into_canvas().build() {
         Ok(canvas) => canvas,
-        Err(err) => panic!("Could not obtain canvas: {}", err),
+        Err(err) => panic!("Could not obtain canvas: {err}"),
     };
 
     let creator = canvas.texture_creator();
@@ -49,7 +49,7 @@ fn main() {
     // Load the image
     let image_texture = match creator.load_texture(Path::new(IMG_NAME)) {
         Ok(texture) => texture,
-        Err(err) => panic!("Could not load texture: {}", err),
+        Err(err) => panic!("Could not load texture: {err}"),
     };
 
     // Set renderer color using the context

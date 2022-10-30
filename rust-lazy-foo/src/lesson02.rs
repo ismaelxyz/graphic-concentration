@@ -24,9 +24,9 @@ fn main() {
     let mut canvas = window.into_canvas().build().unwrap();
 
     // Load the image as a surface - if we can't load the image, we want to know why
-    let image_surface = match Surface::load_bmp(&Path::new("resources/hello_world.bmp")) {
+    let image_surface = match Surface::load_bmp(Path::new("resources/hello_world.bmp")) {
         Ok(surface) => surface,
-        Err(err) => panic!("Could not load image: {}", err),
+        Err(err) => panic!("Could not load image: {err}"),
     };
 
     // Obtain a TextureCreator<T> for create textures
@@ -37,7 +37,7 @@ fn main() {
     // then when we're ready, we convert it to a texture for quick blitting
     let image_texture = match creator.create_texture_from_surface(&image_surface) {
         Ok(tex) => tex,
-        Err(err) => panic!("Could not convert image to texture: {}", err),
+        Err(err) => panic!("Could not convert image to texture: {err}"),
     };
 
     // Clear the current window
@@ -50,7 +50,7 @@ fn main() {
     // is Rust's 'nothing' type.
     match canvas.copy(&image_texture, None, None) {
         Ok(()) => (),
-        Err(err) => panic!("Could not render texture: {}", err),
+        Err(err) => panic!("Could not render texture: {err}"),
     };
     // Flip the screen buffer.
     canvas.present();

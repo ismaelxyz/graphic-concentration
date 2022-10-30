@@ -32,7 +32,7 @@ fn init() -> (Sdl, Window) {
         .build()
     {
         Ok(window) => window,
-        Err(err) => panic!("Failed to create Window!: {}", err),
+        Err(err) => panic!("Failed to create Window!: {err}"),
     };
     (sdl, win)
 }
@@ -41,9 +41,9 @@ fn init() -> (Sdl, Window) {
 // an image, and return its optimized surface.
 fn load_image(path: &str) -> Surface {
     use std::path::Path;
-    match Surface::load_bmp(&Path::new(path)) {
+    match Surface::load_bmp(Path::new(path)) {
         Ok(surface) => surface,
-        Err(err) => panic!("Could not load image: {}", err),
+        Err(err) => panic!("Could not load image: {err}"),
     }
 }
 
@@ -55,7 +55,7 @@ fn surface_to_texture<'a, T>(
 ) -> Texture<'a> {
     match renderer.create_texture_from_surface(sfc) {
         Ok(tex) => tex,
-        Err(err) => panic!("Could not load texture: {}", err),
+        Err(err) => panic!("Could not load texture: {err}"),
     }
 }
 
@@ -81,14 +81,14 @@ fn main() {
     let sf_pixel_format = image_surface.pixel_format();
     let optimized_surface = match image_surface.convert(&sf_pixel_format) {
         Ok(surface) => surface,
-        Err(err) => panic!("Could not convert surface: {}", err),
+        Err(err) => panic!("Could not convert surface: {err}"),
     };
 
     // Now stretch the optimized surface to the dimensions we want
     let dst_rect = Rect::new(0, 0, WIDTH, HEIGHT);
     let mut stretched_surface = match Surface::new(WIDTH, HEIGHT, pixel_format) {
         Ok(surface) => surface,
-        Err(err) => panic!("Could not create surface: {}", err),
+        Err(err) => panic!("Could not create surface: {err}"),
     };
     // blit_scaled does not return anything, but it does return an SdlResult, so
     // we unwrap to trigger the panic if we can't blit.
@@ -98,7 +98,7 @@ fn main() {
 
     let mut canvas = match window.into_canvas().build() {
         Ok(renderer) => renderer,
-        Err(err) => panic!("Could not obtain renderer: {}", err),
+        Err(err) => panic!("Could not obtain renderer: {err}"),
     };
 
     let creator = canvas.texture_creator();
