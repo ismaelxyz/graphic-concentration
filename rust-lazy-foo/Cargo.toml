@@ -1,6 +1,6 @@
 [package]
 name = "lazy-foo"
-version = "0.2.0"
+version = "0.5.0"
 authors = ["Ysgard <ysgard@gmail.com>", "Ismaelxyz <ismaelbeli.com@gmail.com>"]
 edition = "2021"
 
