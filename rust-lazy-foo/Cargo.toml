@@ -159,3 +159,7 @@ path = "src/lesson37.rs"
 name = "lesson38"
 path = "src/lesson38.rs"
 required-features = ["rand"]
+
+[[bin]]
+name = "lesson39"
+path = "src/lesson39.rs"

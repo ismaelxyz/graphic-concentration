@@ -94,27 +94,27 @@ impl<'a> Dot<'a> {
         }
     }
 
-    #[rustfmt::skip]
     /// Takes key presses and adjusts the dot's velocity
+    #[rustfmt::skip]
     fn handle_event(&mut self, e: &Event) {
-            match e {
-                Event::KeyDown { repeat: false, keycode: Some(kode), .. } => match kode {
-                    Keycode::Up => self.vel.1 -= Dot::VEL,
-                    Keycode::Down => self.vel.1 += Dot::VEL,
-                    Keycode::Left  => self.vel.0 -= Dot::VEL,
-                    Keycode::Right  => self.vel.0 += Dot::VEL,
-                    _ => (),
-                },
-                Event::KeyUp { repeat: false, keycode: Some(kode), .. } => match kode {
-                    Keycode::Up => self.vel.1 += Dot::VEL,
-                    Keycode::Down => self.vel.1 -= Dot::VEL,
-                    Keycode::Left  => self.vel.0 += Dot::VEL,
-                    Keycode::Right  => self.vel.0 -= Dot::VEL,
-                    _ => (),
-                }
+        match e {
+            Event::KeyDown { repeat: false, keycode: Some(kode), .. } => match kode {
+                Keycode::Up => self.vel.1 -= Dot::VEL,
+                Keycode::Down => self.vel.1 += Dot::VEL,
+                Keycode::Left  => self.vel.0 -= Dot::VEL,
+                Keycode::Right  => self.vel.0 += Dot::VEL,
+                _ => (),
+            },
+            Event::KeyUp { repeat: false, keycode: Some(kode), .. } => match kode {
+                Keycode::Up => self.vel.1 += Dot::VEL,
+                Keycode::Down => self.vel.1 -= Dot::VEL,
+                Keycode::Left  => self.vel.0 += Dot::VEL,
+                Keycode::Right  => self.vel.0 -= Dot::VEL,
                 _ => (),
             }
+            _ => (),
         }
+    }
 
     /// Moves the dot
     fn r#move(&mut self) {
