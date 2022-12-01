@@ -4,12 +4,8 @@ use sdl2::{
     pixels::Color,
     render::Canvas,
     video::{Window, WindowPos},
-    Sdl, VideoSubsystem,
+    VideoSubsystem,
 };
-
-// Screen dimension
-const WIDTH: i32 = 640;
-const HEIGHT: i32 = 480;
 
 #[derive(Default)]
 struct WindowState {
@@ -27,7 +23,7 @@ struct XWindow {
 
 impl XWindow {
     fn new(video: &VideoSubsystem) -> Self {
-        let win = video
+        let window = video
             .window("SDL Tutorial 37", 650, 480)
             .resizable()
             .position_centered()
@@ -35,7 +31,7 @@ impl XWindow {
             .build()
             .unwrap();
 
-        let mut canvas = win.into_canvas().build().unwrap();
+        let mut canvas = window.into_canvas().build().unwrap();
         canvas.set_draw_color(Color::WHITE);
 
         XWindow {
@@ -92,7 +88,7 @@ impl XWindow {
                     self.canvas
                         .window_mut()
                         .set_title(&format!(
-                            "SDL Tutorial - ID: {} Display: {} MouseFocus: {} KeyboardFocus: {}",
+                            "SDL Tutorial 37 - ID: {} Display: {} MouseFocus: {} KeyboardFocus: {}",
                             window_id,
                             self.state.display_id,
                             if self.state.is_mouse_focus {
@@ -114,18 +110,12 @@ impl XWindow {
     }
 }
 
-fn init() -> (Sdl, VideoSubsystem) {
-    let sdl = sdl2::init().unwrap();
-    let video = sdl.video().unwrap();
+fn main() {
+    let sdl_ctx = sdl2::init().unwrap();
+    let video = sdl_ctx.video().unwrap();
 
     sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
-
-    (sdl, video)
-}
-
-fn main() {
-    let (context, video) = init();
 
     let total_displays = video.num_video_displays().unwrap() as usize;
     if total_displays < 2 {
@@ -137,18 +127,19 @@ fn main() {
         .collect::<Result<Vec<_>, String>>()
         .unwrap();
     let mut window = XWindow::new(&video);
-    let mut event_pump = context.event_pump().unwrap();
+    let (width, height) = window.canvas.window().size();
+    let mut event_pump = sdl_ctx.event_pump().unwrap();
 
-    'running: loop {
+    main_loop::setup_mainloop(-1, true, move || {
         let mut update_caption: bool = false;
 
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit { .. } => break 'running,
+                Event::Quit { .. } => return false,
                 Event::KeyDown {
                     keycode: Some(k), ..
                 } => match k {
-                    Keycode::Escape => break 'running,
+                    Keycode::Escape => return false,
                     k @ (Keycode::Up | Keycode::Down) => {
                         update_caption = true;
 
@@ -166,8 +157,8 @@ fn main() {
 
                         let bound = display_bounds[window.state.display_id];
                         window.canvas.window_mut().set_position(
-                            WindowPos::Positioned(bound.x + (bound.w - WIDTH) / 2),
-                            WindowPos::Positioned(bound.y + (bound.h - HEIGHT) / 2),
+                            WindowPos::Positioned(bound.x + (bound.w - width as i32) / 2),
+                            WindowPos::Positioned(bound.y + (bound.h - height as i32) / 2),
                         );
                     }
                     _ => (),
@@ -179,5 +170,6 @@ fn main() {
         }
 
         window.render();
-    }
+        true
+    });
 }

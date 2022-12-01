@@ -1,9 +1,8 @@
-use sdl2::pixels::Color;
-use std::{thread::sleep, time::Duration};
+use sdl2::{event::Event, keyboard::Keycode, pixels::Color};
 
 // Set Screen dimensions
-const WIDTH: u32 = 640;
-const HEIGHT: u32 = 480;
+const SCREEN_WIDTH: u32 = 640;
+const SCREEN_HEIGHT: u32 = 480;
 
 fn main() {
     // Initialize SDL
@@ -23,12 +22,19 @@ fn main() {
         Err(err) => panic!("Could not obtain handle to the video subsystem! SDL_Error: {err}"),
     };
 
+    let mut event_pump = sdl_context.event_pump().unwrap();
+
+    // #define SDL_HINT_RENDER_SCALE_QUALITY "SDL_RENDER_SCALE_QUALITY"
+    sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
+    // #define SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR "SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR"
+    sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
+
     // Create a Window
     // Window::new and sdl2::init (and other funcs return an SdlResult, which
     // is just a wrapper around Result<T, string>.  Result can return one
     // of two values: Ok(T), or Err(string).  Use match to unwrap them.
     let window = match video
-        .window("SDL Tutorial 1", WIDTH, HEIGHT)
+        .window("SDL Tutorial 1", SCREEN_WIDTH, SCREEN_HEIGHT)
         .position_centered()
         .opengl()
         .build()
@@ -49,15 +55,33 @@ fn main() {
         Err(err) => panic!("SDL could not create a renderer! SDL_Error: {err}"),
     };
 
-    // Use the canvas it to clear and render the screen
-    canvas.set_draw_color(Color::RGB(200, 200, 200));
-    canvas.clear();
-    canvas.present();
+    let main_loop = move || {
+        // We blit the image to the screen corresponding to the keypress,
+        // or 'press' otherwise.  Using 'Esc' or 'q' will quit the program.
+        for event in event_pump.poll_iter() {
+            if let Event::Quit { .. }
+            | Event::KeyDown {
+                keycode: Some(Keycode::Escape),
+                ..
+            } = event
+            {
+                return false;
+            }
+        }
 
-    // Pause for two seconds
-    sleep(Duration::new(2, 0));
+        // Use the canvas it to clear and render the screen
+        canvas.set_draw_color(Color::RGB(140, 200, 200));
+        // Clear the current window
+        canvas.clear();
+        // Flip the screen buffer.
+        canvas.present();
 
-    // Quit SDL Subsystems
-    // Note that we don't have to explicitly call SDL_Quit, as `sdl_context`
-    // calls it as it gets dropped
+        true
+    };
+
+    main_loop::setup_mainloop(
+        -1,   // call the function as fast as the browser wants to render (typically 60fps)
+        true, // call the function repeatedly
+        main_loop,
+    );
 }

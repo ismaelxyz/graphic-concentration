@@ -3,62 +3,54 @@ use sdl2::{
     image::{InitFlag, LoadTexture},
     keyboard::Scancode,
     render::{Texture, TextureCreator},
-    video::Window,
-    Sdl,
+    video::WindowContext,
 };
 
-const WIDTH: u32 = 640;
-const HEIGHT: u32 = 480;
-
-struct Direction<'a> {
-    up: Texture<'a>,
-    down: Texture<'a>,
-    left: Texture<'a>,
-    right: Texture<'a>,
-    press: Texture<'a>,
+struct Direction {
+    up: Texture,
+    down: Texture,
+    left: Texture,
+    right: Texture,
+    press: Texture,
 }
 
-// Take a string describing a path and use it to
-// load an image, and return its texture
-fn load_texture<'a, T>(path: &'a str, creator: &'a TextureCreator<T>) -> Texture<'a> {
-    match creator.load_texture(std::path::Path::new(path)) {
-        Ok(tex) => tex,
-        Err(err) => panic!("Could not load texture: {err}"),
-    }
+/// Take a string describing a path and use it to
+/// load an image, and return its texture
+#[inline(always)]
+fn load_texture(name: &str, creator: &TextureCreator<WindowContext>) -> Texture {
+    let relative_path = format!("./resources/lesson18/{name}.png");
+    creator
+        .load_texture(std::path::Path::new(&relative_path))
+        .expect("Could not load texture!")
 }
 
-// Load the textures
-fn load_media<T>(creator: &TextureCreator<T>) -> Direction<'_> {
+/// Load the textures
+#[inline(always)]
+fn load_media(creator: &TextureCreator<WindowContext>) -> Direction {
     // Path relative to root of crate
     Direction {
-        up: load_texture("resources/up.png", creator),
-        down: load_texture("resources/down.png", creator),
-        left: load_texture("resources/left.png", creator),
-        right: load_texture("resources/right.png", creator),
-        press: load_texture("resources/press.png", creator),
+        up: load_texture("up", creator),
+        down: load_texture("down", creator),
+        left: load_texture("left", creator),
+        right: load_texture("right", creator),
+        press: load_texture("press", creator),
     }
 }
 
-// Break out initialization into a separate function, which
-// returns only the Window (we don't need the sdl_context)
-fn init() -> (Sdl, Window) {
-    let sdl = sdl2::init().expect("Unable to initialize SDL!");
-    let video = sdl.video().expect("Could not acquire video context!");
-    let win = video
-        .window("SDL Tutorial 18", WIDTH, HEIGHT)
+fn main() {
+    let sdl_ctx = sdl2::init().expect("Unable to initialize SDL!");
+    let video = sdl_ctx.video().expect("Could not acquire video context!");
+
+    sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
+    sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
+    let window = video
+        .window("SDL Tutorial 18", 640, 480)
         .position_centered()
         .opengl()
         .build()
         .expect("Could not create SDL window!");
 
     sdl2::image::init(InitFlag::PNG).unwrap();
-
-    (sdl, win)
-}
-
-fn main() {
-    // Initialize SDL2
-    let (context, window) = init();
 
     let mut canvas = window
         .into_canvas()
@@ -72,18 +64,14 @@ fn main() {
     // Load the sprite textures into an hashmap
     let sprites = load_media(&creator);
 
-    // Blit the initial image to the window.
-    //let mut context = canvas.drawer();
+    let mut event_pump = sdl_ctx.event_pump().unwrap();
 
-    let mut event_pump = context.event_pump().unwrap();
-
-    // Start up the main loop
-    'running: loop {
+    main_loop::setup_mainloop(-1, true, move || {
         // We blit the image to the screen corresponding to the keypress,
         // or 'press' otherwise.  Using 'Esc' or 'q' will quit the program.
         for event in event_pump.poll_iter() {
             if let Event::Quit { .. } = event {
-                break 'running;
+                return false;
             }
         }
 
@@ -108,5 +96,7 @@ fn main() {
             canvas.copy(&sprites.press, None, None).unwrap();
         }
         canvas.present();
-    }
+
+        true
+    });
 }

@@ -13,7 +13,7 @@ Rust, Python and C++.
 Possible: Lua, C and D.
 
 # Libraries included?
-SDL2, OpenGL, GLUT, GLFW, Qt5/6.
+SDL2, OpenGL, WebGl, GLUT, GLFW, Qt6.
 Possible: GTk+.
 
 # Can I help?
@@ -21,5 +21,4 @@ Yes, you can make push requests, adding new examples or fixing bugs.
 Please note that the license of the examples is MIT.
 
 # Index
-In each folder there is a README.md with information
-about the examples it contains.
+In each folder there is a README.md with information about the examples it contains.

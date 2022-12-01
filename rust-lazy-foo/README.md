@@ -56,10 +56,10 @@ device, and at this point I can't create anything for mobile.
 * Lesson 36 - Multiple Windows
 * Lesson 37 - Multiple Displays
 * Lesson 38 - Particle Engines
-* (TODO) Lesson 39 - Tiling
-* (TODO) Lesson 40 - Texture Manipulation
-* (TODO) Lesson 41 - Bitmap Fonts
-* (TODO) Lesson 42 - Texture Streaming
+* Lesson 39 - Tiling
+* Lesson 40 - Texture Manipulation
+* Lesson 41 - Bitmap Fonts
+* Lesson 42 - Texture Streaming
 * (TODO) Lesson 43 - Render to Texture
 * (TODO) Lesson 44 - Frame Independent Movement
 * (TODO) Lesson 45 - Timer Callbacks

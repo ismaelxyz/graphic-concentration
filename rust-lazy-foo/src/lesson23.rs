@@ -4,27 +4,33 @@ use sdl2::{
     keyboard::Keycode,
     pixels::Color,
     rect::Rect,
-    render::{Canvas, RenderTarget, Texture, TextureCreator},
+    render::{Canvas, Texture, TextureCreator},
     surface::Surface,
-    ttf::{Font, Sdl2TtfContext},
-    video::Window,
+    ttf::Font,
+    video::{Window, WindowContext},
 };
 
-// Screen dimension
-const WIDTH: u32 = 640;
-const HEIGHT: u32 = 480;
-
-// Texture wrapper
-pub struct LTexture<'a> {
-    // The actual hardware texture
-    texture: Texture<'a>,
-    // Image dimensions
+pub struct Text {
+    texture: Texture,
     width: u32,
     height: u32,
 }
 
-impl<'a> LTexture<'a> {
-    fn new(texture: Texture<'a>, width: u32, height: u32) -> Self {
+impl Text {
+    /// Creates image from font string
+    fn new(creator: &TextureCreator<WindowContext>, font: &Font, text: &str) -> Self {
+        let text_surface: Surface = font
+            .render(text)
+            .solid(Color::BLACK)
+            .expect("Could not create text surface!");
+
+        // Now create a texture from the surface using the supplied creator
+        let texture = creator
+            .create_texture_from_surface(&text_surface)
+            .expect("Could not convert text surface to texture!");
+
+        let (width, height) = text_surface.size();
+        // Return an Tex using the given text_texture
         Self {
             texture,
             width,
@@ -32,25 +38,7 @@ impl<'a> LTexture<'a> {
         }
     }
 
-    // Creates image from font string
-    fn text<T>(creator: &'a TextureCreator<T>, font: &Font, text: &str) -> LTexture<'a> {
-        let text_surface: Surface = font
-            .render(text)
-            .solid(Color::BLACK)
-            .expect("Could not create text surface!");
-
-        // Now create a texture from the surface using the supplied creator
-        let text_texture = creator
-            .create_texture_from_surface(&text_surface)
-            .expect("Could not convert text surface to texture!");
-
-        let (w, h) = text_surface.size();
-        // Return an LTexture using the given text_texture
-        LTexture::new(text_texture, w, h)
-    }
-
-    // Renders texture at given point
-    fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>, x: i32, y: i32) {
+    fn render(&self, canvas: &mut Canvas<Window>, x: i32, y: i32) {
         let clip_rect = Rect::new(0, 0, self.width, self.height);
 
         canvas
@@ -75,7 +63,7 @@ impl<'a> LTexture<'a> {
     }
 }
 
-//The application time based timer
+/// The application time based timer
 struct LTimer {
     //The clock time when the timer started
     start_ticks: i32,
@@ -89,7 +77,7 @@ struct LTimer {
 }
 
 impl LTimer {
-    // Initializes variables
+    /// Initializes variables
     fn new() -> Self {
         Self {
             start_ticks: 0,
@@ -99,7 +87,7 @@ impl LTimer {
         }
     }
 
-    // The various clock actions
+    /// The various clock actions
     fn start(&mut self, t: i32) {
         // Get the current clock time
         self.start_ticks = t;
@@ -144,7 +132,7 @@ impl LTimer {
         }
     }
 
-    // Gets the timer's time
+    /// Gets the timer's time
     fn get_ticks(&mut self, t: i32) -> i32 {
         // The actual timer time
         let mut time: i32 = 0;
@@ -164,7 +152,7 @@ impl LTimer {
         time
     }
 
-    // Checks the status of the timer
+    /// Checks the status of the timer
     fn is_started(&self) -> bool {
         // Timer is running and paused or unpaused
         self.started
@@ -176,37 +164,26 @@ impl LTimer {
     }
 }
 
-fn init() -> (sdl2::Sdl, Window, Sdl2TtfContext) {
-    let sdl = sdl2::init().expect("Unable to initialize SDL!");
-    let video = sdl.video().expect("Could not acquire video context!");
-    let ttf = sdl2::ttf::init().expect("Could not acquire video context!");
+fn main() {
+    let sdl_ctx = sdl2::init().expect("Unable to initialize SDL!");
+    let video = sdl_ctx.video().expect("Could not acquire video context!");
+    let ttf_ctx = sdl2::ttf::init().expect("Could not acquire video context!");
+    sdl2::image::init(InitFlag::PNG).expect("Unable to initialize sdl2_image!");
+    // Initialize TimerSubsystem
+    let time = sdl_ctx.timer().unwrap();
 
-    // Recuerda es el valor lo que importa no el nombre de la variable
-    // #define SDL_HINT_RENDER_SCALE_QUALITY "SDL_RENDER_SCALE_QUALITY"
     sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
-    // Fuera del tutorial. Siempre utilizo esto en Linux.
-    // #define SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR "SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR"
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
-    let win = video
-        .window("SDL Tutorial 23", WIDTH, HEIGHT)
+    let window = video
+        .window("SDL Tutorial 23", 640, 480)
         .position_centered()
         .opengl()
         .build()
         .expect("Could not create SDL window!");
+    let (width, height) = window.size();
 
-    sdl2::image::init(InitFlag::PNG).expect("Unable to initialize sdl2_image!");
-
-    (sdl, win, ttf)
-}
-
-fn main() {
-    let (context, win, ttf) = init();
-    // Initialize TimerSubsystem
-    let time = context.timer().unwrap(); // mut
-
-    // Obtain the canvas
-    let mut canvas = win
+    let mut canvas = window
         .into_canvas()
         .accelerated()
         .present_vsync()
@@ -214,34 +191,34 @@ fn main() {
         .expect("Unable to obtain canvas!");
 
     let creator = canvas.texture_creator();
-    // Initialize renderer color
     canvas.set_draw_color(Color::WHITE);
 
-    let font = ttf
-        .load_font("resources/lazy.ttf", 28)
-        .expect("Could not load font context!");
+    // Load stop and pause prompt texture
+    let (prompt_start, prompt_pause) = {
+        let font = ttf_ctx
+            .load_font("resources/lesson16/lazy.ttf", 28)
+            .expect("Could not load font context!");
 
-    // Load stop prompt texture
-    let prompt_start = LTexture::text(&creator, &font, "Press S to Start or Stop the Timer");
-    // Load pause prompt texture
-    let prompt_pause = LTexture::text(&creator, &font, "Press P to Pause or Unpause the Timer");
+        (
+            Text::new(&creator, &font, "Press S to Start or Stop the Timer"),
+            Text::new(&creator, &font, "Press P to Pause or Unpause the Timer"),
+        )
+    };
 
     // Get a handle to the SDL2 event pump
-    let mut event_pump = context
+    let mut event_pump = sdl_ctx
         .event_pump()
         .expect("Unable to obtain event pump handle!");
 
     // The application timer
     let mut ltime = LTimer::new();
 
-    'running: loop {
-        // Extract any pending events from from the event pump and process them
+    main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
-            // pattern match on the type of event
             match event {
-                Event::Quit { .. } => break 'running,
+                Event::Quit { .. } => return false,
                 Event::KeyDown { keycode: k, .. } => match k {
-                    Some(Keycode::Escape) => break 'running,
+                    Some(Keycode::Escape) => return false,
                     // Start/stop
                     Some(Keycode::S) => {
                         if ltime.is_started() {
@@ -264,35 +241,41 @@ fn main() {
             };
         }
 
+        let font = ttf_ctx
+            .load_font("resources/lesson16/lazy.ttf", 28)
+            .expect("Could not load font context!");
+
         let text: String = format!(
             "Seconds since start time: {}",
             ltime.get_ticks(time.ticks() as i32) as f32 / 1000.0f32
         );
 
-        let time_text = LTexture::text(&creator, &font, text.as_str());
+        let time_text = Text::new(&creator, &font, text.as_str());
         // Clear and render the texture each pass through the loop
         canvas.clear();
 
         // Render the Image
         prompt_start.render(
             &mut canvas,
-            (WIDTH - prompt_start.get_width()) as i32 / 2,
+            (width - prompt_start.get_width()) as i32 / 2,
             0,
         );
 
         prompt_pause.render(
             &mut canvas,
-            (WIDTH - prompt_pause.get_width()) as i32 / 2,
+            (width - prompt_pause.get_width()) as i32 / 2,
             prompt_start.get_height() as i32,
         );
 
         time_text.render(
             &mut canvas,
-            (WIDTH - time_text.get_width()) as i32 / 2,
-            (HEIGHT - time_text.get_height()) as i32 / 2,
+            (width - time_text.get_width()) as i32 / 2,
+            (height - time_text.get_height()) as i32 / 2,
         );
 
         // Update the screen
         canvas.present();
-    }
+
+        true
+    });
 }
