@@ -5,57 +5,44 @@ use sdl2::{
     keyboard::Keycode,
     pixels::Color,
     rect::Rect,
-    render::{Canvas, RenderTarget, Texture, TextureCreator},
+    render::{Canvas, Texture, TextureCreator},
     surface::Surface,
     video::{Window, WindowContext},
 };
 
-type CreatorWindow = TextureCreator<WindowContext>;
 // Screen dimension
 const WIDTH: u32 = 650;
 const HEIGHT: u32 = 480;
 
-//Particle count
+/// Particle count
 const TOTAL_PARTICLES: usize = 20;
 
-/// Texture wrapper
-pub struct LTexture<'a> {
-    // The actual hardware texture
-    texture: Texture<'a>,
-    // Image dimensions
+pub struct LTexture {
+    texture: Texture,
     width: u32,
     height: u32,
 }
 
-impl<'a> LTexture<'a> {
-    fn new(texture: Texture<'a>, width: u32, height: u32) -> Self {
-        Self {
+impl LTexture {
+    pub fn from_file(name: &str, creator: &TextureCreator<WindowContext>) -> LTexture {
+        let mut surf = Surface::from_file(format!("resources/lesson38/{name}.bmp"))
+            .expect("Could not load surface from file!");
+
+        surf.set_color_key(true, Color::RGB(0, 0xFF, 0xFF))
+            .expect("Can't set color key");
+
+        let texture = creator.create_texture_from_surface(&surf).unwrap();
+        let (width, height) = surf.size();
+
+        LTexture {
             texture,
             width,
             height,
         }
     }
 
-    /// Loads image at specified path
-    pub fn from_file(name: &str, creator: &'a CreatorWindow) -> LTexture<'a> {
-        let mut surf = Surface::from_file(format!("resources/{name}.bmp"))
-            .expect("Could not load surface from file!");
-
-        // Color key image
-        surf.set_color_key(true, Color::RGB(0, 0xFF, 0xFF))
-            .expect("Can't set color key");
-
-        // Create texture from surface pixels
-        let texture = creator.create_texture_from_surface(&surf).unwrap();
-
-        // Get image dimensions
-        let (w, h) = surf.size();
-
-        LTexture::new(texture, w, h)
-    }
-
     /// Renders texture at given point
-    pub fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>, (x, y): (i32, i32)) {
+    pub fn render(&self, canvas: &mut Canvas<Window>, (x, y): (i32, i32)) {
         let clip_rect = Rect::new(0, 0, self.width, self.height);
         canvas
             .copy_ex(
@@ -71,7 +58,7 @@ impl<'a> LTexture<'a> {
     }
 }
 
-struct Particle<'a> {
+struct Particle {
     /// Offsets
     pos: (i32, i32),
 
@@ -79,12 +66,12 @@ struct Particle<'a> {
     frame: usize,
 
     /// Type of particle
-    texture_index: LTexture<'a>,
+    texture: LTexture,
 }
 
-impl<'a> Particle<'a> {
+impl Particle {
     /// Initialize position and animation
-    fn new((x, y): (i32, i32), creator: &'a CreatorWindow) -> Self {
+    fn new((x, y): (i32, i32), creator: &TextureCreator<WindowContext>) -> Self {
         let mut rng = thread_rng();
         let mut texture = match rng.gen_range(0..3) {
             0 => LTexture::from_file("red", creator),
@@ -104,7 +91,7 @@ impl<'a> Particle<'a> {
         }
     }
 
-    fn render(&mut self, canvas: &mut Canvas<Window>, shimmer_texture: &'a LTexture<'a>) {
+    fn render(&mut self, canvas: &mut Canvas<Window>, shimmer_texture: &LTexture) {
         // Show image
         self.texture.render(canvas, self.pos);
 
@@ -124,18 +111,18 @@ impl<'a> Particle<'a> {
 }
 
 /// The dot that will move around on the screen
-struct Dot<'a> {
+struct Dot {
     /// The X and Y offsets of the dot
     pos: (i32, i32),
 
     /// The X and Y velocity of the dot
     vel: (i32, i32),
 
-    pub texture: LTexture<'a>,
-    particles: Vec<Particle<'a>>,
+    pub texture: LTexture,
+    particles: Vec<Particle>,
 }
 
-impl<'a> Dot<'a> {
+impl Dot {
     // The dimensions of the dot
     const WIDTH: i32 = 20;
     const HEIGHT: i32 = 20;
@@ -144,7 +131,7 @@ impl<'a> Dot<'a> {
     const VEL: i32 = 10;
 
     /// Initializes the variables
-    fn new(creator: &'a CreatorWindow) -> Self {
+    fn new(creator: &TextureCreator<WindowContext>) -> Self {
         // Initialize the offsets and the velocity
         Dot {
             pos: (0, 0),
@@ -159,24 +146,24 @@ impl<'a> Dot<'a> {
     #[rustfmt::skip]
     /// Takes key presses and adjusts the dot's velocity
     fn handle_event(&mut self, e: &Event) {
-            match e {
-                Event::KeyDown { repeat: false, keycode: Some(kode), .. } => match kode {
-                    Keycode::Up => self.vel.1 -= Dot::VEL,
-                    Keycode::Down => self.vel.1 += Dot::VEL,
-                    Keycode::Left  => self.vel.0 -= Dot::VEL,
-                    Keycode::Right  => self.vel.0 += Dot::VEL,
-                    _ => (),
-                },
-                Event::KeyUp { repeat: false, keycode: Some(kode), .. } => match kode {
-                    Keycode::Up => self.vel.1 += Dot::VEL,
-                    Keycode::Down => self.vel.1 -= Dot::VEL,
-                    Keycode::Left  => self.vel.0 += Dot::VEL,
-                    Keycode::Right  => self.vel.0 -= Dot::VEL,
-                    _ => (),
-                }
+        match e {
+            Event::KeyDown { repeat: false, keycode: Some(kode), .. } => match kode {
+                Keycode::Up => self.vel.1 -= Dot::VEL,
+                Keycode::Down => self.vel.1 += Dot::VEL,
+                Keycode::Left  => self.vel.0 -= Dot::VEL,
+                Keycode::Right  => self.vel.0 += Dot::VEL,
+                _ => (),
+            },
+            Event::KeyUp { repeat: false, keycode: Some(kode), .. } => match kode {
+                Keycode::Up => self.vel.1 += Dot::VEL,
+                Keycode::Down => self.vel.1 -= Dot::VEL,
+                Keycode::Left  => self.vel.0 += Dot::VEL,
+                Keycode::Right  => self.vel.0 -= Dot::VEL,
                 _ => (),
             }
+            _ => (),
         }
+    }
 
     /// Moves the dot
     fn r#move(&mut self) {
@@ -203,8 +190,8 @@ impl<'a> Dot<'a> {
     fn render(
         &mut self,
         canvas: &mut Canvas<Window>,
-        creator: &'a CreatorWindow,
-        shimmer_texture: &'a LTexture,
+        creator: &TextureCreator<WindowContext>,
+        shimmer_texture: &LTexture,
     ) {
         self.texture.render(canvas, self.pos);
 
@@ -223,28 +210,22 @@ impl<'a> Dot<'a> {
     }
 }
 
-fn init() -> (sdl2::Sdl, Window) {
-    let sdl = sdl2::init().expect("Unable to initialize SDL!");
-    let video = sdl.video().expect("Could not acquire video context!");
+fn main() {
+    let sdl_ctx = sdl2::init().expect("Unable to initialize SDL!");
+    let video = sdl_ctx.video().expect("Could not acquire video context!");
 
     sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
-    let win = video
+    let window = video
         .window("SDL Tutorial 38", WIDTH, HEIGHT)
         .position_centered()
         .opengl()
         .build()
         .expect("Could not create SDL window!");
 
-    (sdl, win)
-}
-
-fn main() {
-    let (context, win) = init();
-
     // Obtain the canvas
-    let mut canvas = win
+    let mut canvas = window
         .into_canvas()
         .accelerated()
         .present_vsync()
@@ -256,7 +237,7 @@ fn main() {
     canvas.set_draw_color(Color::WHITE);
 
     // Get a handle to the SDL2 event pump
-    let mut event_pump = context
+    let mut event_pump = sdl_ctx
         .event_pump()
         .expect("Unable to obtain event pump handle!");
 
@@ -266,28 +247,20 @@ fn main() {
     //The dot that will be moving around on the screen
     let mut dot = Dot::new(&creator);
 
-    'running: loop {
-        // Extract any pending events from from the event pump and process them
+    main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
-            // Pattern match on the Quit event
             if let Event::Quit { .. } = event {
-                break 'running;
+                return false;
             }
 
-            // Handle input for the dot
             dot.handle_event(&event);
         }
 
-        // Move the dot
         dot.r#move();
-
-        // Clear and render the texture each pass through the loop
         canvas.clear();
-
-        // Render objects
         dot.render(&mut canvas, &creator, &shimmer_texture);
-
-        // Update the screen
         canvas.present();
-    }
+
+        true
+    });
 }

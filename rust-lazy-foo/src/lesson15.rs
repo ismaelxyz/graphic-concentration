@@ -1,73 +1,38 @@
 use sdl2::{
     event::Event,
-    image::{InitFlag, LoadSurface, Sdl2ImageContext},
+    image::{InitFlag, LoadSurface},
     keyboard::Keycode,
     pixels::Color,
     rect::Rect,
-    render::{Canvas, RenderTarget, Texture, TextureCreator},
+    render::{Canvas, Texture, TextureCreator},
     surface::Surface,
-    video::Window,
-    Sdl,
+    video::{Window, WindowContext},
 };
 use std::path::Path;
 
-const WIDTH: u32 = 640;
-const HEIGHT: u32 = 480;
-const IMG_ARROW: &str = "resources/arrow.png";
+const IMG_ARROW: &str = "resources/lesson15/arrow.png";
 
-// Create a struct that will track texture data
-struct LTexture<'a> {
-    // The actual texture.
-    texture: Texture<'a>,
-    // Image dimensions
+struct LTexture {
+    texture: Texture,
     width: u32,
     height: u32,
 }
 
-// Implement a few functions for the Texture struct
-// Note that Rust doesn't put much focus on data hiding
-// or other OOP concepts so we don't care about having
-// getters and setters or the like.
-//
-// Instead, since Rust treats values as immutable by
-// default, we don't have to worry about accidentally
-// setting a struct field unless we create an LTexture
-// using 'mut', in which case we take on the responsibility
-// of ensuring the fields don't get messed with.
-//
-// This 'hands off' by default approach helps eliminate
-// a lot of problems that, in OOP, are handled by boilerplate code.
-// The result is cleaner, more consise and ultimately more safe.
-#[allow(dead_code)]
-impl<'a> LTexture<'a> {
-    // create a new texture
-    fn new(tex: Texture<'a>) -> LTexture {
-        let w = tex.query().width;
-        let h = tex.query().height;
-        LTexture {
-            texture: tex,
-            width: w,
-            height: h,
-        }
-    }
+impl LTexture {
+    fn from_file(creator: &TextureCreator<WindowContext>, path: &Path) -> LTexture {
+        let mut surface = Surface::from_file(path).unwrap();
 
-    // Load a texture from a file
-    fn new_from_file<T>(ren: &'a TextureCreator<T>, path: &Path) -> LTexture<'a> {
-        // Load the surface first, so we can set the color key
-        let mut surface = Surface::from_file(path).expect("Could not load surface from file!");
-
-        // Now set the color key on the surface
         surface
             .set_color_key(true, Color::RGB(0, 0xff, 0xff))
-            .expect("Could not set color_key on surface!");
+            .unwrap();
 
-        // Convert the surface to a texture and pass it to
-        // LTexture::new to be wrapped
-        let tex = ren
-            .create_texture_from_surface(&surface)
-            .expect("Could not create texture from surface!");
+        let texture = creator.create_texture_from_surface(&surface).unwrap();
 
-        LTexture::new(tex)
+        LTexture {
+            texture,
+            width: surface.width(),
+            height: surface.height(),
+        }
     }
 
     // Renders a texture to a given point using a provided renderer
@@ -76,9 +41,9 @@ impl<'a> LTexture<'a> {
     // to provide additional function signatures for this, so we're
     // going to wrap rotation and flipping args in Option<> so we can
     // provide None when we don't care about it.
-    fn render_to<T: RenderTarget>(
+    fn render_to(
         &self,
-        canvas: &mut Canvas<T>,
+        canvas: &mut Canvas<Window>,
         (x, y): (i32, i32),
         rotation: f64,
         (flip_h, flip_v): (bool, bool),
@@ -93,74 +58,46 @@ impl<'a> LTexture<'a> {
                 flip_h,
                 flip_v,
             )
-            .expect("Could not blit texture to render target!");
-    }
-
-    // Modulate the LTexture using a Color - this will 'tint' the texture
-    // Note that LTextures are immutable, so we have to create a new one
-    // and return it - we can't mutate ourselves.
-    fn set_color(&mut self, color: Color) {
-        let (r, g, b) = color.rgb();
-        self.texture.set_color_mod(r, g, b);
-    }
-
-    // Set the alpha channel of the texture, controlling its transparency
-    fn set_alpha(&mut self, alpha: u8) {
-        self.texture.set_alpha_mod(alpha);
+            .unwrap();
     }
 }
 
-// Note that 'canvas.load_texture' makes this example trivial.  See lesson03
-// to show how we can manually load a surface and convert it to a texture.
-
-// Break out initialization into a separate function, which
-// returns only the Window (we don't need the sdl_context)
-fn init() -> (Sdl, Window, Sdl2ImageContext) {
-    let sdl = sdl2::init().expect("Could not initialize SDL!");
-    let video = sdl
+fn main() {
+    let sdl_ctx = sdl2::init().expect("Could not initialize SDL!");
+    let video = sdl_ctx
         .video()
         .expect("Could not obtain video from sdl context!");
-    let win = video
-        .window("SDL Tutorial 15", WIDTH, HEIGHT)
+
+    sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
+    sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
+
+    let window = video
+        .window("SDL Tutorial 15", 640, 480)
         .position_centered()
         .opengl()
         .build()
         .expect("Could not create Window!");
 
-    let image = sdl2::image::init(InitFlag::PNG).expect("Could not initialize sdl2_image!");
+    let (width, height) = window.size();
 
-    (sdl, win, image)
-}
+    sdl2::image::init(InitFlag::PNG).expect("Could not initialize sdl2_image!");
 
-fn main() {
-    // Initialize SDL2
-    let (context, window, _image) = init();
-
-    // Obtain the canvas
-    let mut canvas = match window.into_canvas().build() {
-        Ok(canvas) => canvas,
-        Err(err) => panic!("Could not obtain canvas: {err}"),
-    };
-
+    let mut canvas = window.into_canvas().build().unwrap();
     let creator = canvas.texture_creator();
 
-    let arrow = LTexture::new_from_file(&creator, Path::new(IMG_ARROW));
+    let arrow = LTexture::from_file(&creator, Path::new(IMG_ARROW));
 
-    // Get a handle to the SDL2 event pump
-    let mut event_pump = context.event_pump().expect("Could not obtain event pump!");
+    let mut event_pump = sdl_ctx.event_pump().expect("Could not obtain event pump!");
 
     // Track current rotation and flips
     let mut degrees: f64 = 0.0;
     let mut flip_vertical: bool = false;
     let mut flip_horizontal: bool = false;
 
-    // Main loop
-    'running: loop {
-        // Extract any pending events from from the event pump and process them
+    main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
-            // pattern match on the type of event
             match event {
-                Event::Quit { .. } => break 'running,
+                Event::Quit { .. } => return false,
                 Event::KeyDown { keycode: k, .. } => match k {
                     Some(Keycode::A) => {
                         degrees -= 60.0;
@@ -178,23 +115,22 @@ fn main() {
                     Some(Keycode::E) => {
                         flip_vertical = !flip_vertical;
                     }
-                    Some(Keycode::Escape) => break 'running,
-                    Some(_) => {}
-                    None => {}
+                    Some(Keycode::Escape) => return false,
+                    _ => {}
                 },
                 _ => {}
             }
         }
         // Clear and render the texture each pass through the loop
-        canvas.set_draw_color(Color::RGB(0xff, 0xff, 0xff));
+        canvas.set_draw_color(Color::WHITE);
         canvas.clear();
 
         // Render the arrow
         arrow.render_to(
             &mut canvas,
             (
-                (WIDTH - arrow.width) as i32 / 2,
-                (HEIGHT - arrow.height) as i32 / 2,
+                (width - arrow.width) as i32 / 2,
+                (height - arrow.height) as i32 / 2,
             ),
             degrees,
             (flip_horizontal, flip_vertical),
@@ -202,5 +138,7 @@ fn main() {
 
         // Update the screen
         canvas.present();
-    }
+
+        true
+    });
 }

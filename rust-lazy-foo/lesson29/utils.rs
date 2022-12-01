@@ -13,17 +13,11 @@ pub trait Collition<T> {
 
 impl Collition<Circle> for Circle {
     fn check_collision(&self, b: Circle) -> bool {
-        //Calculate total radius squared
+        // Calculate total radius squared
         let radius_squared = (self.rot + b.rot).pow(2);
 
-        //If the distance between the centers of the circles is less than the sum of their radii
-        if distance_squared(self.pos.0, self.pos.1, b.pos.0, b.pos.1) < radius_squared {
-            //The circles have collided
-            return true;
-        }
-
-        //If not
-        false
+        // If the distance between the centers of the circles is less than the sum of their radii
+        distance_squared(self.pos.0, self.pos.1, b.pos.0, b.pos.1) < radius_squared
     }
 }
 
@@ -48,13 +42,7 @@ impl Collition<Rect> for Circle {
         };
 
         // If the closest point is inside the circle
-        if distance_squared(self.pos.0, self.pos.1, c_x, c_y) < self.rot * self.rot {
-            // This box and the circle have collided
-            return true;
-        }
-
-        // If the shapes have not collided
-        false
+        distance_squared(self.pos.0, self.pos.1, c_x, c_y) < self.rot * self.rot
     }
 }
 

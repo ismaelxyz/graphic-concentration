@@ -1,84 +1,53 @@
-#![allow(clippy::too_many_arguments)]
-
 use sdl2::{
     event::Event,
     keyboard::Keycode,
     pixels::Color,
-    rect::{Point, Rect},
-    render::{Canvas, RenderTarget, Texture, TextureCreator},
-    surface::Surface,
-    ttf::{Font, Sdl2TtfContext},
-    video::Window,
+    rect::Rect,
+    render::{Canvas, Texture, TextureCreator},
+    ttf::Font,
+    video::{Window, WindowContext},
 };
 
-// Screen dimension
-const WIDTH: u32 = 640;
-const HEIGHT: u32 = 480;
-
-// Texture wrapper
-pub struct LTexture<'a> {
-    // The actual hardware texture
-    texture: Texture<'a>,
-    // Image dimensions
+pub struct Text {
+    texture: Texture,
     width: u32,
     height: u32,
 }
 
-impl<'a> LTexture<'a> {
-    fn new(texture: Texture<'a>, width: u32, height: u32) -> Self {
-        Self {
+impl Text {
+    // Creates image from font string
+    fn new(creator: &TextureCreator<WindowContext>, font: &Font, text: &str, color: Color) -> Self {
+        let surface = font
+            .render(text)
+            .solid(color)
+            .expect("Could not create text surface!");
+
+        // Now create a texture from the surface using the supplied creator
+        let texture = creator
+            .create_texture_from_surface(&surface)
+            .expect("Could not convert text surface to texture!");
+
+        let (width, height) = surface.size();
+
+        Text {
             texture,
             width,
             height,
         }
     }
 
-    // Creates image from font string
-    fn from_creator_text<T>(
-        creator: &'a TextureCreator<T>,
-        font: &Font,
-        text: &str,
-        color: Color,
-    ) -> LTexture<'a> {
-        let text_surface: Surface = font
-            .render(text)
-            .solid(color)
-            .expect("Could not create text surface!");
-
-        // Now create a texture from the surface using the supplied creator
-        let text_texture = creator
-            .create_texture_from_surface(&text_surface)
-            .expect("Could not convert text surface to texture!");
-
-        let (w, h) = text_surface.size();
-        // Return an LTexture using the given text_texture
-        LTexture::new(text_texture, w, h)
-    }
-
-    // Renders texture at given point
-    fn render<T: RenderTarget>(
-        &self,
-        canvas: &mut Canvas<T>,
-        x: i32,
-        y: i32,
-        clip: Option<Rect>,
-        rotation: Option<f64>,
-        center: Option<Point>,
-        flip_h: bool,
-        flip_v: bool,
-    ) {
-        let clip_rect = clip.unwrap_or_else(|| Rect::new(0, 0, self.width, self.height));
-        let rot: f64 = rotation.unwrap_or(0.0);
+    fn render(&self, canvas: &mut Canvas<Window>, x: i32, y: i32) {
+        let clip_rect = Rect::new(0, 0, self.width, self.height);
 
         canvas
             .copy_ex(
                 &self.texture,
                 Some(clip_rect),
                 Some(Rect::new(x, y, clip_rect.width(), clip_rect.height())),
-                rot,
-                center,
-                flip_h,
-                flip_v,
+                0.0,
+                None,
+                false,
+                false,
             )
             .expect("Could not blit texture to render target!");
     }
@@ -92,32 +61,24 @@ impl<'a> LTexture<'a> {
     }
 }
 
-fn init() -> (sdl2::Sdl, Window, Sdl2TtfContext) {
-    let sdl = sdl2::init().expect("Unable to initialize SDL!");
-    let video = sdl.video().expect("Could not acquire video context!");
-    let ttf = sdl2::ttf::init().expect("Could not acquire video context!");
+fn main() {
+    let sdl_ctx = sdl2::init().expect("Unable to initialize SDL!");
+    let video = sdl_ctx.video().expect("Could not acquire video context!");
+    let ttf_ctx = sdl2::ttf::init().expect("Could not acquire video context!");
+    let time = sdl_ctx.timer().unwrap();
 
     sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
-    let win = video
-        .window("SDL Tutorial 24", WIDTH, HEIGHT)
+    let window = video
+        .window("SDL Tutorial 24", 640, 480)
         .position_centered()
         .opengl()
         .build()
         .expect("Could not create SDL window!");
+    let (width, height) = window.size();
 
-    (sdl, win, ttf)
-}
-
-fn main() {
-    let (context, win, ttf) = init();
-
-    // Initialize TimerSubsystem
-    let time = context.timer().unwrap();
-
-    // Obtain the canvas
-    let mut canvas = win
+    let mut canvas = window
         .into_canvas()
         .accelerated()
         .present_vsync()
@@ -129,34 +90,32 @@ fn main() {
     // Initialize renderer color
     canvas.set_draw_color(Color::WHITE);
 
-    let font = ttf
-        .load_font("lesson22/resources/lazy.ttf", 28)
-        .expect("Could not load font context!");
-
     // Set text color as black
     let text_color = Color::BLACK;
 
     // Get a handle to the SDL2 event pump
-    let mut event_pump = context
+    let mut event_pump = sdl_ctx
         .event_pump()
         .expect("Unable to obtain event pump handle!");
 
     let mut counted_frames = 0f64;
     let start_ticks = time.ticks() as f64; // getTicks
 
-    'running: loop {
-        // Extract any pending events from from the event pump and process them
+    main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
-            // pattern match on the type of event
             match event {
-                Event::Quit { .. } => break 'running,
+                Event::Quit { .. } => return false,
                 Event::KeyDown {
                     keycode: Some(Keycode::Escape),
                     ..
-                } => break 'running,
+                } => return false,
                 _ => (),
             };
         }
+
+        let font = ttf_ctx
+            .load_font("resources/lesson16/lazy.ttf", 28)
+            .expect("Could not load font context!");
 
         // Calculate and correct fps
         let tm = (time.ticks() as f64) - start_ticks;
@@ -170,24 +129,20 @@ fn main() {
         let text: String = format!("Average Frames Per Second {avg_fps}");
 
         // Load prompt texture
-        let time_text = LTexture::from_creator_text(&creator, &font, &text, text_color);
+        let time_text = Text::new(&creator, &font, &text, text_color);
 
         // Clear and render the texture each pass through the loop
         canvas.clear();
 
         time_text.render(
             &mut canvas,
-            (WIDTH - time_text.get_width()) as i32 / 2,
-            (HEIGHT - time_text.get_height()) as i32 / 2,
-            None,
-            None,
-            None,
-            false,
-            false,
+            (width - time_text.get_width()) as i32 / 2,
+            (height - time_text.get_height()) as i32 / 2,
         );
 
-        // Update the screen
         canvas.present();
         counted_frames += 1.0;
-    }
+
+        true
+    });
 }

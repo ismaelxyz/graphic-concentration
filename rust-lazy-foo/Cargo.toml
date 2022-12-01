@@ -1,22 +1,20 @@
 [package]
 name = "lazy-foo"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Ysgard <ysgard@gmail.com>", "Ismaelxyz <ismaelbeli.com@gmail.com>"]
 edition = "2021"
 
 [dependencies.sdl2]
-version = "*"
+version = "0.35.2"
 default-features = false
-features = ["image", "ttf", "mixer"]
-
-[dependencies.arboard]
-version = "*"
-default-features = false
-optional = true
+features = ["image", "ttf", "mixer", "unsafe_textures"]
 
 [dependencies.rand]
-version = "*"
+version = "0.8.5"
 optional = true
+
+[dependencies.main-loop]
+path = "./main_loop"
 
 [[bin]]
 name = "lesson01"
@@ -135,7 +133,6 @@ path = "src/lesson30.rs"
 [[bin]]
 name = "lesson32"
 path = "src/lesson32.rs"
-required-features = ["arboard"]
 
 [[bin]]
 name = "lesson33"
@@ -163,3 +160,20 @@ required-features = ["rand"]
 [[bin]]
 name = "lesson39"
 path = "src/lesson39.rs"
+
+[[bin]]
+name = "lesson40"
+path = "src/lesson40.rs"
+
+[[bin]]
+name = "lesson41"
+path = "src/lesson41.rs"
+
+[[bin]]
+name = "lesson42"
+path = "src/lesson42.rs"
+
+
+[[bin]]
+name = "lesson43"
+path = "src/lesson43.rs"

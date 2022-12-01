@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title> Rocket </title>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        border: 0;
+        overflow: hidden; /*  Disable scrollbars */
+        display: block;  /* No floating content on sides */
+      }
+      </style>
+  </head>
+
+  <body>
+    <canvas id="canvas" style='position:absolute; left:0px; top:0px; width: 100%'></canvas>
+
+  <script>
+
+
+  </script>
+  <script type="module">
+    import init, { 
+      update, toggle_shoot, toggle_boost, toggle_turn_left, toggle_turn_right,
+      resize, draw
+    } from "/wasm/rocket.js";
+    
+    await init();
+    
+    // Input processing
+    function processKey(key, b) {
+      switch (key) {
+        case "ArrowLeft":
+          toggle_turn_left(b);
+          break;
+        case "ArrowRight":
+          toggle_turn_right(b);
+          break;
+        case "ArrowUp":
+          toggle_boost(b);
+          break;
+        case " ":
+          toggle_shoot(b);
+          break;
+      }
+    }
+    document.addEventListener('keydown', e => processKey(e.key, true));
+    document.addEventListener('keyup', e => processKey(e.key, false));
+
+    // Resizing
+    function xresize() {
+      // We make the canvas somewhat smaller to get some zooming
+      canvas.width = window.innerWidth * 0.8;
+      canvas.height = window.innerHeight * 0.8;
+      resize(canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', () => { xresize(); });
+
+    // Game loop
+    let start = null;
+    let prevTimestamp = null;
+    let drawAndUpdate = (timestamp) => {
+      // Initialization
+      if (!prevTimestamp) {
+        start = timestamp;
+        prevTimestamp = timestamp;
+        requestAnimationFrame(drawAndUpdate);
+        return;
+      }
+
+      // Update and draw
+      let progress = (timestamp - prevTimestamp) / 1000;
+      update(progress);
+      draw();
+
+      // Some bookkeeping
+      prevTimestamp = timestamp;
+      requestAnimationFrame(drawAndUpdate);
+    };
+
+    xresize();
+    drawAndUpdate();
+  </script>
+  </body>
+</html>

@@ -4,7 +4,7 @@ use sdl2::{
     pixels::Color,
     render::Canvas,
     video::Window,
-    Sdl, VideoSubsystem,
+    VideoSubsystem,
 };
 
 #[derive(Default)]
@@ -27,7 +27,7 @@ impl XWindow {
             ..Default::default()
         };
 
-        let win = video
+        let window = video
             .window("SDL Tutorial 36", 650, 480)
             .resizable()
             .position_centered()
@@ -35,19 +35,19 @@ impl XWindow {
             .build()
             .unwrap();
 
-        let mut canvas = win.into_canvas().build().unwrap();
+        let mut canvas = window.into_canvas().build().unwrap();
         canvas.set_draw_color(Color::WHITE);
 
         XWindow { canvas, state }
     }
 
     fn focus(&mut self) {
-        //Restore window if needed
+        // Restore window if needed
         if !self.state.shown {
             self.canvas.window_mut().show();
         }
 
-        //Move window forward
+        // Move window forward
         self.canvas.window_mut().raise();
     }
 
@@ -121,30 +121,25 @@ impl XWindow {
     }
 }
 
-fn init() -> (Sdl, VideoSubsystem) {
-    let sdl = sdl2::init().unwrap();
-    let video = sdl.video().unwrap();
+fn main() {
+    let sdl_ctx = sdl2::init().unwrap();
+    let video = sdl_ctx.video().unwrap();
 
     sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
-    (sdl, video)
-}
-
-fn main() {
-    let (context, video) = init();
     let mut windows = [
         XWindow::new(&video),
         XWindow::new(&video),
         XWindow::new(&video),
     ];
-    let mut event_pump = context.event_pump().unwrap();
+    let mut event_pump = sdl_ctx.event_pump().unwrap();
 
-    'running: loop {
+    main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             for window in &mut windows {
                 if window.handle_event(&event) {
-                    break 'running;
+                    return false;
                 }
             }
 
@@ -153,7 +148,7 @@ fn main() {
             } = event
             {
                 match k {
-                    Keycode::Escape => break 'running,
+                    Keycode::Escape => return false,
                     Keycode::Num1 => windows[0].focus(),
                     Keycode::Num2 => windows[1].focus(),
                     Keycode::Num3 => windows[2].focus(),
@@ -162,7 +157,7 @@ fn main() {
             }
         }
 
-        if windows
+        !windows
             .iter_mut()
             .map(|window| {
                 window.render();
@@ -171,8 +166,5 @@ fn main() {
             .collect::<Vec<_>>()
             .iter()
             .all(|b| !b)
-        {
-            break 'running;
-        }
-    }
+    });
 }

@@ -6,11 +6,16 @@ __pycache__
 /info.txt
 /LazyFoo-SDL2
 /web_canvas
-/Old
 /asterlike/inside
+node_modules
+
+# Temporal
+/web
+/rust-and-opengl-lessons
 
 # Auto generate
 /rust-lazy-foo/resources/nums.bin
+/rust-lazy-foo/public
 
 # Files
 Cargo.lock

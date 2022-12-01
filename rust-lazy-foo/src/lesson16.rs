@@ -1,38 +1,43 @@
 use sdl2::{
     event::Event,
-    image::{InitFlag, Sdl2ImageContext},
+    image::InitFlag,
     pixels::Color,
     rect::Rect,
     render::{Canvas, Texture, TextureCreator},
     surface::Surface,
-    ttf::{Font, Sdl2TtfContext},
-    video::Window,
-    Sdl,
+    ttf::Font,
+    video::{Window, WindowContext},
 };
 
 const WIDTH: u32 = 640;
 const HEIGHT: u32 = 480;
-const FONT_FILE: &str = "resources/lazy.ttf";
+const FONT_FILE: &str = "resources/lesson16/lazy.ttf";
 const FONT_SIZE: u16 = 28;
 
-// Create a struct that will track texture data
-struct LTexture<'a> {
-    // The actual texture.
-    texture: Texture<'a>,
-    // Image dimensions
+struct Text {
+    texture: Texture,
     width: u32,
     height: u32,
 }
 
-impl<'a> LTexture<'a> {
-    // create a new texture
-    fn new(tex: Texture<'a>) -> LTexture {
-        let w = tex.query().width;
-        let h = tex.query().height;
-        LTexture {
-            texture: tex,
-            width: w,
-            height: h,
+impl Text {
+    fn new(creator: &TextureCreator<WindowContext>, font: &Font, text: &str, color: Color) -> Self {
+        let surface: Surface = font
+            .render(text)
+            .solid(color)
+            .expect("Could not create text surface!");
+
+        let (width, height) = surface.size();
+
+        // Now create a texture from the surface using the supplied creator
+        let texture = creator
+            .create_texture_from_surface(&surface)
+            .expect("Could not convert text surface to texture!");
+
+        Text {
+            texture,
+            width,
+            height,
         }
     }
 
@@ -55,65 +60,23 @@ impl<'a> LTexture<'a> {
             )
             .expect("Could not blit texture to render target!");
     }
-
-    fn from_creator_text<T>(
-        creator: &'a TextureCreator<T>,
-        font: &Font,
-        text: &str,
-        color: Color,
-    ) -> LTexture<'a> {
-        let text_surface: Surface = font
-            .render(text)
-            .solid(color)
-            .expect("Could not create text surface!");
-        // Now create a texture from the surface using the supplied creator
-        let text_texture = creator
-            .create_texture_from_surface(&text_surface)
-            .expect("Could not convert text surface to texture!");
-        // Return an LTexture using the given text_texture
-        LTexture::new(text_texture)
-    }
 }
 
-// Load the font, and use it to create and return a new texture with
-// the creator string
-fn load_media<'a, T>(creator: &'a TextureCreator<T>, ttf: &'a Sdl2TtfContext) -> LTexture<'a> {
-    // Load the font, using the font and size specified by the global constants
-    let font = ttf
-        .load_font(std::path::Path::new(FONT_FILE), FONT_SIZE)
-        .expect("Could not load font from file!");
+fn main() {
+    let sdl_ctx = sdl2::init().expect("Could not initialize SDL!");
+    let video = sdl_ctx.video().expect("Could not acquire video context!");
+    sdl2::image::init(InitFlag::PNG).expect("Could not initialize sdl2_image!");
+    let ttf_ctx = sdl2::ttf::init().expect("Could not initialize sdl2_ttf!");
 
-    // Now return a new LTexture using the supplied font and creator
-    LTexture::from_creator_text(
-        creator,
-        &font,
-        "The quick brown fox jumps over the lazy dog",
-        Color::RGB(0, 0, 0),
-    )
-}
+    sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
+    sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
-// Break out initialization into a separate function, which
-// returns only the Window (we don't need the sdl_context)
-// Ugh, the SDL font context name!
-fn init() -> (Sdl, Window, Sdl2ImageContext, Sdl2TtfContext) {
-    let sdl = sdl2::init().expect("Could not initialize SDL!");
-    let video = sdl.video().expect("Could not acquire video context!");
-    let win = video
+    let window = video
         .window("SDL Tutorial 16", WIDTH, HEIGHT)
         .position_centered()
         .opengl()
         .build()
         .expect("Could not create SDL window!");
-
-    let image = sdl2::image::init(InitFlag::PNG).expect("Could not initialize sdl2_image!");
-    let ttf = sdl2::ttf::init().expect("Could not initialize sdl2_ttf!");
-
-    (sdl, win, image, ttf)
-}
-
-fn main() {
-    // Initialize SDL2
-    let (sdl_context, window, _image, ttf_context) = init();
 
     // Obtain the canvas
     let mut canvas = window
@@ -121,23 +84,30 @@ fn main() {
         .build()
         .expect("Could not create creator!");
     let creator = canvas.texture_creator();
-    let text = load_media(&creator, &ttf_context);
+    // Load the font, using the font and size specified by the global constants
+    let font = ttf_ctx
+        .load_font(std::path::Path::new(FONT_FILE), FONT_SIZE)
+        .expect("Could not load font from file!");
 
-    // Get a handle to the SDL2 event pump
-    let mut event_pump = sdl_context
+    let text = Text::new(
+        &creator,
+        &font,
+        "The quick brown fox jumps over the lazy dog",
+        Color::BLACK,
+    );
+
+    let mut event_pump = sdl_ctx
         .event_pump()
         .expect("Could not obtain handle to event pump!");
 
-    'running: loop {
-        // Extract any pending events from from the event pump and process them
+    main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
-            // pattern match on the type of event
             if let Event::Quit { .. } = event {
-                break 'running;
+                return false;
             }
         }
         // Clear and render the texture each pass through the loop
-        canvas.set_draw_color(Color::RGB(0xff, 0xff, 0xff));
+        canvas.set_draw_color(Color::WHITE);
         canvas.clear();
 
         // Render the text
@@ -147,7 +117,8 @@ fn main() {
             (HEIGHT - text.height) as i32 / 2,
         );
 
-        // Update the screen
         canvas.present();
-    }
+
+        true
+    });
 }

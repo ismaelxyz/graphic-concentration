@@ -6,40 +6,32 @@ use sdl2::{
     render::{Canvas, Texture, TextureCreator},
     rwops::RWops,
     surface::Surface,
-    ttf::{Font, Sdl2TtfContext},
-    video::Window,
+    ttf::Font,
+    video::{Window, WindowContext},
 };
 
 use std::io::{Read, Write};
 
-// Screen dimension
-const WIDTH: u32 = 650;
-const HEIGHT: u32 = 480;
-
+const DATA_PATH: &str = "resources/lesson33/nums.bin";
 // Number of data integers
 const TOTAL_DATA: usize = 10;
 
 // Create a struct that will track texture data
-struct Text<'a> {
+struct Text {
     // The actual texture.
-    texture: Texture<'a>,
+    texture: Texture,
     // Image dimensions
     width: u32,
     height: u32,
 }
 
-// Note the use of the #[allow(dead_code)] which turns off
-// warnings about functions we don't use in this lesson.
-#[allow(dead_code)]
-impl<'a> Text<'a> {
+impl Text {
     // create a new texture
-    fn new(tex: Texture<'a>) -> Text {
-        let w = tex.query().width;
-        let h = tex.query().height;
+    fn new(texture: Texture) -> Text {
         Text {
-            texture: tex,
-            width: w,
-            height: h,
+            width: texture.query().width,
+            height: texture.query().height,
+            texture,
         }
     }
 
@@ -52,9 +44,13 @@ impl<'a> Text<'a> {
             .expect("Could not blit texture to render target!");
     }
 
-    //#[cfg(sdl2_ttf)]
-    // We only include this function if sdl2_ttf is used
-    fn from_text<T>(creator: &'a TextureCreator<T>, font: &Font, text: &str, color: Color) -> Self {
+    // this function required feature sdl2_ttf
+    fn from_text(
+        creator: &TextureCreator<WindowContext>,
+        font: &Font,
+        text: &str,
+        color: Color,
+    ) -> Self {
         let text_surface: Surface = font
             .render(text)
             .solid(color)
@@ -69,31 +65,17 @@ impl<'a> Text<'a> {
         Self::new(text_texture)
     }
 
-    fn normal<W>(creator: &'a TextureCreator<W>, font: &Font, text: impl ToString) -> Self {
+    fn normal(creator: &TextureCreator<WindowContext>, font: &Font, text: impl ToString) -> Self {
         Self::from_text(creator, font, &text.to_string(), Color::BLACK)
     }
 
-    fn highlight<W>(creator: &'a TextureCreator<W>, font: &Font, text: impl ToString) -> Self {
+    fn highlight(
+        creator: &TextureCreator<WindowContext>,
+        font: &Font,
+        text: impl ToString,
+    ) -> Self {
         Self::from_text(creator, font, &text.to_string(), Color::RED)
     }
-}
-
-fn init() -> (sdl2::Sdl, Sdl2TtfContext, Window) {
-    let sdl = sdl2::init().expect("Unable to initialize SDL!");
-    let video = sdl.video().expect("Could not acquire video context!");
-    let ttf_context = sdl2::ttf::init().expect("Could not acquire ttf context!");
-
-    sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
-    sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
-
-    let win = video
-        .window("SDL Tutorial 33", WIDTH, HEIGHT)
-        .position_centered()
-        .opengl()
-        .build()
-        .expect("Could not create SDL window!");
-
-    (sdl, ttf_context, win)
 }
 
 #[cfg(target_endian = "big")]
@@ -116,11 +98,34 @@ fn to_byte(byte: i8) -> u8 {
     i8::to_le(byte) as u8
 }
 
+fn onclose(data: [i8; TOTAL_DATA], mut raw_data: [u8; TOTAL_DATA]) {
+    let mut file = RWops::from_file("resources/lesson33/nums.bin", "w+b").unwrap();
+    for (item, value) in data.iter().zip(raw_data.iter_mut()) {
+        *value = to_byte(*item);
+    }
+
+    // Save data
+    file.write_all(&raw_data).unwrap();
+}
+
 fn main() {
-    let (context, ttf_ctx, win) = init();
+    let sdl_ctx = sdl2::init().expect("Unable to initialize SDL!");
+    let video = sdl_ctx.video().expect("Could not acquire video context!");
+    let ttf_ctx = sdl2::ttf::init().expect("Could not acquire ttf context!");
+
+    sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
+    sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
+
+    let window = video
+        .window("SDL Tutorial 33", 650, 480)
+        .position_centered()
+        .opengl()
+        .build()
+        .expect("Could not create SDL window!");
+    let width = window.size().0;
 
     // Obtain the canvas
-    let mut canvas = win
+    let mut canvas = window
         .into_canvas()
         .accelerated()
         .present_vsync()
@@ -130,27 +135,24 @@ fn main() {
     let creator = canvas.texture_creator();
 
     // Get a handle to the SDL2 event pump
-    let mut event_pump = context
+    let mut event_pump = sdl_ctx
         .event_pump()
         .expect("Unable to obtain event pump handle!");
 
     // Load a font
-    let font_path = std::path::Path::new("./resources/lazy.ttf");
+    let font_path = std::path::Path::new("resources/lesson33/lazy.ttf");
     let font = ttf_ctx.load_font(font_path, 28).unwrap();
-
     let prompt = Text::normal(&creator, &font, "Enter Data:");
 
     let mut data_textures = Vec::with_capacity(TOTAL_DATA);
-    let mut data = [0i8; TOTAL_DATA];
-    let mut raw_data = [0u8; TOTAL_DATA];
-
+    let (mut data, mut raw_data) = ([0i8; TOTAL_DATA], [0u8; TOTAL_DATA]);
     // Current input point
     let mut current_data = 0;
 
     // Open file for reading in binary
-    match RWops::from_file("resources/nums.bin", "r+b") {
+    match RWops::from_file(DATA_PATH, "r+b") {
         Ok(mut file) => {
-            //Load data
+            // Load data
             println!("Reading file...!");
 
             file.read_exact(&mut raw_data).unwrap();
@@ -160,10 +162,10 @@ fn main() {
             }
         }
         Err(..) => {
-            let mut file = RWops::from_file("resources/nums.bin", "w+b").unwrap();
+            let mut file = RWops::from_file(DATA_PATH, "w+b").unwrap();
             println!("New file created!");
 
-            //Initialize data
+            // Initialize data
             file.write_all(&raw_data).unwrap();
         }
     }
@@ -174,16 +176,19 @@ fn main() {
     }
 
     data_textures[current_data] = Text::highlight(&creator, &font, data[current_data]);
-
+    drop(font);
     let font_height = data_textures[0].height;
 
-    canvas.set_draw_color(Color::RGB(255, 255, 255));
+    canvas.set_draw_color(Color::WHITE);
 
-    'running: loop {
+    main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             // Pattern match on the Quit event
             match event {
-                Event::Quit { .. } => break 'running,
+                Event::Quit { .. } => {
+                    onclose(data, raw_data);
+                    return false;
+                }
                 Event::KeyDown {
                     keycode: Some(k),
                     keymod: _,
@@ -192,8 +197,13 @@ fn main() {
                     let mut update = true;
 
                     match k {
-                        Keycode::Escape => break 'running,
+                        Keycode::Escape => {
+                            onclose(data, raw_data);
+                            return false;
+                        }
                         code @ (Keycode::Up | Keycode::Down) => {
+                            let font = ttf_ctx.load_font(font_path, 28).unwrap();
+
                             data_textures[current_data] =
                                 Text::normal(&creator, &font, data[current_data]);
 
@@ -217,6 +227,7 @@ fn main() {
                     }
 
                     if update {
+                        let font = ttf_ctx.load_font(font_path, 28).unwrap();
                         data_textures[current_data] =
                             Text::highlight(&creator, &font, data[current_data]);
                     }
@@ -226,25 +237,17 @@ fn main() {
         }
 
         canvas.clear();
-
-        prompt.render(&mut canvas, (WIDTH - prompt.width) as i32 / 2, 0);
+        prompt.render(&mut canvas, (width - prompt.width) as i32 / 2, 0);
 
         for (index, texture) in data_textures.iter().enumerate() {
             texture.render(
                 &mut canvas,
-                (WIDTH - texture.width) as i32 / 2,
+                (width - texture.width) as i32 / 2,
                 (prompt.height + 4 + font_height * index as u32) as i32,
             );
         }
 
         canvas.present();
-    }
-
-    let mut file = RWops::from_file("resources/nums.bin", "w+b").unwrap();
-    for (item, value) in data.iter().zip(raw_data.iter_mut()) {
-        *value = to_byte(*item);
-    }
-
-    // Save data
-    file.write_all(&raw_data).unwrap();
+        true
+    });
 }

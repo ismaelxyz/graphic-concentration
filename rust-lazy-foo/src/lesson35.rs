@@ -6,21 +6,19 @@ use sdl2::{
     rect::Rect,
     render::{Canvas, Texture as RTexture, TextureCreator},
     surface::Surface,
-    video::{FullscreenType, Window},
-    Sdl,
+    video::{FullscreenType, Window, WindowContext},
 };
 
 use std::path::Path;
 
-// Texture wrapper
-struct Texture<'a> {
-    texture: RTexture<'a>,
+struct Texture {
+    texture: RTexture,
     width: u32,
     height: u32,
 }
 
-impl<'a> Texture<'a> {
-    fn from_file<T>(creator: &'a TextureCreator<T>, path: &Path) -> Texture<'a> {
+impl Texture {
+    fn from_file(creator: &TextureCreator<WindowContext>, path: &Path) -> Texture {
         // Load the surface first, so we can set the color key
         let mut surface = Surface::from_file(path).expect("Could not load surface from file!");
 
@@ -29,8 +27,6 @@ impl<'a> Texture<'a> {
             .set_color_key(true, Color::RGB(0, 0xff, 0xff))
             .expect("Could not set color_key on surface!");
 
-        // Convert the surface to a texture and pass it to
-        // LTexture::new to be wrapped
         let texture = creator
             .create_texture_from_surface(&surface)
             .expect("Could not create texture from surface!");
@@ -66,19 +62,18 @@ struct LWindow {
     height: i32,
 }
 
-fn init() -> (Sdl, Window, LWindow) {
-    let window = LWindow {
+fn main() {
+    let sdl_ctx = sdl2::init().unwrap();
+    let video = sdl_ctx.video().unwrap();
+
+    sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
+    sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
+    let mut window = LWindow {
         width: 650,
         height: 480,
         ..LWindow::default()
     };
-    let sdl = sdl2::init().unwrap();
-    let video = sdl.video().unwrap();
-
-    sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
-    sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
-
-    let win = video
+    let canvas_window = video
         .window("SDL Tutorial 35", window.width as u32, window.height as u32)
         .resizable()
         .position_centered()
@@ -86,26 +81,21 @@ fn init() -> (Sdl, Window, LWindow) {
         .build()
         .unwrap();
 
-    let _ = sdl2::image::init(InitFlag::PNG).unwrap();
+    sdl2::image::init(InitFlag::PNG).unwrap();
 
-    (sdl, win, window)
-}
+    let mut canvas = canvas_window.into_canvas().build().unwrap();
 
-fn main() {
-    let (context, win, mut window) = init();
-
-    let mut canvas = win.into_canvas().build().unwrap();
     let creator = canvas.texture_creator();
 
-    let mut event_pump = context.event_pump().unwrap();
-    let scene_texture = Texture::from_file(&creator, Path::new("resources/window.png"));
+    let mut event_pump = sdl_ctx.event_pump().unwrap();
+    let scene_texture = Texture::from_file(&creator, Path::new("resources/lesson35/window.png"));
 
     canvas.set_draw_color(Color::WHITE);
 
-    'running: loop {
+    main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit { .. } => break 'running,
+                Event::Quit { .. } => return false,
                 Event::Window { win_event, .. } => {
                     let mut update_caption: bool = false;
 
@@ -142,7 +132,7 @@ fn main() {
                         canvas
                             .window_mut()
                             .set_title(&format!(
-                                "SDL Tutorial - MouseFocus: {}; KeyboardFocus: {}",
+                                "SDL Tutorial 35 - MouseFocus: {}; KeyboardFocus: {}",
                                 if window.is_mouse_focus { "On" } else { "Off" },
                                 if window.is_keyboard_focus {
                                     "On"
@@ -156,7 +146,7 @@ fn main() {
                 Event::KeyDown {
                     keycode: Some(k), ..
                 } => match k {
-                    Keycode::Escape => break 'running,
+                    Keycode::Escape => return false,
                     Keycode::Return => {
                         if canvas.window().fullscreen_state() == FullscreenType::Desktop {
                             window.is_minimized = false;
@@ -182,5 +172,7 @@ fn main() {
 
             canvas.present();
         }
-    }
+
+        true
+    });
 }

@@ -1,8 +1,4 @@
-mod ai;
-mod animator;
 mod components;
-mod keyboard;
-mod physics;
 mod renderer;
 
 use sdl2::{
@@ -16,6 +12,8 @@ use sdl2::{
 
 use crate::components::*;
 use std::time::Duration;
+use enemy::Enemy;
+use player::Player;
 
 /// El patético estado global de este pequeño juego.
 pub(crate) struct World {

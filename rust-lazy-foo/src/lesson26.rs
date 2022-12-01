@@ -4,35 +4,23 @@ use sdl2::{
     keyboard::Keycode,
     pixels::Color,
     rect::Rect,
-    render::{Canvas, RenderTarget, Texture, TextureCreator},
+    render::{Canvas, Texture, TextureCreator},
     surface::Surface,
-    video::Window,
+    video::{Window, WindowContext},
 };
 
 // Screen dimension
 const WIDTH: u32 = 650;
 const HEIGHT: u32 = 480;
 
-/// Texture wrapper
-pub struct LTexture<'a> {
-    // The actual hardware texture
-    texture: Texture<'a>,
-    // Image dimensions
+pub struct LTexture {
+    texture: Texture,
     width: u32,
     height: u32,
 }
 
-impl<'a> LTexture<'a> {
-    fn new(texture: Texture<'a>, width: u32, height: u32) -> Self {
-        Self {
-            texture,
-            width,
-            height,
-        }
-    }
-
-    /// Loads image at specified path
-    pub fn from_file<T>(path: &str, creator: &'a TextureCreator<T>) -> LTexture<'a> {
+impl LTexture {
+    pub fn from_file(path: &str, creator: &TextureCreator<WindowContext>) -> Self {
         let mut surf = Surface::from_file(path).expect("Could not load surface from file!");
 
         // Color key image
@@ -43,13 +31,16 @@ impl<'a> LTexture<'a> {
         let texture = creator.create_texture_from_surface(&surf).unwrap();
 
         // Get image dimensions
-        let (w, h) = surf.size();
+        let (width, height) = surf.size();
 
-        LTexture::new(texture, w, h)
+        Self {
+            texture,
+            width,
+            height,
+        }
     }
 
-    /// Renders texture at given point
-    pub fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>, x: i32, y: i32) {
+    pub fn render(&self, canvas: &mut Canvas<Window>, x: i32, y: i32) {
         let clip_rect = Rect::new(0, 0, self.width, self.height);
         canvas
             .copy_ex(
@@ -65,18 +56,18 @@ impl<'a> LTexture<'a> {
     }
 }
 
-// The dot that will move around on the screen
-struct Dot<'a> {
+/// The dot that will move around on the screen
+struct Dot {
     /// The X and Y offsets of the dot
     pos: (i32, i32),
 
     /// The X and Y velocity of the dot
     vel: (i32, i32),
 
-    pub texture: LTexture<'a>,
+    pub texture: LTexture,
 }
 
-impl<'a> Dot<'a> {
+impl Dot {
     // The dimensions of the dot
     const WIDTH: i32 = 20;
     const HEIGHT: i32 = 20;
@@ -85,7 +76,7 @@ impl<'a> Dot<'a> {
     const VEL: i32 = 10;
 
     /// Initializes the variables
-    fn new(texture: LTexture<'a>) -> Self {
+    fn new(texture: LTexture) -> Self {
         //Initialize the offsets and the velocity
         Dot {
             pos: (0, 0),
@@ -138,33 +129,26 @@ impl<'a> Dot<'a> {
     }
 
     /// Shows the dot on the screen
-    fn render<T: RenderTarget>(&self, canvas: &mut Canvas<T>) {
+    fn render(&self, canvas: &mut Canvas<Window>) {
         self.texture.render(canvas, self.pos.0, self.pos.1);
     }
 }
 
-fn init() -> (sdl2::Sdl, Window) {
-    let sdl = sdl2::init().expect("Unable to initialize SDL!");
-    let video = sdl.video().expect("Could not acquire video context!");
+fn main() {
+    let sdl_ctx = sdl2::init().expect("Unable to initialize SDL!");
+    let video = sdl_ctx.video().expect("Could not acquire video context!");
 
     sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
-    let win = video
-        .window("SDL Tutorial 27", WIDTH, HEIGHT)
+    let window = video
+        .window("SDL Tutorial 26", WIDTH, HEIGHT)
         .position_centered()
         .opengl()
         .build()
         .expect("Could not create SDL window!");
 
-    (sdl, win)
-}
-
-fn main() {
-    let (context, win) = init();
-
-    // Obtain the canvas
-    let mut canvas = win
+    let mut canvas = window
         .into_canvas()
         .accelerated()
         .present_vsync()
@@ -172,41 +156,30 @@ fn main() {
         .expect("Unable to obtain canvas!");
 
     let creator = canvas.texture_creator();
-    // Initialize renderer color
     canvas.set_draw_color(Color::WHITE);
 
-    // Get a handle to the SDL2 event pump
-    let mut event_pump = context
+    let mut event_pump = sdl_ctx
         .event_pump()
         .expect("Unable to obtain event pump handle!");
 
-    let dot_texture = LTexture::from_file("resources/dot.bmp", &creator);
-
-    //The dot that will be moving around on the screen
+    let dot_texture = LTexture::from_file("resources/lesson26/dot.bmp", &creator);
     let mut dot = Dot::new(dot_texture);
 
-    'running: loop {
-        // Extract any pending events from from the event pump and process them
+    main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
-            // Pattern match on the Quit event
             if let Event::Quit { .. } = event {
-                break 'running;
+                return false;
             }
 
             // Handle input for the dot
             dot.handle_event(&event);
         }
 
-        // Move the dot
         dot.r#move();
-
-        // Clear and render the texture each pass through the loop
         canvas.clear();
-
-        // Render objects
         dot.render(&mut canvas);
-
-        // Update the screen
         canvas.present();
-    }
+
+        true
+    });
 }

@@ -60,20 +60,20 @@ impl Tile {
     }
 }
 
-struct TileMap<'a> {
+struct TileMap {
     tiles: [Tile; TileMap::TOTAL],
     clips: [Rect; TileMap::TOTAL_SPRITES],
-    texture: LTexture<'a>,
+    texture: LTexture,
 }
 
-impl<'a> TileMap<'a> {
+impl TileMap {
     const TOTAL: usize = 192;
     const TOTAL_SPRITES: usize = 12;
 
     #[rustfmt::skip]
     const MAP: [TileKind; TileMap::TOTAL] = [TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::TopLeft, TileKind::Top, TileKind::Top, TileKind::Top, TileKind::Top, TileKind::Top, TileKind::Top, TileKind::Top, TileKind::Top, TileKind::Top, TileKind::Top, TileKind::TopRight, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Left, TileKind::Center, TileKind::Center, TileKind::Center, TileKind::Center, TileKind::Center, TileKind::Center, TileKind::Center, TileKind::Center, TileKind::Center, TileKind::Center, TileKind::Right, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Left, TileKind::Center, TileKind::Bottom, TileKind::Bottom, TileKind::Bottom, TileKind::Bottom, TileKind::Bottom, TileKind::Bottom, TileKind::Bottom, TileKind::Center, TileKind::Center, TileKind::Right, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Left, TileKind::Right, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Left, TileKind::Center, TileKind::Right, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Left, TileKind::Right, TileKind::Green, TileKind::TopLeft, TileKind::TopRight, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Left, TileKind::Center, TileKind::Right, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Left, TileKind::Right, TileKind::Blue, TileKind::BottomLeft, TileKind::BottomRight, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Left, TileKind::Center, TileKind::Right, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Left, TileKind::Right, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Left, TileKind::Center, TileKind::Right, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Left, TileKind::Center, TileKind::Top, TileKind::Top, TileKind::Top, TileKind::TopRight, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::BottomLeft, TileKind::Bottom, TileKind::BottomRight, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::BottomLeft, TileKind::Bottom, TileKind::Bottom, TileKind::Bottom, TileKind::Bottom, TileKind::BottomRight, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue, TileKind::Red, TileKind::Green, TileKind::Blue];
 
-    fn new(texture: LTexture<'a>) -> Self {
+    fn new(texture: LTexture) -> Self {
         // The tile offsets
         let x = Arc::new(AtomicI32::new(0));
         let y = Arc::new(AtomicI32::new(0));
@@ -172,16 +172,16 @@ fn check_collision(a: Rect, b: Rect) -> bool {
 }
 
 /// Texture wrapper
-pub struct LTexture<'a> {
+pub struct LTexture {
     // The actual hardware texture
-    texture: Texture<'a>,
+    texture: Texture,
     // Image dimensions
     width: u32,
     height: u32,
 }
 
-impl<'a> LTexture<'a> {
-    fn new(texture: Texture<'a>, width: u32, height: u32) -> Self {
+impl LTexture {
+    fn new(texture: Texture, width: u32, height: u32) -> Self {
         Self {
             texture,
             width,
@@ -190,8 +190,8 @@ impl<'a> LTexture<'a> {
     }
 
     /// Loads image at specified path
-    pub fn from_file(file: &str, creator: &'a TextureCreator<WindowContext>) -> LTexture<'a> {
-        let mut surf = Surface::from_file(format!("resources/{file}"))
+    pub fn from_file(file: &str, creator: &TextureCreator<WindowContext>) -> LTexture {
+        let mut surf = Surface::from_file(format!("resources/lesson39/{file}"))
             .expect("Could not load surface from file!");
 
         // Color key image
@@ -229,18 +229,14 @@ impl<'a> LTexture<'a> {
     }
 }
 
-// The dot that will move around on the screen
-struct Dot<'a> {
-    /// Collision box of the dot
+struct Dot {
     bound: Rect,
-
-    /// The X and Y velocity of the dot
     vel: (i32, i32),
 
-    pub texture: LTexture<'a>,
+    pub texture: LTexture,
 }
 
-impl<'a> Dot<'a> {
+impl Dot {
     // The dimensions of the dot
     const WIDTH: i32 = 20;
     const HEIGHT: i32 = 20;
@@ -249,7 +245,7 @@ impl<'a> Dot<'a> {
     const VEL: i32 = 10;
 
     /// Initializes the variables
-    fn new(texture: LTexture<'a>) -> Self {
+    fn new(texture: LTexture) -> Self {
         // Initialize the collision bound and the velocity
         Dot {
             bound: Rect::new(0, 0, Dot::WIDTH as u32, Dot::HEIGHT as u32),
@@ -353,7 +349,7 @@ fn main() {
         .opengl()
         .build()
         .expect("Could not create SDL window!");
-        
+
     let mut canvas = window
         .into_canvas()
         .accelerated()
@@ -375,33 +371,30 @@ fn main() {
     let mut camera = Rect::new(0, 0, WIDTH, HEIGHT);
     let tiles = TileMap::new(tile_texture);
 
-    'running: loop {
-        // Extract any pending events from from the event pump and process them
+    main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
-            // Pattern match on the Quit event
             if let Event::Quit { .. }
             | Event::KeyDown {
                 keycode: Some(Keycode::Escape),
                 ..
             } = event
             {
-                break 'running;
+                return false;
             }
 
-            // Handle input for the dot
             dot.handle_event(&event);
         }
 
-        // Move the dot
         dot.r#move(&tiles);
         dot.set_camera(&mut camera);
-        // Clear and render the texture each pass through the loop
+
         canvas.clear();
-        // Render level
+
         tiles.render(&mut canvas, camera);
-        // Render objects
         dot.render(&mut canvas, camera);
-        // Update the screen
+
         canvas.present();
-    }
+
+        true
+    });
 }
