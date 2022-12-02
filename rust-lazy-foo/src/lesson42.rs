@@ -5,7 +5,7 @@ use sdl2::{
     pixels::{Color, PixelFormatEnum},
     rect::Rect,
     render::Texture,
-    surface::Surface
+    surface::Surface,
 };
 
 /// A test animation stream
@@ -113,24 +113,24 @@ fn main() {
         data_stream.paste_pixels(&mut streaming_texture);
 
         // Render frame
-        canvas.copy_ex(
-            &streaming_texture,
-            None,
-            Some(Rect::new(
-                (screen_width - texture_width) as i32 / 2,
-                (screen_height - texture_height) as i32 / 2,
-                texture_width,
-                texture_height,
-            )),
-            0.0,
-            None,
-            false,
-            false,
-        ).unwrap();
+        canvas
+            .copy_ex(
+                &streaming_texture,
+                None,
+                Some(Rect::new(
+                    (screen_width - texture_width) as i32 / 2,
+                    (screen_height - texture_height) as i32 / 2,
+                    texture_width,
+                    texture_height,
+                )),
+                0.0,
+                None,
+                false,
+                false,
+            )
+            .unwrap();
 
         canvas.present();
         true
     });
 }
-
-
