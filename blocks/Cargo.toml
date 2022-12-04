@@ -1,0 +1,38 @@
+[package]
+name = "blocks"
+version = "0.1.5"
+authors  = ["@ismaelxyz <ismaelbeli.com@gmail.com>"]
+license = "MIT"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+glfw  = "*"
+gl    = "*"
+
+[dependencies.image]
+version = "*"
+default-features = false
+features = ["png"]
+
+[[bin]]
+name = "episode1"
+path = "episode1/main.rs"
+
+[[bin]]
+name = "episode2"
+path = "episode2/main.rs"
+
+[[bin]]
+name = "episode3"
+path = "episode3/main.rs"
+
+[[bin]]
+name = "episode4"
+path = "episode4/main.rs"
+
+[[bin]]
+name = "episode5"
+path = "episode5/main.rs"
+
