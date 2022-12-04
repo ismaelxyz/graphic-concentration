@@ -47,42 +47,44 @@ impl LTexture {
     }
 }
 
-fn callback(param: &str) {
+fn thread_function(data: i32) {
     // Print callback message
-    println!("Callback called back with message: {param}");
+    println!("Running thread with value: {data}");
 }
 
 fn main() {
     let sdl_ctx = sdl2::init().unwrap();
     let video = sdl_ctx.video().unwrap();
-    let timer = sdl_ctx.timer().unwrap();
+    let mut event_pump = sdl_ctx.event_pump().unwrap();
 
     sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
     let window = video
-        .window("SDL Tutorial 45", SCREEN_WIDTH, SCREEN_HEIGHT)
+        .window("SDL Tutorial 46", SCREEN_WIDTH, SCREEN_HEIGHT)
         .position_centered()
         .opengl()
         .build()
         .unwrap();
 
     let _image = sdl2::image::init(InitFlag::PNG).unwrap();
-    let _timer_id = timer.add_timer(3 * 1000, box || {
-        callback("3 seconds waited!");
-        0
-    });
 
     let mut canvas = window.into_canvas().build().unwrap();
     let creator = canvas.texture_creator();
 
     let splash_texture = LTexture::from_file(
         &creator,
-        std::path::Path::new("./resources/lesson45/splash.png"),
+        std::path::Path::new("./resources/lesson46/splash.png"),
     );
 
-    // Get a handle to the SDL2 event pump
-    let mut event_pump = sdl_ctx.event_pump().unwrap();
+    // rust-sdl2 not have support for threads, Us used rust threads becaus it
+    // Run the thread
+    std::thread::Builder::new()
+        .name("LazyThread".to_string())
+        .spawn(|| thread_function(101))
+        .unwrap()
+        .join()
+    .unwrap();
 
     main_loop::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
