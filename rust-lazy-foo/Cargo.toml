@@ -173,7 +173,10 @@ path = "src/lesson41.rs"
 name = "lesson42"
 path = "src/lesson42.rs"
 
-
 [[bin]]
 name = "lesson43"
 path = "src/lesson43.rs"
+
+[[bin]]
+name = "lesson44"
+path = "src/lesson44.rs"

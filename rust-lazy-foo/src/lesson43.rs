@@ -35,7 +35,7 @@ fn main() {
         .expect("Unable to obtain canvas!");
 
     let creator = canvas.texture_creator();
-   
+
     let mut target_texture = creator
         .create_texture_target(PixelFormatEnum::RGBA8888, screen_width, screen_height)
         .unwrap();
@@ -57,7 +57,7 @@ fn main() {
         if angle > 360.0 {
             angle -= 360.0;
         }
-        
+
         canvas.set_draw_color(Color::WHITE);
         canvas.clear();
 
@@ -101,7 +101,6 @@ fn main() {
                 for i in (0..screen_height as i32).step_by(4) {
                     canvas.draw_point((screen_width as i32 / 2, i)).unwrap();
                 }
-                
             })
             .unwrap();
 
