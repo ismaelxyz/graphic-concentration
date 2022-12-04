@@ -1,6 +1,6 @@
 [package]
 name = "lazy-foo"
-version = "0.6.0"
+version = "0.6.5"
 authors = ["Ysgard <ysgard@gmail.com>", "Ismaelxyz <ismaelbeli.com@gmail.com>"]
 edition = "2021"
 
@@ -184,3 +184,7 @@ path = "src/lesson44.rs"
 [[bin]]
 name = "lesson45"
 path = "src/lesson45.rs"
+
+[[bin]]
+name = "lesson46"
+path = "src/lesson46.rs"
