@@ -61,7 +61,7 @@ device, and at this point I can't create anything for mobile.
 * Lesson 41 - Bitmap Fonts
 * Lesson 42 - Texture Streaming
 * Lesson 43 - Render to Texture
-* (TODO) Lesson 44 - Frame Independent Movement
+* Lesson 44 - Frame Independent Movement
 * (TODO) Lesson 45 - Timer Callbacks
 * (TODO) Lesson 46 - Multithreading
 * (TODO) Lesson 47 - Semaphores
