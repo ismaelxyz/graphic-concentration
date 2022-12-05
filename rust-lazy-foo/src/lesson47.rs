@@ -1,5 +1,5 @@
-#![feature(box_syntax)]
-
+#![feature(mutex_unlock)]
+use rand::{thread_rng, Rng};
 use sdl2::{
     event::Event,
     image::{InitFlag, LoadSurface},
@@ -8,6 +8,11 @@ use sdl2::{
     render::{Canvas, Texture, TextureCreator},
     surface::Surface,
     video::{Window, WindowContext},
+};
+use std::{
+    sync::{Arc, Mutex},
+    thread::sleep,
+    time::Duration,
 };
 
 const SCREEN_WIDTH: u32 = 640;
@@ -47,9 +52,36 @@ impl LTexture {
     }
 }
 
-fn thread_function(data: i32) {
-    // Print callback message
-    println!("Running thread with value: {data}");
+/// Our worker thread function
+fn worker(data: &str, g_data: Arc<Mutex<i32>>) {
+    println!("{data} starting...");
+    let mut rng = thread_rng();
+
+    // Work 5 times
+    for _i in 0..5 {
+        // Wait randomly
+        sleep(Duration::from_millis(16 + rng.gen_range(0..32)));
+
+        // Lock
+        let mut g_data = g_data.lock().unwrap();
+
+        // Print pre work data
+        println!("{data} gets {g_data}");
+
+        // "Work"
+        *g_data = rng.gen_range(0..256);
+
+        // Print post work data
+        println!("{data} sets {g_data}");
+
+        // Unlock
+        Mutex::unlock(g_data);
+
+        // Wait randomly
+        sleep(Duration::from_millis(16 + rng.gen_range(0..640)));
+    }
+
+    println!("{data} finished!\n");
 }
 
 fn main() {
@@ -61,7 +93,7 @@ fn main() {
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
     let window = video
-        .window("SDL Tutorial 46", SCREEN_WIDTH, SCREEN_HEIGHT)
+        .window("SDL Tutorial 47", SCREEN_WIDTH, SCREEN_HEIGHT)
         .position_centered()
         .opengl()
         .build()
@@ -74,16 +106,26 @@ fn main() {
 
     let splash_texture = LTexture::from_file(
         &creator,
-        std::path::Path::new("./resources/lesson46/splash.png"),
+        std::path::Path::new("./resources/lesson47/splash.png"),
     );
+
+    // The "data buffer" in an "access semaphore"
+    let g_data = Arc::new(Mutex::new(-1i32));
+    let g_data_clone = g_data.clone();
 
     // rust-sdl2 not have support for threads, Us used rust threads becaus it
     // Run the thread
     std::thread::Builder::new()
-        .name("LazyThread".to_string())
-        .spawn(|| thread_function(101))
-        .unwrap()
-        .join()
+        .name("Thread A".to_string())
+        .spawn(|| worker("Thread A", g_data))
+        .unwrap();
+
+    let mut rng = thread_rng();
+    sleep(Duration::from_millis(16 + rng.gen_range(0..32)));
+
+    std::thread::Builder::new()
+        .name("Thread B".to_string())
+        .spawn(|| worker("Thread B", g_data_clone))
         .unwrap();
 
     main_loop::setup_mainloop(-1, true, move || {
