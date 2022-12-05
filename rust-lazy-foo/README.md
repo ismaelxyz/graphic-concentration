@@ -65,7 +65,7 @@ device, and at this point I can't create anything for mobile.
 * Lesson 45 - Timer Callbacks
 * Lesson 46 - Multithreading
 * Lesson 47 - Semaphores
-* (TODO) Lesson 48 - Atomic Operations
+* Lesson 48 - Atomic Operations
 * (TODO) Lesson 49 - Mutexes and Conditions
 * (TODO) Lesson 50 - SDL and OpenGL 2
 * (TODO) Lesson 51 - SDL and Modern OpenGL
