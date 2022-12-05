@@ -62,9 +62,9 @@ device, and at this point I can't create anything for mobile.
 * Lesson 42 - Texture Streaming
 * Lesson 43 - Render to Texture
 * Lesson 44 - Frame Independent Movement
-* (TODO) Lesson 45 - Timer Callbacks
-* (TODO) Lesson 46 - Multithreading
-* (TODO) Lesson 47 - Semaphores
+* Lesson 45 - Timer Callbacks
+* Lesson 46 - Multithreading
+* Lesson 47 - Semaphores
 * (TODO) Lesson 48 - Atomic Operations
 * (TODO) Lesson 49 - Mutexes and Conditions
 * (TODO) Lesson 50 - SDL and OpenGL 2
