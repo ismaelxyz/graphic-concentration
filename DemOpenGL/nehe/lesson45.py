@@ -434,7 +434,7 @@ def DrawGLScene():
     glEnableClientState(GL_TEXTURE_COORD_ARRAY)
 
     # // Set Pointers To Our Data
-    if(g_fVBOSupported):
+    if (g_fVBOSupported):
         #        import pdb
         #        pdb.set_trace()
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, g_pMesh.m_nVBOVertices)

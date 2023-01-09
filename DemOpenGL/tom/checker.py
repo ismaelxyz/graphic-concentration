@@ -5,6 +5,7 @@ from OpenGL.GLUT import *
 from OpenGL.Tk import *
 import sys
 
+
 def redraw(_):
     glClearColor(1, 0, 1, 0)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)

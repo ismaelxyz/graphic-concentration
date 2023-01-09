@@ -27,14 +27,14 @@ class Fog:
 
     def selectFog(self):
         val = self.mode.get()
-        
+
         if val == int(GL_LINEAR):
             glFogf(GL_FOG_START, 1.0)
             glFogf(GL_FOG_END, 5.0)
             glFogi(GL_FOG_MODE, val)
         elif val == int(GL_EXP):
             glFogi(GL_FOG_MODE, val)
-            
+
         self.gl.tkRedraw()
 
     def init(self):
@@ -80,6 +80,7 @@ class Fog:
 def main():
     fog = Fog()
     fog.run()
+
 
 if __name__ == '__main__':
     main()

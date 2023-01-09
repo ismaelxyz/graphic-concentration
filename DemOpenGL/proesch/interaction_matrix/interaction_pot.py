@@ -59,6 +59,7 @@ def init():
     glutSolidTeapot(1.0)
     glEndList()
 
+
 def main():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)

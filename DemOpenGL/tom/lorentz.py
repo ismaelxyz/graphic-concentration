@@ -53,7 +53,6 @@ def main():
     # Create the opengl widget here.
     gl = Opengl(None, width=400, height=400, double=1)
 
-
     # Register the redraw procedure for the widget.
     gl.redraw = redraw
 

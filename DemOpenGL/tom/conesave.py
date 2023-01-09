@@ -57,7 +57,7 @@ class App(Frame):
         image.save(filename, format)
         print('Saved image to %s' % (os.path.abspath(filename)))
         return image
-        
+
 
 if __name__ == '__main__':
     App()

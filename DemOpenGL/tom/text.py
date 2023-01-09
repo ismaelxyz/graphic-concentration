@@ -10,6 +10,7 @@ try:
 except:
     from .logo import define_logo
 
+
 def redraw(gl):
     if gl.grob == -1:
         gl.grob = glGenLists(1)
@@ -31,6 +32,7 @@ def redraw(gl):
 
         glCallList(gl.grob)
 
+
 def main():
     gl = Opengl(None, width=400, height=200, double=1, depth=1)
     gl.pack(expand=1, fill='both')
@@ -46,6 +48,7 @@ def main():
     # Enter the tk mainloop.
 
     tkinter.mainloop()
+
 
 if __name__ == "__main__":
     main()

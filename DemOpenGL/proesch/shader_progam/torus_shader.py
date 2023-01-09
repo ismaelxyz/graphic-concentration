@@ -22,10 +22,11 @@ time = 0.0
 sP = None
 torusList = None
 
+
 def animationStep():
     """Update animated parameters."""
     global frameRate, time, sP
-    
+
     time += 0.05
     if sP and sP.enable():
         glUseProgramObjectARB(1)

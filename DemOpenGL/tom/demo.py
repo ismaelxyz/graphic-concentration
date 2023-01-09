@@ -4,13 +4,14 @@ from OpenGL.GL import *
 from OpenGL.Tk import *
 from OpenGL.Tk import _default_root
 
+
 class Demo:
 
     def __init__(self):
         self.bar = Frame(_default_root, relief=RAISED, borderwidth=2)
         self.bar.pack(fill=X)
         menubar = self.make_menu()
-        _default_root.config(menu=menubar)  
+        _default_root.config(menu=menubar)
         self.gl = Opengl(self.bar, width=300, height=300, double=1, depth=1)
         self.gl.redraw = self.draw_lines
         self.gl.set_centerpoint(30, 0, 0)
@@ -26,9 +27,9 @@ class Demo:
         demos.add_command(label='Lines', underline=0, command=self.set_lines)
         demos.add_command(label='Text', underline=0, command=self.set_text)
 
-        menu.add_cascade(label="Demos", menu=demos)  
+        menu.add_cascade(label="Demos", menu=demos)
         menu.add_command(label='Quit', underline=0, background='red',
-            activebackground='green', command=_default_root.quit)
+                         activebackground='green', command=_default_root.quit)
 
         return menu
 
@@ -68,7 +69,7 @@ class Demo:
                 from logo import define_logo
             except:
                 from .logo import define_logo
-                
+
             gl.grob = glGenLists(1)
             glNewList(gl.grob, GL_COMPILE_AND_EXECUTE)
             glMaterialfv(GL_FRONT, GL_DIFFUSE, [1, 0, 0, 0])

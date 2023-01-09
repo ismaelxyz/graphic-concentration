@@ -354,7 +354,7 @@ def DrawGLInfo():
     gFont.glPrintf(10, 200, 1, String)
 
     # // if we are due for another FPS update
-    if(gFrames >= 100):
+    if (gFrames >= 100):
         # gCurrentTime = win32api.GetTickCount ();                    # // Get the current time
         gCurrentTime = time.time()                            # // Get the current time
         # // Find the difference between the start and end times

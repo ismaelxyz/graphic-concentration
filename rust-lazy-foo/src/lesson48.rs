@@ -1,4 +1,3 @@
-#![feature(mutex_unlock)]
 use rand::{thread_rng, Rng};
 use sdl2::{
     event::Event,
@@ -10,13 +9,13 @@ use sdl2::{
     video::{Window, WindowContext},
 };
 use std::{
-    sync::{Arc, atomic::{AtomicI32, Ordering},},
+    sync::{
+        atomic::{AtomicI32, Ordering},
+        Arc,
+    },
     thread::sleep,
     time::Duration,
 };
-
-const SCREEN_WIDTH: u32 = 640;
-const SCREEN_HEIGHT: u32 = 480;
 
 struct LTexture {
     texture: Texture,
@@ -87,7 +86,7 @@ fn main() {
     sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
     let window = video
-        .window("SDL Tutorial 48", SCREEN_WIDTH, SCREEN_HEIGHT)
+        .window("SDL Tutorial 48", 640, 480)
         .position_centered()
         .opengl()
         .build()

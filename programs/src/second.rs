@@ -104,9 +104,6 @@ impl Program for Second {
             gl::EnableVertexAttribArray(1);
 
             gl::DrawArrays(gl::TRIANGLES, 0, self.vertices.len() as i32 / 2_i32);
-
-            gl::DisableVertexAttribArray(0);
-            gl::DisableVertexAttribArray(1);
         }
     }
 }

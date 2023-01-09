@@ -83,7 +83,7 @@ class glCamera:
             # Our pitch is greater than the max pitch rate that
             # we defined so we can only increment our pitch by the
             # maximum allowed value.
-            if(degrees < 0):
+            if (degrees < 0):
                 # We are pitching down so decrement
                 self.m_PitchDegrees -= self.m_MaxPitchRate
             else:
@@ -101,7 +101,7 @@ class glCamera:
         return
 
     def ChangeHeading(self, degrees):
-        if(fabs(degrees) < fabs(self.m_MaxHeadingRate)):
+        if (fabs(degrees) < fabs(self.m_MaxHeadingRate)):
             # Our Heading is less than the max heading rate that we
             # defined so lets increment it but first we must check
             # to see if we are inverted so that our heading will not
@@ -115,7 +115,7 @@ class glCamera:
             # Our heading is greater than the max heading rate that
             # we defined so we can only increment our heading by the
             # maximum allowed value.
-            if(degrees < 0):
+            if (degrees < 0):
                 # Check to see if we are upside down.
                 if ((self.m_PitchDegrees > 90 and self.m_PitchDegrees < 270) or
                         (self.m_PitchDegrees < -90 and self.m_PitchDegrees > -270)):
@@ -139,16 +139,16 @@ class glCamera:
         # We don't want our heading to run away from us either. Although it
         # really doesn't matter I prefer to have my heading degrees
         # within the range of -360.0f to 360.0f
-        if(self.m_HeadingDegrees > 360.0):
+        if (self.m_HeadingDegrees > 360.0):
             self.m_HeadingDegrees -= 360.0
-        elif(self.m_HeadingDegrees < -360.0):
+        elif (self.m_HeadingDegrees < -360.0):
             self.m_HeadingDegrees += 360.0
 
         return
 
     # //////////// FUNCTIONS TO CHANGE CAMERA ORIENTATION AND SPEED /////
     def ChangeVelocity(self, vel):
-        if(fabs(vel) < fabs(self.m_MaxForwardVelocity)):
+        if (fabs(vel) < fabs(self.m_MaxForwardVelocity)):
             # Our velocity is less than the max velocity increment that we
             # defined so lets increment it.
             self.m_ForwardVelocity += vel
@@ -156,7 +156,7 @@ class glCamera:
             # Our velocity is greater than the max velocity increment that
             # we defined so we can only increment our velocity by the
             # maximum allowed value.
-            if(vel < 0):
+            if (vel < 0):
                 # We are slowing down so decrement
                 self.m_ForwardVelocity -= -self.m_MaxForwardVelocity
             else:
@@ -461,16 +461,16 @@ class glCamera:
         if (Radius != 0):
             for i in range(6):
                 # If the point is outside of the plane then its not in the viewing volume.
-                if(Frustum[i][0] * p.x + Frustum[i][1] * p.y + Frustum[i][2] * p.z + Frustum[i][3] <= -Radius):
-                    return(False)
+                if (Frustum[i][0] * p.x + Frustum[i][1] * p.y + Frustum[i][2] * p.z + Frustum[i][3] <= -Radius):
+                    return (False)
         else:
             # The idea here is the same as the PointInFrustum function.
             for i in range(6):
                 # If the point is outside of the plane then its not in the viewing volume.
-                if(Frustum[i][0] * p.x + Frustum[i][1] * p.y + Frustum[i][2] * p.z + Frustum[i][3] <= 0):
-                    return(False)
+                if (Frustum[i][0] * p.x + Frustum[i][1] * p.y + Frustum[i][2] * p.z + Frustum[i][3] <= 0):
+                    return (False)
 
-        return(True)
+        return (True)
 
     def PointInFrustum(self, x, y, z):
         """ This member fuction checks to see if a point is in
@@ -484,10 +484,10 @@ class glCamera:
         # Loop through all our clipping planes
         for i in range(6):
             # If the point is outside of the plane then its not in the viewing volume.
-            if(Frustum[i][0] * x + Frustum[i][1] * y + Frustum[i][2] * z + Frustum[i][3] <= 0):
-                return(False)
+            if (Frustum[i][0] * x + Frustum[i][1] * y + Frustum[i][2] * z + Frustum[i][3] <= 0):
+                return (False)
 
-        return(True)
+        return (True)
 
     # /////////// OCCLUSION TESTING FUNCTIONS ///////////////////////////
     def IsOccluded(self, p):

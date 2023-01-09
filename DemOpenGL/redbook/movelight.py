@@ -25,6 +25,7 @@ from OpenGL.GLU import *
 window = None
 spin = 0
 
+
 def init():
     """
         Initialize material property, light source, lighting model,

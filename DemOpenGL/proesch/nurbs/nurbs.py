@@ -62,6 +62,7 @@ circleKnots = [float(i)/(knotNum-1) for i in range(knotNum)]
 squareHolePoints = [[0.4, 0.4], [0.4, 0.45], [0.45, 0.45],
                     [0.45, 0.4], [0.4, 0.4]]
 
+
 def animationStep():
     """Update animated parameters"""
     global animationAngle, frameRate, curr_time, nurbsID
@@ -77,6 +78,7 @@ def animationStep():
     glEndList()
     sleep(1 / float(frameRate))
     glutPostRedisplay()
+
 
 def dampedOscillation(u, v, t):
     """Calculation of a R2 -> R1 function at position u,v at curr_time t.
@@ -152,7 +154,7 @@ def display():
 def init():
     """Glut init function."""
     global nurb, samplingTolerance, teapotID, nurbsID, curr_time
-    
+
     glClearColor(0, 0, 0, 0)
     glEnable(GL_DEPTH_TEST)
     glShadeModel(GL_SMOOTH)
@@ -169,7 +171,7 @@ def init():
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [0.5, 0.5, 0.5, 1])
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50)
     glEnable(GL_AUTO_NORMAL)
-    
+
     nurb = gluNewNurbsRenderer()
     gluNurbsProperty(nurb, GLU_SAMPLING_TOLERANCE, samplingTolerance)
     gluNurbsProperty(nurb, GLU_DISPLAY_MODE, GLU_FILL)
@@ -182,6 +184,7 @@ def init():
     plotSurface(curr_time)
     glEndList()
 
+
 def main():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
@@ -192,7 +195,7 @@ def main():
     glutDisplayFunc(display)
     glutIdleFunc(animationStep)
     glutMainLoop()
-    
+
 
 if __name__ == '__main__':
     main()

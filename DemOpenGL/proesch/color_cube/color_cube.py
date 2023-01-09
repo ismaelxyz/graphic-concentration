@@ -57,6 +57,7 @@ def init():
     glEnable(GL_DEPTH_TEST)
     glShadeModel(GL_SMOOTH)
 
+
 def main():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
@@ -67,6 +68,7 @@ def main():
     glutDisplayFunc(display)
     glutIdleFunc(animationStep)
     glutMainLoop()
-    
+
+
 if __name__ == '__main__':
     main()

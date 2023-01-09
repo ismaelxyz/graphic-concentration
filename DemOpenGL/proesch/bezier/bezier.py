@@ -122,6 +122,7 @@ def init():
     glEnable(GL_MAP2_VERTEX_3)
     glEnable(GL_AUTO_NORMAL)
 
+
 def main():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
@@ -132,7 +133,7 @@ def main():
     glutDisplayFunc(display)
     glutIdleFunc(animationStep)
     glutMainLoop()
-    
+
 
 if __name__ == '__main__':
     main()

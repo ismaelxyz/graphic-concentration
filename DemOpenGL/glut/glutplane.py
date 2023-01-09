@@ -174,7 +174,7 @@ def visible(state):
 
 # ARGSUSED1
 def keyboard(ch,  x,  y):
-    if(ch == ' '):
+    if (ch == ' '):
         if (not moving):
             tick()
             glutPostRedisplay()

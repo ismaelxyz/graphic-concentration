@@ -2,15 +2,6 @@ use std::ops::Mul;
 
 type MatrixBase = [[f32; 4]; 4];
 
-fn identity() -> MatrixBase {
-    let mut value = MatrixBase::default();
-    value[0][0] = 1.0;
-    value[1][1] = 1.0;
-    value[2][2] = 1.0;
-    value[3][3] = 1.0;
-    value
-}
-
 fn multiply_matrices(xmatrix: &MatrixBase, ymatrix: &MatrixBase) -> MatrixBase {
     let mut result_matrix = [[0.; 4]; 4];
 
@@ -34,10 +25,7 @@ pub struct Matrix {
 impl Matrix {
     pub fn identity() -> Matrix {
         let mut value = MatrixBase::default();
-        value[0][0] = 1.0;
-        value[1][1] = 1.0;
-        value[2][2] = 1.0;
-        value[3][3] = 1.0;
+        (0..=3).for_each(|i| value[i][i] = 1.0);
 
         Matrix { value }
     }
@@ -52,8 +40,7 @@ impl Matrix {
 
     pub fn translate(&mut self, x: f32, y: f32, z: f32) {
         for i in 0..4 {
-            self.value[3][i] = self.value[3][i]
-                + (self.value[0][i] * x + self.value[1][i] * y + self.value[2][i] * z);
+            self.value[3][i] += self.value[0][i] * x + self.value[1][i] * y + self.value[2][i] * z;
         }
     }
 
