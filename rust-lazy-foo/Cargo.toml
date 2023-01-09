@@ -4,6 +4,10 @@ version = "0.6.5"
 authors = ["Ysgard <ysgard@gmail.com>", "Ismaelxyz <ismaelbeli.com@gmail.com>"]
 edition = "2021"
 
+[dependencies.glu-sys]
+version = "0.1.4"
+optional = true
+
 [dependencies.sdl2]
 version = "0.35.2"
 default-features = false
@@ -11,6 +15,10 @@ features = ["image", "ttf", "mixer", "unsafe_textures"]
 
 [dependencies.rand]
 version = "0.8.5"
+optional = true
+
+[dependencies.glow]
+version = "0.11"
 optional = true
 
 [dependencies.main-loop]
@@ -203,3 +211,8 @@ required-features = ["rand"]
 name = "lesson49"
 path = "src/lesson49.rs"
 required-features = ["rand"]
+
+[[bin]]
+name = "lesson50"
+path = "src/lesson50.rs"
+required-features = ["glow", "glu-sys"]

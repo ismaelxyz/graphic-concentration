@@ -18,7 +18,6 @@ use std::{
 const SCREEN_WIDTH: u32 = 640;
 const SCREEN_HEIGHT: u32 = 480;
 
-
 struct LTexture {
     texture: Texture,
     width: u32,
