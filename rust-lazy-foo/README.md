@@ -1,4 +1,4 @@
-# Lazy Foo's SDL2 Tutorials, in Rust #
+# Lazy Foo's SDL2 Tutorials, in Rust
 
 This repo contains ports of the
 [Lazy Foo SDL2](http://lazyfoo.net/tutorials/SDL/index.php) tutorials
@@ -66,8 +66,8 @@ device, and at this point I can't create anything for mobile.
 * Lesson 46 - Multithreading
 * Lesson 47 - Semaphores
 * Lesson 48 - Atomic Operations
-* (TODO) Lesson 49 - Mutexes and Conditions
-* (TODO) Lesson 50 - SDL and OpenGL 2
+* Lesson 49 - Mutexes and Conditions
+* Lesson 50 - SDL and OpenGL 2
 * (TODO) Lesson 51 - SDL and Modern OpenGL
 * (NOT IMPLEMENTED) Lesson 52 - Hello Mobile
 * (NOT IMPLEMENTED) Lesson 53 - Extensions and Changing Orientation
