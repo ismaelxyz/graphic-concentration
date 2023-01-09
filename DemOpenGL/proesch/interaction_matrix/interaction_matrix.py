@@ -60,6 +60,7 @@ def main():
     print(m.getCurrentMatrix())
     m.addTranslation(1, 2, 3)
     print(m.getCurrentMatrix())
-    
+
+
 if __name__ == '__main__':
     main()

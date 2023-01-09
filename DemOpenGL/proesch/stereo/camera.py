@@ -11,6 +11,7 @@ from OpenGL.GLUT import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+
 class StereoCamera(object):
     """Helper class for stereo frustum calculation.
 
@@ -105,6 +106,7 @@ class StereoCamera(object):
             self.whRatio*perpDelta-self.eyeSeparation/2.0*parallaxCorrection,
             -perpDelta, perpDelta, self.near, self.far)
 
+
 def test():
     """ test program """
     sC = StereoCamera()
@@ -116,6 +118,7 @@ def test():
     print(sC.frustumLeft)
     print(sC.lookAtRight)
     print(sC.frustumRight)
-    
+
+
 if __name__ == '__main__':
     test()

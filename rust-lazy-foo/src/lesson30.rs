@@ -9,7 +9,7 @@ use sdl2::{
     video::{Window, WindowContext},
 };
 
-//The dimensions of the level
+// The dimensions of the level
 const LEVEL_WIDTH: i32 = 1280;
 const LEVEL_HEIGHT: i32 = 960;
 
@@ -161,7 +161,7 @@ fn main() {
         // Move the dot
         dot.r#move();
 
-        //Center the camera over the dot
+        // Center the camera over the dot
         camera.x = dot.pos.0 + Dot::WIDTH / 2 - WIDTH / 2;
         camera.y = dot.pos.1 + Dot::HEIGHT / 2 - HEIGHT / 2;
 

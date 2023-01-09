@@ -20,7 +20,7 @@ RASTERBYTES = (
     0xff, 0x00, 0xff, 0x00, 0xc0, 0x00, 0xc0, 0x00, 0xc0, 0x00,
     0xff, 0xc0, 0xff, 0xc0
 )
-RASTERS =  b''.join([struct.pack('B', byte) for byte in RASTERBYTES])
+RASTERS = b''.join([struct.pack('B', byte) for byte in RASTERBYTES])
 
 
 def init():

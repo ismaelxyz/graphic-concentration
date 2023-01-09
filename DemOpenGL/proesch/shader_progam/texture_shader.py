@@ -27,6 +27,7 @@ rgbTransformMatrix = [0.0 for i in range(16)]
 rgbTransformMatrix[0] = rgbTransformMatrix[5] = rgbTransformMatrix[10] \
     = rgbTransformMatrix[15] = 1.0
 
+
 class Texture(object):
     def __init__(self):
         self.xSize, self.ySize = 0, 0
@@ -52,7 +53,7 @@ class FileTexture(Texture):
 
 def animationStep(*args):
     global frameRate, sP, rgbTransformMatrix
-    
+
     if not quadList:
         if len(sys.argv) > 1:
             init(sys.argv[1])

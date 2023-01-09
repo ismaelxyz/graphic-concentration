@@ -5,34 +5,44 @@ authors  = ["@ismaelxyz <ismaelbeli.com@gmail.com>"]
 license = "MIT"
 edition = "2021"
 
+[dependencies]
+bytemuck = "1.12.3"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-glfw  = "*"
-gl    = "*"
+[dependencies.glow]
+version = "0.11.2"
+
+[dependencies.glfw]
+version = "0.47.0"
+default-features = false
+features = ["glfw-sys"]
 
 [dependencies.image]
-version = "*"
+version = "0.24.5"
 default-features = false
 features = ["png"]
 
+[features]
+wayland = ["glfw/wayland"]
+
 [[bin]]
 name = "episode1"
-path = "episode1/main.rs"
+path = "episode1.rs"
 
 [[bin]]
 name = "episode2"
-path = "episode2/main.rs"
+path = "episode2.rs"
 
 [[bin]]
 name = "episode3"
-path = "episode3/main.rs"
+path = "episode3.rs"
 
 [[bin]]
 name = "episode4"
-path = "episode4/main.rs"
+path = "episode4.rs"
 
 [[bin]]
 name = "episode5"
-path = "episode5/main.rs"
+path = "episode5.rs"
 

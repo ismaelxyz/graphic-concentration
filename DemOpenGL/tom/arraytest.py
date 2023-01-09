@@ -8,6 +8,7 @@ import sys
 
 N = 50
 
+
 def shuffle(a, b):
     return ravel(transpose(reshape(concatenate([a, b]), (2, len(a)))))
 

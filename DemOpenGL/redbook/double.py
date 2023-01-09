@@ -30,7 +30,7 @@ def display():
 def spin_display():
     global spin
     spin = spin + 2.0
-    if(spin > 360.0):
+    if (spin > 360.0):
         spin = spin - 360.0
     glutPostRedisplay()
 
@@ -51,10 +51,10 @@ def reshape(w, h):
 
 def mouse(button, state, x, y):
     if button == GLUT_LEFT_BUTTON:
-        if(state == GLUT_DOWN):
+        if (state == GLUT_DOWN):
             glutIdleFunc(spin_display)
     elif button == GLUT_MIDDLE_BUTTON or button == GLUT_RIGHT_BUTTON:
-        if(state == GLUT_DOWN):
+        if (state == GLUT_DOWN):
             glutIdleFunc(None)
 
 

@@ -74,7 +74,7 @@ class PDB:
         pdbfile = open(filename)
         sys.stderr.write("Opened '%s' for reading as PDB\n" % filename)
 
-        while(1):
+        while (1):
             line = pdbfile.readline()
 
             if line == '':

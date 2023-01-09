@@ -6,5 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-glfw = "*"
 gl = "*"
+
+[dependencies.glfw]
+version = "0.47.0"
+default-features = false
+features = ["glfw-sys"]

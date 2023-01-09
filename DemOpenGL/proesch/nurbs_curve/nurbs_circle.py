@@ -39,21 +39,22 @@ circleKnots = [0.0] + \
 nurb = None
 samplingTolerance = 1.0
 
+
 def animationStep():
     """Update animated parameters"""
     global animationAngle, frameRate
-    
+
     animationAngle += 0.3
     while animationAngle > 360:
         animationAngle -= 360
-    
+
     sleep(1 / float(frameRate))
     glutPostRedisplay()
 
 
 def display():
     global circlePoints, circleKnots, nurb
-    
+
     glClear(GL_COLOR_BUFFER_BIT)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -63,26 +64,26 @@ def display():
     glLoadIdentity()
     glTranslatef(0, 0, -2)
     glRotatef(animationAngle, 0, 0, 1)
-    
+
     glColor3f(0, 1, 0)
     glBegin(GL_LINE_STRIP)
     for coord in circlePoints:
         glVertex3f(coord[0], coord[1], coord[2])
-        
+
     glEnd()
     glColor3f(1, 1, 1)
     gluBeginCurve(nurb)
     gluNurbsCurve(nurb, circleKnots, circlePoints, GL_MAP1_VERTEX_4)
     gluEndCurve(nurb)
     glutSwapBuffers()
-    
+
 
 def init():
     """Glut init function."""
     global nurb, samplingTolerance
-    
+
     glClearColor(0, 0, 0, 0)
-    nurb = gluNewNurbsRenderer() 
+    nurb = gluNewNurbsRenderer()
     glLineWidth(2.0)
     gluNurbsProperty(nurb, GLU_SAMPLING_TOLERANCE, samplingTolerance)
 
@@ -97,6 +98,7 @@ def main():
     glutDisplayFunc(display)
     glutIdleFunc(animationStep)
     glutMainLoop()
-    
+
+
 if __name__ == '__main__':
     main()

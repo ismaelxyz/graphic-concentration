@@ -149,15 +149,16 @@ def main():
     Sp.addShader(GL_VERTEX_SHADER_ARB, "temperature.vert")
     Sp.addShader(GL_FRAGMENT_SHADER_ARB, "temperature.frag")
     Sp.linkShaders()
-    print("Index of variable CoolestTemp: ", \
-        Sp.indexOfUniformVariable("CoolestTemp"))
+    print("Index of variable CoolestTemp: ",
+          Sp.indexOfUniformVariable("CoolestTemp"))
     Sp.enable()
-    print("Index of attribute VertexTemp: ", \
-        Sp.indexOfVertexAttribute("VertexTemp"))
+    print("Index of attribute VertexTemp: ",
+          Sp.indexOfVertexAttribute("VertexTemp"))
     glVertexAttrib1fNV(Sp.indexOfVertexAttribute("VertexTemp"), 12.3)
     Sp.disable()
     Sp.reset()
     print('OK')
+
 
 # test routine
 if __name__ == '__main__':

@@ -26,6 +26,7 @@ lightColors = {
 lightPosition = (5.0, 5.0, 20.0, 1.0)
 teapotList = 0
 
+
 def animationStep():
     """Update animated parameters."""
     global animationAngle
@@ -140,12 +141,13 @@ def reshape(width, height):
     sC.whRatio = float(width)/float(height)
     sC.update()
 
+
 def main():
     if len(argv) != 2:
         print("Usage:")
         print("python stereDemo.py SHUTTER | ANAGLYPH | NONE \n")
-        return;
-    
+        return
+
     glutInit(sys.argv)
     stereoMode = sys.argv[1].upper()
     if stereoMode == "SHUTTER":
@@ -160,6 +162,7 @@ def main():
     glutReshapeFunc(reshape)
     glutIdleFunc(animationStep)
     glutMainLoop()
-    
+
+
 if __name__ == '__main__':
     main()

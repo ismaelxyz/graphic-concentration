@@ -4,6 +4,7 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.Tk import *
 
+
 def init():
     glutInit([])
     glMaterialfv(GL_FRONT, GL_AMBIENT, [0.2, 0.2, 0.2, 1.0])

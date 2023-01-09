@@ -37,7 +37,7 @@ def reshape(w, h):
     glViewport(0, 0, w, h)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    if(w <= h):
+    if (w <= h):
         gluOrtho2D(0.0, 30.0, 0.0, 30.0 * h/w)
     else:
         gluOrtho2D(0.0, 30.0 * w/h, 0.0, 30.0)

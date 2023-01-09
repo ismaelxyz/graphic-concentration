@@ -54,6 +54,7 @@ def main():
     glutDisplayFunc(display)
     glutIdleFunc(doAnimationStep)
     glutMainLoop()
-    
+
+
 if __name__ == '__main__':
     main()

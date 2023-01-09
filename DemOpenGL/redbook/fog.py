@@ -18,6 +18,7 @@ from OpenGL.GLUT import *
 from OpenGL.GL import *
 window = None
 
+
 def init():
     """
         Initialize depth buffer, fog, light source,

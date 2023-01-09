@@ -38,11 +38,11 @@ samplingTolerance = 1.0
 def animation_step():
     """Update animated parameters"""
     global animationAngle, frameRate
-    
+
     animationAngle += 0.3
     while animationAngle > 360:
         animationAngle -= 360
-    
+
     sleep(1 / float(frameRate))
     glutPostRedisplay()
 
@@ -50,7 +50,7 @@ def animation_step():
 def display():
     """Glut display function."""
     global circlePoints, circleKnots, nurb
-    
+
     glClear(GL_COLOR_BUFFER_BIT)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -65,7 +65,7 @@ def display():
     for coord in circlePoints:
         glVertex3f(coord[0], coord[1], coord[2])
     glEnd()
-     
+
     glColor3f(1, 1, 1)
     gluBeginCurve(nurb)
     gluNurbsCurve(nurb, circleKnots, circlePoints, GL_MAP1_VERTEX_3)
