@@ -10,12 +10,12 @@ __pycache__
 node_modules
 
 # Temporal
-/web
 /rust-and-opengl-lessons
 
 # Auto generate
 /rust-lazy-foo/resources/nums.bin
 /rust-lazy-foo/public
+/web/public
 
 # Files
 Cargo.lock

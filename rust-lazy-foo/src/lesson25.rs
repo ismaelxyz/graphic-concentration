@@ -88,7 +88,7 @@ fn main() {
     let mut counted_frames = 0f64;
     let start_ticks = time.ticks() as f64; // getTicks
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         let current_ticks = time.ticks() as f64; // getTicks
 
         for event in event_pump.poll_iter() {

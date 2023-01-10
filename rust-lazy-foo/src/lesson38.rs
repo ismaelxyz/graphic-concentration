@@ -247,7 +247,7 @@ fn main() {
     //The dot that will be moving around on the screen
     let mut dot = Dot::new(&creator);
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             if let Event::Quit { .. } = event {
                 return false;

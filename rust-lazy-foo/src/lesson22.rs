@@ -108,7 +108,7 @@ fn main() {
 
     let mut start_time = 0i32;
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => return false,

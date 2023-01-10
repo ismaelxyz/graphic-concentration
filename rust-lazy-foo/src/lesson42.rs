@@ -97,7 +97,7 @@ fn main() {
         .create_texture_streaming(PixelFormatEnum::RGBA8888, texture_width, texture_height)
         .unwrap();
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             if let Event::Quit { .. }
             | Event::KeyDown {

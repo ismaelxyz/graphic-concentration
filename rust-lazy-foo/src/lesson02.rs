@@ -1,9 +1,6 @@
 use sdl2::{event::Event, keyboard::Keycode, rwops::RWops, surface::Surface};
 
 fn main() {
-    /* Initialize SDL
-    We'll just unwrap these - See lesson01 for an example of how to properly
-    handle SDL errors */
     let sdl_ctx = sdl2::init().unwrap();
     let video = sdl_ctx.video().unwrap();
     let mut event_pump = sdl_ctx.event_pump().unwrap();
@@ -41,7 +38,7 @@ fn main() {
         Err(err) => panic!("Could not convert image to texture: {err}"),
     };
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             if let Event::Quit { .. }
             | Event::KeyDown {

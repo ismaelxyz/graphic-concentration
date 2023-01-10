@@ -1,8 +1,11 @@
 [package]
 name = "lazy-foo"
-version = "0.6.5"
+version = "0.8.0"
 authors = ["Ysgard <ysgard@gmail.com>", "Ismaelxyz <ismaelbeli.com@gmail.com>"]
 edition = "2021"
+
+[lib]
+name = "lazy_foo"
 
 [dependencies.glu-sys]
 version = "0.1.4"
@@ -25,12 +28,8 @@ optional = true
 version = "0.11"
 optional = true
 
-[dependencies.main-loop]
-path = "./main_loop"
-
 [features]
 glow = ["dep:glow", "dep:bytemuck"]
-
 
 [[bin]]
 name = "lesson01"
@@ -140,7 +139,7 @@ path = "src/lesson28.rs"
 
 [[bin]]
 name = "lesson29"
-path = "lesson29/main.rs"
+path = "src/lesson29/main.rs"
 
 [[bin]]
 name = "lesson30"
@@ -230,6 +229,9 @@ name = "lesson51"
 path = "src/lesson51.rs"
 required-features = ["glow"]
 
+# ignore 52 (53 is 52 here)
 [[bin]]
 name = "lesson52"
 path = "src/lesson52.rs"
+
+# skip 54 and 55

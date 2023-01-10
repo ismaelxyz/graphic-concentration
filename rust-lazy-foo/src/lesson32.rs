@@ -123,7 +123,7 @@ fn main() {
     // The current input text.
     let mut input_text = String::from("Some Text");
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => return false,

@@ -194,7 +194,7 @@ fn main() {
         .event_pump()
         .expect("Unable to obtain event pump handle!");
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             if let Event::Quit { .. } = event {
                 // Pass off the events to the buttons for handling.

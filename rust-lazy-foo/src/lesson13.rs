@@ -82,7 +82,7 @@ fn main() {
     // Set the current alpha to max (255).
     let mut alpha: u8 = 0xff;
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event

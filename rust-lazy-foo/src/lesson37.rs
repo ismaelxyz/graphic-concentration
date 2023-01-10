@@ -130,7 +130,7 @@ fn main() {
     let (width, height) = window.canvas.window().size();
     let mut event_pump = sdl_ctx.event_pump().unwrap();
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         let mut update_caption: bool = false;
 
         for event in event_pump.poll_iter() {

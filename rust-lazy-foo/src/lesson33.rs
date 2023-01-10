@@ -181,7 +181,7 @@ fn main() {
 
     canvas.set_draw_color(Color::WHITE);
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             // Pattern match on the Quit event
             match event {

@@ -81,7 +81,7 @@ fn main() {
     };
 
     // Start up the main loop
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         // Clear and render the currently selected image
         canvas.clear();
 
