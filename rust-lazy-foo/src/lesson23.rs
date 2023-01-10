@@ -213,7 +213,7 @@ fn main() {
     // The application timer
     let mut ltime = LTimer::new();
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => return false,

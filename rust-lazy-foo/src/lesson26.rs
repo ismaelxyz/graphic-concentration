@@ -165,7 +165,7 @@ fn main() {
     let dot_texture = LTexture::from_file("resources/lesson26/dot.bmp", &creator);
     let mut dot = Dot::new(dot_texture);
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             if let Event::Quit { .. } = event {
                 return false;

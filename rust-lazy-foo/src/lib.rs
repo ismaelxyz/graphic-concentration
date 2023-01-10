@@ -16,8 +16,6 @@ extern "C" {
     );
 
     pub fn emscripten_cancel_main_loop();
-
-    // pub fn emscripten_sleep(ms: u32);
 }
 
 pub fn setup_mainloop<F: FnMut() -> bool + 'static>(
@@ -57,9 +55,3 @@ pub fn setup_mainloop<F: FnMut() -> bool + 'static>(
         )
     }
 }
-
-// pub fn sleep(ms: u32) {
-//     unsafe {
-//         emscripten_sleep(ms);
-//     }
-// }

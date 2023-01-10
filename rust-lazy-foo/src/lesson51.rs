@@ -248,5 +248,5 @@ fn main() {
         true
     };
 
-    main_loop::setup_mainloop(-1, true, main_loop);
+    lazy_foo::setup_mainloop(-1, true, main_loop);
 }

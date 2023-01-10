@@ -70,7 +70,7 @@ device, and at this point I can't create anything for mobile.
 * Lesson 50 - SDL and OpenGL 2
 * Lesson 51 - SDL and Modern OpenGL
 * (NOT IMPLEMENTED) Lesson 52 - Hello Mobile. Ignore because is equal to lesson 40.
-* (NOT IMPLEMENTED) Lesson 53 - Extensions and Changing Orientation
+* Lesson 53 - Extensions and Changing Orientation. Implemented with name Lesson 52.
 * (NOT IMPLEMENTED) Lesson 54 - Touches
 * (NOT IMPLEMENTED) Lesson 55 - Multitouch
 

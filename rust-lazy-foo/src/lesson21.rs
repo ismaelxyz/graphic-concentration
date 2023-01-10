@@ -105,7 +105,7 @@ fn main() {
         .event_pump()
         .expect("Unable to obtain event pump handle!");
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         let mut sound = None;
         for event in event_pump.poll_iter() {
             match event {

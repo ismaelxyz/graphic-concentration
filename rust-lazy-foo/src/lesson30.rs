@@ -149,7 +149,7 @@ fn main() {
     let mut dot = Dot::default();
     let mut camera = Rect::new(0, 0, WIDTH as u32, HEIGHT as u32);
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             if let Event::Quit { .. } = event {
                 return false;

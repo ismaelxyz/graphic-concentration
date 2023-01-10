@@ -371,7 +371,7 @@ fn main() {
     let mut camera = Rect::new(0, 0, WIDTH, HEIGHT);
     let tiles = TileMap::new(tile_texture);
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             if let Event::Quit { .. }
             | Event::KeyDown {

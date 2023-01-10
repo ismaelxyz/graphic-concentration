@@ -106,7 +106,7 @@ fn main() {
         true
     };
 
-    main_loop::setup_mainloop(
+    lazy_foo::setup_mainloop(
         -1,   // call the function as fast as the browser wants to render (typically 60fps)
         true, // call the function repeatedly
         main_loop,

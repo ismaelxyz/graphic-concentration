@@ -94,7 +94,7 @@ fn main() {
     let mut flip_vertical: bool = false;
     let mut flip_horizontal: bool = false;
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => return false,

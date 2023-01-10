@@ -121,7 +121,7 @@ fn main() {
         .spawn(|| worker("Thread B", g_data_clone))
         .unwrap();
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         for event in event_pump.poll_iter() {
             if let Event::Quit { .. } = event {
                 return false;

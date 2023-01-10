@@ -66,7 +66,7 @@ fn main() {
 
     let mut event_pump = sdl_ctx.event_pump().unwrap();
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         // We blit the image to the screen corresponding to the keypress,
         // or 'press' otherwise.  Using 'Esc' or 'q' will quit the program.
         for event in event_pump.poll_iter() {

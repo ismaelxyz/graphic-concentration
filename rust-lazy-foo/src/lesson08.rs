@@ -28,7 +28,7 @@ fn main() {
     // Get a handle to the SDL2 event pump
     let mut event_pump = sdl_ctx.event_pump().unwrap();
 
-    main_loop::setup_mainloop(-1, true, move || {
+    lazy_foo::setup_mainloop(-1, true, move || {
         // Extract any pending events from from the event pump and process them
         for event in event_pump.poll_iter() {
             // pattern match on the type of event
