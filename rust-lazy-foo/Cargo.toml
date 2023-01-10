@@ -17,12 +17,20 @@ features = ["image", "ttf", "mixer", "unsafe_textures"]
 version = "0.8.5"
 optional = true
 
+[dependencies.bytemuck]
+version = "1.12.3"
+optional = true
+
 [dependencies.glow]
 version = "0.11"
 optional = true
 
 [dependencies.main-loop]
 path = "./main_loop"
+
+[features]
+glow = ["dep:glow", "dep:bytemuck"]
+
 
 [[bin]]
 name = "lesson01"
@@ -216,3 +224,12 @@ required-features = ["rand"]
 name = "lesson50"
 path = "src/lesson50.rs"
 required-features = ["glow", "glu-sys"]
+
+[[bin]]
+name = "lesson51"
+path = "src/lesson51.rs"
+required-features = ["glow"]
+
+[[bin]]
+name = "lesson52"
+path = "src/lesson52.rs"
