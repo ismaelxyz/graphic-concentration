@@ -68,8 +68,8 @@ device, and at this point I can't create anything for mobile.
 * Lesson 48 - Atomic Operations
 * Lesson 49 - Mutexes and Conditions
 * Lesson 50 - SDL and OpenGL 2
-* (TODO) Lesson 51 - SDL and Modern OpenGL
-* (NOT IMPLEMENTED) Lesson 52 - Hello Mobile
+* Lesson 51 - SDL and Modern OpenGL
+* (NOT IMPLEMENTED) Lesson 52 - Hello Mobile. Ignore because is equal to lesson 40.
 * (NOT IMPLEMENTED) Lesson 53 - Extensions and Changing Orientation
 * (NOT IMPLEMENTED) Lesson 54 - Touches
 * (NOT IMPLEMENTED) Lesson 55 - Multitouch
