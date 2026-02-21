@@ -1,4 +1,4 @@
-use sdl2::{
+use sdl3::{
     image::LoadSurface, pixels::Color, render::Texture, render::TextureCreator as TCreator,
     surface::Surface, video::WindowContext as WContext,
 };
@@ -13,5 +13,4 @@ pub fn load_texture(path: &str, creator: &TCreator<WContext>, color: (u8, u8, u8
 
     // Create texture from surface pixels
     creator.create_texture_from_surface(&surf).unwrap()
-
 }

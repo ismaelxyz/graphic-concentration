@@ -3,39 +3,30 @@ mod object;
 mod wrappers;
 
 use crate::{
-    global::{game_over, init, text_middle, Global, State},
+    global::{Global, State, game_over, init, text_middle},
     object::{Asteroids, Object, Ship, Size, Text},
 };
-use sdl2::{
-    event::Event, image::LoadSurface, keyboard::Keycode, rect::Rect, surface::Surface,
-    video::FullscreenType,
-};
+use sdl3::{event::Event, image::LoadSurface, keyboard::Keycode, rect::Rect, surface::Surface};
 
 fn main() {
     // Setup Pre-Game Logic and Constants
     let icon = Surface::from_file("assets/img/icon.bmp").unwrap();
     let (context, mut win) = init();
 
-    // Initialize TimerSubsystem
-    let time = context.timer().unwrap();
-
     win.set_icon(icon);
 
     let mut event_pump = context
         .event_pump()
-        .expect("Unable to obtain event pump handle!");
-    win.set_fullscreen(FullscreenType::Desktop).unwrap();
+        .expect("unable to obtain event pump handle!");
+
+    win.set_fullscreen(true)
+        .expect("unable to set fullscreen mode!");
 
     let mut global = Global::new(win.size());
     let screen = global.screen;
 
-    let mut cv = win
-        .into_canvas()
-        .accelerated()
-        .present_vsync()
-        .build()
-        .expect("Unable to obtain canvas!");
-    let creator = cv.texture_creator();
+    let mut canvas = win.into_canvas();
+    let creator = canvas.texture_creator();
 
     let sprite_sheet =
         wrappers::load_texture("assets/img/sprite-sheet.bmp", &creator, (0x0, 0x0, 0x0));
@@ -53,13 +44,14 @@ fn main() {
         1.0,
     );
 
-    let canvas = &mut cv;
+    let canvas = &mut canvas;
 
     ship.position((screen.width / 2, screen.height / 2), canvas);
-    global.timer.bullet = time.ticks();
+    global.timer.bullet = sdl3::timer::ticks();
 
     while !global.exit {
-        global.timer.global = time.ticks();
+        let frame_start = sdl3::timer::ticks();
+        global.timer.global = frame_start;
 
         canvas.clear();
 
@@ -90,7 +82,7 @@ fn main() {
         event_pump.pump_events();
 
         /* Have a function to update all timers */
-        global.timer.game = time.ticks() / 1000; // TODO: El tiempo continua en estando de pausa.
+        global.timer.game = sdl3::timer::ticks() / 1000; // TODO: El tiempo continua en estando de pausa.
 
         match global.state {
             State::Default => {
@@ -99,17 +91,10 @@ fn main() {
                     continue;
                 }
 
-                ship.update((
-                    screen,
-                    global.speed,
-                    &mut global.timer,
-                    &event_pump,
-                    canvas,
-                    &time,
-                ));
+                ship.update((screen, global.speed, &mut global.timer, &event_pump, canvas));
                 asteroids.update(screen, &mut global.speed, canvas);
                 global.collision(&mut ship, &mut asteroids);
-                global.hud(&*ship, &font_large, canvas);
+                global.hud(&ship, &font_large, canvas);
             }
             State::Pause => {
                 text_middle(
@@ -117,7 +102,7 @@ fn main() {
                     screen,
                     canvas,
                 );
-                global.hud(&*ship, &font_large, canvas);
+                global.hud(&ship, &font_large, canvas);
             }
             State::Menu => {
                 //
@@ -128,16 +113,11 @@ fn main() {
         canvas.present();
 
         // Frames Per Second Delay
-        global.delay(time.ticks(), &time);
+        global.delay(frame_start);
     }
 
     /* Game Over */
     if ship.lives < 1 {
         game_over(&font_large, screen, canvas);
-    }
-
-    unsafe {
-        sprite_sheet.destroy();
-        font_large.destroy();
     }
 }

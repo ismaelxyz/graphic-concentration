@@ -1,11 +1,14 @@
 [package]
+edition = "2024"
 name = "asterlike"
 version = "0.2.0"
-edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies.sdl2]
-version = "*"
+[dependencies]
+rand = "0.10"
+
+[dependencies.sdl3]
 default-features = false
-features = ["image", "ttf", "mixer", "unsafe_textures"]
+features = ["image", "ttf", "unsafe_textures"] # "mixer", "unsafe_textures"
+version = "*"

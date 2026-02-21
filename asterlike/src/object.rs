@@ -1,9 +1,9 @@
-use crate::global::{rand, Screen, Speed, Timer};
-use sdl2::{
+use crate::global::{Screen, Speed, Timer, rand};
+use sdl3::{
+    EventPump,
     keyboard::Scancode,
     rect::{Point, Rect},
-    render::{Texture, WindowCanvas},
-    EventPump, TimerSubsystem,
+    render::{FPoint, FRect, Texture, WindowCanvas},
 };
 
 use std::ops::{Deref, DerefMut};
@@ -14,7 +14,6 @@ type ScreenItems<'a> = (
     &'a mut Timer,
     &'a EventPump,
     &'a mut WindowCanvas,
-    &'a TimerSubsystem,
 );
 
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -27,28 +26,26 @@ pub enum Size {
 }
 
 /// Definition for game objects
-pub struct Object<T> {
+pub struct Object<'tex, T> {
     this: T,
     // kind: ObjKind,
     // lives: i16,
     // next: Option<Box<Object>>
-    image: *const Texture,
+    image: &'tex Texture,
     pub clip: Rect,
     // sub_image,
-    sub_image: u16,            // Necesario para text?, sera movido de otra forma!
-    pub sub_image_number: u16, // Necesario?
+    sub_image: u16, // Necesario para text?, sera movido de otra forma!
     //     x    y
     pub pos: (i32, i32),
     pub scale: f32,
 }
 
-impl<T> Object<T> {
-    pub fn new(this: T, image: &Texture, sub_image: u16, clip: Rect, scale: f32) -> Self {
+impl<'tex, T> Object<'tex, T> {
+    pub fn new(this: T, image: &'tex Texture, sub_image: u16, clip: Rect, scale: f32) -> Self {
         Object {
             this,
             image,
             sub_image, // : 0?
-            sub_image_number: 3,
             pos: (0, 0),
             scale,
             clip,
@@ -63,8 +60,8 @@ impl<T> Object<T> {
         self.scale
     }
 
-    pub fn image(&self) -> &Texture {
-        unsafe { &*self.image }
+    pub fn image(&self) -> &'tex Texture {
+        self.image
     }
 
     pub fn sub_image(&self) -> u16 {
@@ -81,7 +78,7 @@ impl<T> Object<T> {
     }
 
     /// Check object collisions
-    pub fn is_collision<R>(&self, rhs: &Object<R>) -> bool {
+    pub fn is_collision<'rhs, R>(&self, rhs: &Object<'rhs, R>) -> bool {
         self.pos.0 as f32 + self.clip.w as f32 * self.scale >= rhs.pos.0 as f32
             && self.pos.1 as f32 + self.clip.h as f32 * self.scale >= rhs.pos.1 as f32
             && rhs.pos.0 as f32 + rhs.clip.w as f32 * rhs.scale >= self.pos.0 as f32
@@ -103,16 +100,12 @@ impl<T> Object<T> {
         offset.w *= self.scale as i32;
         offset.h *= self.scale as i32;
 
+        let src: Option<FRect> = clip.into();
+        let dst: Option<FRect> = offset.into();
+        let center: Option<FPoint> = center.map(Into::into);
+
         canvas
-            .copy_ex(
-                self.image(),
-                Some(clip),
-                Some(offset),
-                angle,
-                center,
-                flip.0,
-                flip.1,
-            )
+            .copy_ex(self.image(), src, dst, angle, center, flip.0, flip.1)
             .expect("Could not blit texture to render target!");
     }
 
@@ -121,7 +114,7 @@ impl<T> Object<T> {
     }
 }
 
-impl<T: Sized> Deref for Object<T> {
+impl<'tex, T: Sized> Deref for Object<'tex, T> {
     type Target = T;
 
     #[inline(always)]
@@ -130,7 +123,7 @@ impl<T: Sized> Deref for Object<T> {
     }
 }
 
-impl<T: Sized> DerefMut for Object<T> {
+impl<'tex, T: Sized> DerefMut for Object<'tex, T> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut T {
         &mut self.this
@@ -163,12 +156,12 @@ fn get_y(c: &u8) -> i32 {
     }
 }
 
-pub struct Text {
-    chucks: Vec<Object<()>>,
+pub struct Text<'tex> {
+    chucks: Vec<Object<'tex, ()>>,
 }
 
-impl Text {
-    pub fn new(image: &Texture, text: &str, size: Size, scale: f32) -> Self {
+impl<'tex> Text<'tex> {
+    pub fn new(image: &'tex Texture, text: &str, size: Size, scale: f32) -> Self {
         let ([width, height], [w, h]) = ([size as i32; 2], [size as u32; 2]);
         let mut chucks = Vec::new();
 
@@ -198,7 +191,7 @@ impl Text {
         }
     }
 
-    pub fn chucks(&self) -> &[Object<()>] {
+    pub fn chucks(&self) -> &[Object<'tex, ()>] {
         &self.chucks
     }
 }
@@ -208,13 +201,13 @@ pub struct Asteroid {
     pub(crate) kind: Size,
 }
 
-pub struct Asteroids {
-    image: *const Texture,
-    pub(crate) objs: Vec<Object<Asteroid>>,
+pub struct Asteroids<'tex> {
+    image: &'tex Texture,
+    pub(crate) objs: Vec<Object<'tex, Asteroid>>,
 }
 
-impl Asteroids {
-    pub fn new(image: &Texture) -> Self {
+impl<'tex> Asteroids<'tex> {
+    pub fn new(image: &'tex Texture) -> Self {
         Asteroids {
             image,
             objs: Vec::new(),
@@ -238,11 +231,9 @@ impl Asteroids {
                 _ => (Rect::new(96, 32, 96, 96), 6, Size::Large),
             };
 
-            self.objs.push(Object {
-                this: Asteroid { lives, kind },
-                pos: ((rand() % screen.width) - (clip.w / 2), -clip.h),
-                ..unsafe { Object::new(Asteroid { lives, kind }, &*self.image, 0, clip, 1.0) }
-            });
+            let mut obj = Object::new(Asteroid { lives, kind }, self.image, 0, clip, 1.0);
+            obj.pos = ((rand() % screen.width) - (clip.w / 2), -clip.h);
+            self.objs.push(obj);
         }
 
         let mut pos = 0;
@@ -281,13 +272,13 @@ pub(crate) struct Bullet {
     pub(crate) lives: i16,
 }
 
-pub(crate) struct Ship {
+pub(crate) struct Ship<'tex> {
     pub(crate) lives: i16,
-    pub(crate) bullets: Vec<Object<Bullet>>,
+    pub(crate) bullets: Vec<Object<'tex, Bullet>>,
 }
 
-impl Object<Ship> {
-    pub(crate) fn update(&mut self, (screen, speed, timer, events, canvas, tm_sys): ScreenItems) {
+impl<'tex> Object<'tex, Ship<'tex>> {
+    pub(crate) fn update(&mut self, (screen, speed, timer, events, canvas): ScreenItems) {
         let (mut ship_x, mut ship_y) = (0i8, 0i8);
         let mut temp: i32;
 
@@ -342,11 +333,12 @@ impl Object<Ship> {
         }
 
         self.position((ship_x as _, ship_y as _), canvas);
-        self.update_bullets((screen, speed, timer, events, canvas, tm_sys));
+        self.update_bullets((screen, speed, timer, events, canvas));
     }
 
-    fn update_bullets(&mut self, (screen, speed, timer, events, canvas, tm_sys): ScreenItems) {
-        if timer.bullet < tm_sys.ticks() && events.is_pressed([Scancode::Num1, Scancode::Space]) {
+    fn update_bullets(&mut self, (screen, speed, timer, events, canvas): ScreenItems) {
+        let now = sdl3::timer::ticks();
+        if timer.bullet < now && events.is_pressed([Scancode::_1, Scancode::Space]) {
             let mut bullet = Object::new(
                 Bullet { lives: 1 },
                 self.image(),
@@ -361,7 +353,7 @@ impl Object<Ship> {
             );
 
             self.bullets.push(bullet);
-            timer.bullet = tm_sys.ticks() + 150;
+            timer.bullet = now + 150;
         }
 
         let mut pos = 0;

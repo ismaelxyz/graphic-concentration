@@ -1,5 +1,6 @@
 use crate::object::{Asteroids, Object, Ship, Size, Text};
-use sdl2::{
+use rand::RngExt;
+use sdl3::{
     pixels::Color,
     rect::Rect,
     render::{Texture, WindowCanvas},
@@ -7,28 +8,15 @@ use sdl2::{
 };
 
 pub(crate) fn rand() -> i32 {
-    extern "C" {
-        fn rand() -> i32;
-    }
-
-    unsafe { rand() }
+    rand::rng().random_range(0..=i32::MAX)
 }
 
-fn srand() -> i32 {
-    extern "C" {
-        fn time(_: i64) -> i64;
-        fn srand(_: i64) -> i32;
-    }
-
-    unsafe { srand(time(0)) }
-}
-
-pub fn init() -> (sdl2::Sdl, Window) {
-    let sdl = sdl2::init().expect("Unable to initialize SDL!");
+pub fn init() -> (sdl3::Sdl, Window) {
+    let sdl = sdl3::init().expect("Unable to initialize SDL!");
     let video = sdl.video().expect("Could not acquire video context!");
 
-    sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
-    sdl2::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
+    sdl3::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
+    sdl3::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
     let build_win = video
         .window("Asterlike", 500, 800)
@@ -36,8 +24,6 @@ pub fn init() -> (sdl2::Sdl, Window) {
         .opengl()
         .build()
         .expect("Could not create SDL window!");
-
-    srand(); // Voy aquí?
     (sdl, build_win)
 }
 
@@ -71,16 +57,15 @@ pub enum State {
 
 #[derive(Copy, Clone, Default)]
 pub(crate) struct Timer {
-    pub(crate) global: u32,
-    pub(crate) bullet: u32,
-    pub(crate) game: u32,
+    pub(crate) global: u64,
+    pub(crate) bullet: u64,
+    pub(crate) game: u64,
 }
 
 pub(crate) struct Global {
     pub(crate) speed: Speed,
     pub(crate) screen: Screen,
     pub(crate) frames_per_second: f32,
-    pub(crate) tick_ratio: f32,
     pub(crate) exit: bool,
     pub(crate) state: State,
     pub(crate) timer: Timer,
@@ -110,7 +95,6 @@ impl Global {
 
             // Make this an option
             frames_per_second,
-            tick_ratio,
 
             /* Initialize Keystates */
             // Global->keystates = SDL_GetKeyboardState(NULL);
@@ -123,7 +107,11 @@ impl Global {
         }
     }
 
-    pub(crate) fn collision(&mut self, ship: &mut Object<Ship>, asteroids: &mut Asteroids) {
+    pub(crate) fn collision<'tex>(
+        &mut self,
+        ship: &mut Object<'tex, Ship<'tex>>,
+        asteroids: &mut Asteroids<'tex>,
+    ) {
         for asteroid in asteroids.objs.iter_mut() {
             if asteroid.is_collision(ship) {
                 ship.lives -= 1;
@@ -156,7 +144,7 @@ impl Global {
     }
 
     /// Display the user's heads up display
-    pub(crate) fn hud(&mut self, ship: &Ship, font: &Texture, canvas: &mut WindowCanvas) {
+    pub(crate) fn hud(&mut self, ship: &Ship<'_>, font: &Texture, canvas: &mut WindowCanvas) {
         let Global { screen, score, .. } = self;
 
         /* Set the HUD bar */
@@ -212,11 +200,14 @@ impl Global {
         );
     }
 
-    pub(crate) fn delay(&self, timer: u32, time: &sdl2::TimerSubsystem) {
-        if ((time.ticks() - timer) as f32) < 1_000.0 / self.frames_per_second {
-            let frames = (1_000.0 / self.frames_per_second) as i128;
-            let timer = (time.ticks() - timer) as i128;
-            std::thread::sleep(std::time::Duration::from_nanos((frames - timer) as u64));
+    pub(crate) fn delay(&self, frame_start_ms: u64) {
+        let frame_ms = 1_000.0 / self.frames_per_second;
+        let elapsed_ms = sdl3::timer::ticks().saturating_sub(frame_start_ms) as f32;
+        if elapsed_ms < frame_ms {
+            let sleep_ms = (frame_ms - elapsed_ms).ceil() as u64;
+            if sleep_ms > 0 {
+                std::thread::sleep(std::time::Duration::from_millis(sleep_ms));
+            }
         }
     }
 }
@@ -224,7 +215,7 @@ impl Global {
 // static STATIC: Type = init;
 
 /// Display text in middle of the screen
-pub fn text_middle(mut text: Text, screen: Screen, canvas: &mut WindowCanvas) {
+pub fn text_middle<'tex>(mut text: Text<'tex>, screen: Screen, canvas: &mut WindowCanvas) {
     let chucks = text.chucks();
     let clip = chucks[0].clip();
     let len = chucks.len() as f32 * clip.w as f32 * 0.5 * chucks[0].scale();
