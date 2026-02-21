@@ -13,15 +13,22 @@ pub(crate) fn rand() -> i32 {
 
 pub fn init() -> (sdl3::Sdl, Window) {
     let sdl = sdl3::init().expect("Unable to initialize SDL!");
-    let video = sdl.video().expect("Could not acquire video context!");
+
+    // In VM / poor-driver environments, SDL's default renderer selection can end up
+    // going through EGL + Zink (Vulkan) and fail at runtime. Prefer software
+    // rendering unless the user explicitly overrides it.
+    if std::env::var_os("SDL_RENDER_DRIVER").is_none() {
+        sdl3::hint::set("SDL_RENDER_DRIVER", "software");
+    }
 
     sdl3::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
     sdl3::hint::set("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
+    let video = sdl.video().expect("Could not acquire video context!");
+
     let build_win = video
         .window("Asterlike", 500, 800)
         .position_centered()
-        .opengl()
         .build()
         .expect("Could not create SDL window!");
     (sdl, build_win)
@@ -107,6 +114,13 @@ impl Global {
         }
     }
 
+    pub(crate) fn update_screen_size(&mut self, (width, height): (u32, u32)) {
+        // Keep the existing margins, but sync to the real render output size.
+        self.screen.width = width as i32;
+        self.screen.height = height as i32;
+        self.screen.top = height as f32 * 0.06;
+    }
+
     pub(crate) fn collision<'tex>(
         &mut self,
         ship: &mut Object<'tex, Ship<'tex>>,
@@ -130,13 +144,6 @@ impl Global {
                             Size::Large => 3,
                             _ => unreachable!(),
                         };
-                    } else {
-                        /*
-                        if (bulletsRoot->type == BULLET_TINY)
-                        {
-                            score++;
-                        }
-                        */
                     }
                 }
             }

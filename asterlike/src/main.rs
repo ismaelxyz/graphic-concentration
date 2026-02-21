@@ -6,7 +6,13 @@ use crate::{
     global::{Global, State, game_over, init, text_middle},
     object::{Asteroids, Object, Ship, Size, Text},
 };
-use sdl3::{event::Event, image::LoadSurface, keyboard::Keycode, rect::Rect, surface::Surface};
+use sdl3::{
+    event::{Event, WindowEvent},
+    image::LoadSurface,
+    keyboard::Keycode,
+    rect::Rect,
+    surface::Surface,
+};
 
 fn main() {
     // Setup Pre-Game Logic and Constants
@@ -23,9 +29,13 @@ fn main() {
         .expect("unable to set fullscreen mode!");
 
     let mut global = Global::new(win.size());
-    let screen = global.screen;
-
     let mut canvas = win.into_canvas();
+
+    // Sync to the renderer's real output size (important for fullscreen / HiDPI).
+    if let Ok(size) = canvas.output_size() {
+        global.update_screen_size(size);
+    }
+
     let creator = canvas.texture_creator();
 
     let sprite_sheet =
@@ -46,6 +56,7 @@ fn main() {
 
     let canvas = &mut canvas;
 
+    let screen = global.screen;
     ship.position((screen.width / 2, screen.height / 2), canvas);
     global.timer.bullet = sdl3::timer::ticks();
 
@@ -59,6 +70,14 @@ fn main() {
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => global.exit = true,
+                Event::Window { win_event, .. } => match win_event {
+                    WindowEvent::Resized(w, h) | WindowEvent::PixelSizeChanged(w, h) => {
+                        let w = u32::try_from(w).unwrap_or(1).max(1);
+                        let h = u32::try_from(h).unwrap_or(1).max(1);
+                        global.update_screen_size((w, h));
+                    }
+                    _ => (),
+                },
                 Event::KeyDown {
                     repeat: false,
                     keycode: Some(kode),
@@ -91,17 +110,16 @@ fn main() {
                     continue;
                 }
 
+                let screen = global.screen;
                 ship.update((screen, global.speed, &mut global.timer, &event_pump, canvas));
                 asteroids.update(screen, &mut global.speed, canvas);
                 global.collision(&mut ship, &mut asteroids);
                 global.hud(&ship, &font_large, canvas);
             }
             State::Pause => {
-                text_middle(
-                    Text::new(&font_large, "Pause", Size::Large, 1.0),
-                    screen,
-                    canvas,
-                );
+                let screen = global.screen;
+                let text = Text::new(&font_large, "Pause", Size::Large, 1.0);
+                text_middle(text, screen, canvas);
                 global.hud(&ship, &font_large, canvas);
             }
             State::Menu => {
@@ -118,6 +136,6 @@ fn main() {
 
     /* Game Over */
     if ship.lives < 1 {
-        game_over(&font_large, screen, canvas);
+        game_over(&font_large, global.screen, canvas);
     }
 }
