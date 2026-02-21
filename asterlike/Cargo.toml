@@ -8,6 +8,12 @@ version = "0.2.0"
 [dependencies]
 rand = "0.10"
 
+[features]
+default = []
+# Para `--target wasm32-unknown-emscripten`: compila SDL3 (+image/+ttf) desde source
+# con el toolchain de Emscripten, evitando depender de libs SDL3 del host.
+emscripten = ["sdl3/build-from-source-static"]
+
 [dependencies.sdl3]
 default-features = false
 features = ["image", "ttf", "unsafe_textures"] # "mixer", "unsafe_textures"

@@ -1,0 +1,11 @@
+# Specific configuration for builds based on the target
+
+[target.wasm32-unknown-emscripten]
+# Package `assets/` within the Emscripten virtual filesystem.
+# The code uses paths like `assets/img/icon.bmp`, so we mount it in `/assets`.
+rustflags = [
+  "-C",
+  "link-arg=--preload-file",
+  "-C",
+  "link-arg=assets@/assets",
+]

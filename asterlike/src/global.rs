@@ -17,8 +17,13 @@ pub fn init() -> (sdl3::Sdl, Window) {
     // In VM / poor-driver environments, SDL's default renderer selection can end up
     // going through EGL + Zink (Vulkan) and fail at runtime. Prefer software
     // rendering unless the user explicitly overrides it.
-    if std::env::var_os("SDL_RENDER_DRIVER").is_none() {
-        sdl3::hint::set("SDL_RENDER_DRIVER", "software");
+    // NOTE: In Emscripten/Web builds, forcing the software renderer can break
+    // rendering because the backend is different (typically WebGL).
+    #[cfg(not(target_os = "emscripten"))]
+    {
+        if std::env::var_os("SDL_RENDER_DRIVER").is_none() {
+            sdl3::hint::set("SDL_RENDER_DRIVER", "software");
+        }
     }
 
     sdl3::hint::set("SDL_RENDER_SCALE_QUALITY", "1");
@@ -207,6 +212,10 @@ impl Global {
         );
     }
 
+    #[cfg(target_os = "emscripten")]
+    pub(crate) fn delay(&self, _frame_start_ms: u64) {}
+
+    #[cfg(not(target_os = "emscripten"))]
     pub(crate) fn delay(&self, frame_start_ms: u64) {
         let frame_ms = 1_000.0 / self.frames_per_second;
         let elapsed_ms = sdl3::timer::ticks().saturating_sub(frame_start_ms) as f32;
@@ -246,5 +255,6 @@ pub fn game_over(font: &Texture, screen: Screen, canvas: &mut WindowCanvas) {
         canvas,
     );
     canvas.present();
+    #[cfg(not(target_os = "emscripten"))]
     std::thread::sleep(std::time::Duration::new(0, 1_000_000_000u32 * 2));
 }
