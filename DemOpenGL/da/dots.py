@@ -85,7 +85,7 @@ def mouse(button, state, _x, _y):
             angle = angle - delta_angle
 
         case int(GLUT_MIDDLE_BUTTON):
-            if state == GLUT_DOWN:
+            if state == int(GLUT_DOWN):
                 if halted:
                     glutIdleFunc(display)
                     halted = 0

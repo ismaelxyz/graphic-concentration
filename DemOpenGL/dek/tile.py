@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import sys
 from PIL.Image import open as pil_open
-from OpenGL.GL import *
-from OpenGL.Tk import *
+from OpenGL.GL import *  # type: ignore
+from OpenGL.Tk import *  # type: ignore
 import math
 
 const = math.pi
@@ -12,61 +13,70 @@ const = math.pi
 class Checker:
 
     def __init__(self):
-        self.filename = 'image.ppm'
+        self.filename = "image.ppm"
 
         if len(sys.argv) == 2:
             self.filename = sys.argv[1]
 
-        elif len(sys.argv) > 2 or '-h' in sys.argv:
+        elif len(sys.argv) > 2 or "-h" in sys.argv:
 
-            sys.stderr.write('usage: <name> ppmfilename\n')
+            sys.stderr.write("usage: <name> ppmfilename\n")
             exit(0)
 
-        self.SetupWindow()
-        self.SetupTexture()
+        self.setup_window()
+        self.setup_texture()
         self.ogl.mainloop()
 
     def make_image(self):
         with pil_open(self.filename) as im:
-            self.imageWidth = im.size[0]
-            self.imageHeight = im.size[1]
+            self.image_width = im.size[0]
+            self.image_height = im.size[1]
             self.image = im.tobytes("raw", "RGBX", 0, -1)
 
     def display(self, event=None):
         glClearColor(0.0, 0.0, 0.0, 0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glClear(int(GL_COLOR_BUFFER_BIT) | int(GL_DEPTH_BUFFER_BIT))
         glBegin(GL_QUADS)
 
         glTexCoord2f(0.0, 0.0)
         glVertex3f(0.0, 0.0, 0.0)
         glTexCoord2f(0.0, 2.0)
-        glVertex3f(0.0, 10., 0.0)
+        glVertex3f(0.0, 10.0, 0.0)
         glTexCoord2f(2.0, 2.0)
-        glVertex3f(10., 10., 0.0)
+        glVertex3f(10.0, 10.0, 0.0)
         glTexCoord2f(2.0, 0.0)
-        glVertex3f(10., 0.0, 0.0)
+        glVertex3f(10.0, 0.0, 0.0)
 
         glEnd()
         glFlush()
 
-    def SetupWindow(self):
-        self.OglFrame = Frame()
-        self.OglFrame.pack(side='top')
-        self.QuitButton = Button(self.OglFrame, {'text': 'Quit'})
-        self.QuitButton.bind('<ButtonRelease-1>', sys.exit)
-        self.QuitButton.pack({'side': 'top'})
-        self.ogl = Opengl(master=self.OglFrame,
-                          width=500, height=500, double=1)
-        self.ogl.pack(side='top', expand=1, fill='both')
-        # self.ogl.set_eyepoint(900.)
+    def setup_window(self):
+        self.ogl_frame = Frame()
+        self.ogl_frame.pack(side="top")
+        self.quit_button = Button(self.ogl_frame, {"text": "Quit"})
+        self.quit_button.bind("<ButtonRelease-1>", lambda _event: sys.exit())
+        self.quit_button.pack({"side": "top"})
+        self.ogl = Opengl(master=self.ogl_frame, width=500, height=500, double=1)
+        self.ogl.pack(side="top", expand=1, fill="both")
+
+        # self.ogl.set_eyepoint(400.0)
         # self.ogl.set_centerpoint(0, 0, 0)
         self.ogl.redraw = self.display
 
-    def SetupTexture(self):
+    def setup_texture(self):
         self.make_image()
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-        glTexImage2D(GL_TEXTURE_2D, 0, 3, self.imageWidth,
-                     self.imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,  self.image)
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            3,
+            self.image_width,
+            self.image_height,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            self.image,
+        )
         # glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
         # glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
@@ -78,5 +88,5 @@ class Checker:
         glShadeModel(GL_FLAT)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     Checker()
