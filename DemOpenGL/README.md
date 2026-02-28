@@ -17,7 +17,19 @@ If you want to contact the author of DemOpenGL send an email to
 [ismaelbeli.com@gmail.com]() or you can also contact him
 by telegram [@ismaelxyz](https://t.me/asraelxyz).
 
+## Dependencies
+
+```sh
+sudo apt update
+sudo apt install libtogl2 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev
+```
+
+## Linux Notes
+
+You can use set PYOPENGL_PLATFORM as glx
+
 ## Gallery
+
 ![da](gallery/da.png)
 ![GLE](gallery/GLE.png)
 ![GLUT](gallery/GLUT.png)
@@ -26,4 +38,3 @@ by telegram [@ismaelxyz](https://t.me/asraelxyz).
 ![tom](gallery/tom.png)
 ![NeHe](gallery/NeHe.png)
 ![redbook](gallery/redbook.png)
-
