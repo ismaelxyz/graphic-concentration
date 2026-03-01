@@ -1,203 +1,187 @@
 #!/usr/bin/env python3
-'''Tests rendering using the ARB shader objects extension...
-'''
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
+"""Minimal GLUT demo using ARB shader objects (PyOpenGL).
 
-from OpenGL.GL.ARB.shader_objects import *
-from OpenGL.GL.ARB.vertex_shader import *
-from OpenGL.GL.ARB.fragment_shader import *
+Refactor notes:
+- Avoids wildcard imports (better for linters, readability, and tooling).
+- Uses a small class instead of module-level globals.
+"""
 
-import time
+
+from dataclasses import dataclass
+from typing import Optional, Sequence, Union
+
 import sys
 
-program = None
+from OpenGL import GL, GLU, GLUT
+from OpenGL.GL.ARB import fragment_shader, shader_objects, vertex_shader
 
 
-def compileShader(source, shaderType):
-    """Compile shader source of given type"""
-    shader = glCreateShaderObjectARB(shaderType)
-    print("glShaderSourceARB:", bool(glShaderSourceARB))
-    glShaderSourceARB(shader, source)
-    glCompileShaderARB(shader)
+ShaderSource = Union[str, Sequence[str]]
+
+
+VERTEX_SHADER_SOURCE = """\
+varying vec3 normal;
+void main() {
+    normal = gl_NormalMatrix * gl_Normal;
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+}
+"""
+
+
+FRAGMENT_SHADER_SOURCE = """\
+varying vec3 normal;
+void main() {
+    float intensity;
+    vec4 color;
+    vec3 n = normalize(normal);
+    vec3 l = normalize(gl_LightSource[0].position).xyz;
+
+    // quantize to 5 steps (0, .25, .5, .75 and 1)
+    intensity = (floor(dot(l, n) * 4.0) + 1.0) / 4.0;
+    color = vec4(intensity * 1.0, intensity * 0.5, intensity * 0.5, intensity * 1.0);
+
+    gl_FragColor = color;
+}
+"""
+
+
+def _as_source(source: ShaderSource) -> ShaderSource:
+    """Normalize shader source for PyOpenGL.
+
+    `glShaderSourceARB` accepts either a string or a sequence of strings.
+    This keeps compatibility with older patterns without forcing callers to care.
+    """
+
+    if isinstance(source, (list, tuple)):
+        return [str(part) for part in source]
+    return str(source)
+
+
+def compile_shader(source: ShaderSource, shader_type: int) -> int:
+    shader = shader_objects.glCreateShaderObjectARB(shader_type)
+    shader_objects.glShaderSourceARB(shader, _as_source(source))
+    shader_objects.glCompileShaderARB(shader)
+
+    assert type(shader) == int, "Expected shader object to be an integer handle"
     return shader
 
 
-def compileProgram(vertexSource=None, fragmentSource=None):
-    # return
-    program = glCreateProgramObjectARB()
+def compile_program(
+    *,
+    vertex_source: Optional[ShaderSource] = None,
+    fragment_source: Optional[ShaderSource] = None,
+) -> int:
+    program = shader_objects.glCreateProgramObjectARB()
 
-    if vertexSource:
-        vertexShader = compileShader(vertexSource, GL_VERTEX_SHADER_ARB)
-        glAttachObjectARB(program, vertexShader)
-    if fragmentSource:
-        fragmentShader = compileShader(fragmentSource, GL_FRAGMENT_SHADER_ARB)
-        glAttachObjectARB(program, fragmentShader)
+    vertex_shader_obj: Optional[int] = None
+    fragment_shader_obj: Optional[int] = None
+    try:
+        if vertex_source:
+            vertex_shader_obj = compile_shader(
+                vertex_source, vertex_shader.GL_VERTEX_SHADER_ARB
+            )
+            shader_objects.glAttachObjectARB(program, vertex_shader_obj)
+        if fragment_source:
+            fragment_shader_obj = compile_shader(
+                fragment_source, fragment_shader.GL_FRAGMENT_SHADER_ARB
+            )
+            shader_objects.glAttachObjectARB(program, fragment_shader_obj)
 
-    glValidateProgramARB(program)
-    glLinkProgramARB(program)
+        shader_objects.glLinkProgramARB(program)
+        shader_objects.glValidateProgramARB(program)
 
-    if vertexShader:
-        glDeleteObjectARB(vertexShader)
-    if fragmentShader:
-        glDeleteObjectARB(fragmentShader)
-
-    return program
-
-# A general OpenGL initialization function.  Sets all of the initial parameters.
-
-
-# We call this right after our OpenGL window is created.
-def InitGL(Width, Height):
-    # This Will Clear The Background Color To Black
-    glClearColor(0.0, 0.0, 0.0, 0.0)
-    glClearDepth(1.0)                    # Enables Clearing Of The Depth Buffer
-    glDepthFunc(GL_LESS)                # The Type Of Depth Test To Do
-    glEnable(GL_DEPTH_TEST)                # Enables Depth Testing
-    glShadeModel(GL_SMOOTH)                # Enables Smooth Color Shading
-
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()                    # Reset The Projection Matrix
-    # Calculate The Aspect Ratio Of The Window
-    gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
-
-    glMatrixMode(GL_MODELVIEW)
-
-    if not glInitShaderObjectsARB():
-        print('Missing Shader Objects!')
-        sys.exit(1)
-    if not glInitVertexShaderARB():
-        print('Missing Vertex Shader!')
-        sys.exit(1)
-    if not glInitFragmentShaderARB():
-        print('Missing Fragment Shader!')
-        sys.exit(1)
-
-    global program
-    program = compileProgram(
-        [
-            '''
-    varying vec3 normal;
-    void main() {
-        normal = gl_NormalMatrix * gl_Normal;
-        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    }
-    ''',
-        ],
-        [
-            '''
-    varying vec3 normal;
-    void main() {
-        float intensity;
-        vec4 color;
-        vec3 n = normalize(normal);
-        vec3 l = normalize(gl_LightSource[0].position).xyz;
-    
-        // quantize to 5 steps (0, .25, .5, .75 and 1)
-        intensity = (floor(dot(l, n) * 4.0) + 1.0)/4.0;
-        color = vec4(intensity*1.0, intensity*0.5, intensity*0.5,
-            intensity*1.0);
-    
-        gl_FragColor = color;
-    }
-    ''',
-        ]
-    )
-
-# The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
+        assert type(program) == int, "Expected program object to be an integer handle"
+        return program
+    finally:
+        if vertex_shader_obj:
+            shader_objects.glDeleteObjectARB(vertex_shader_obj)
+        if fragment_shader_obj:
+            shader_objects.glDeleteObjectARB(fragment_shader_obj)
 
 
-def ReSizeGLScene(Width, Height):
-    if Height == 0:                        # Prevent A Divide By Zero If The Window Is Too Small
-        Height = 1
+@dataclass
+class ShaderDemo:
+    width: int = 640
+    height: int = 480
+    title: str = "ARB Shader Objects Demo"
 
-    # Reset The Current Viewport And Perspective Transformation
-    glViewport(0, 0, Width, Height)
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
-    glMatrixMode(GL_MODELVIEW)
+    window: Optional[int] = None
+    program: Optional[int] = None
 
-# The main drawing function.
+    def init_gl(self) -> None:
+        GL.glClearColor(0.0, 0.0, 0.0, 0.0)
+        GL.glClearDepth(1.0)
+        GL.glDepthFunc(GL.GL_LESS)
+        GL.glEnable(GL.GL_DEPTH_TEST)
+        GL.glShadeModel(GL.GL_SMOOTH)
+
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
+        GLU.gluPerspective(45.0, float(self.width) / float(self.height), 0.1, 100.0)
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+
+        if not shader_objects.glInitShaderObjectsARB():
+            raise RuntimeError("Missing ARB_shader_objects support")
+        if not vertex_shader.glInitVertexShaderARB():
+            raise RuntimeError("Missing ARB_vertex_shader support")
+        if not fragment_shader.glInitFragmentShaderARB():
+            raise RuntimeError("Missing ARB_fragment_shader support")
+
+        self.program = compile_program(
+            vertex_source=VERTEX_SHADER_SOURCE,
+            fragment_source=FRAGMENT_SHADER_SOURCE,
+        )
+
+    def reshape(self, width: int, height: int) -> None:
+        self.width = int(width)
+        self.height = int(height) or 1
+
+        GL.glViewport(0, 0, self.width, self.height)
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
+        GLU.gluPerspective(45.0, float(self.width) / float(self.height), 0.1, 100.0)
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+
+    def display(self) -> None:
+        GL.glClear(int(GL.GL_COLOR_BUFFER_BIT) | int(GL.GL_DEPTH_BUFFER_BIT))
+        GL.glLoadIdentity()
+
+        GL.glTranslatef(-1.5, 0.0, -6.0)
+        if self.program:
+            shader_objects.glUseProgramObjectARB(self.program)
+
+        GLUT.glutSolidSphere(1.0, 32, 32)
+        GL.glTranslatef(1.0, 0.0, 2.0)
+        GLUT.glutSolidCube(1.0)
+        GLUT.glutSwapBuffers()
+
+    def keyboard(self, key: bytes, _x: int, _y: int) -> None:
+        if key == b"\x1b" and self.window is not None:
+            GLUT.glutDestroyWindow(self.window)
+
+    def run(self) -> None:
+        GLUT.glutInit(sys.argv)
+        GLUT.glutInitDisplayMode(
+            int(GLUT.GLUT_RGBA) | int(GLUT.GLUT_DOUBLE) | int(GLUT.GLUT_DEPTH)
+        )
+        GLUT.glutInitWindowSize(self.width, self.height)
+        GLUT.glutInitWindowPosition(0, 0)
+
+        self.window = GLUT.glutCreateWindow(self.title)
+
+        GLUT.glutDisplayFunc(self.display)
+        GLUT.glutIdleFunc(self.display)
+        GLUT.glutReshapeFunc(self.reshape)
+        GLUT.glutKeyboardFunc(self.keyboard)
+
+        self.init_gl()
+        GLUT.glutMainLoop()
 
 
-def DrawGLScene():
-    # Clear The Screen And The Depth Buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glLoadIdentity()                    # Reset The View
-
-    # Move Left 1.5 units and into the screen 6.0 units.
-    glTranslatef(-1.5, 0.0, -6.0)
-
-    if program:
-        glUseProgramObjectARB(program)
-    glutSolidSphere(1.0, 32, 32)
-    glTranslate(1, 0, 2)
-    glutSolidCube(1.0)
-
-    #  since this is double buffered, swap the buffers to display what just got drawn.
-    glutSwapBuffers()
-
-# The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
-
-
-def keyPressed(*args):
-    # If escape is pressed, kill everything.
-    if args[0] == b'\x1b':
-        glutDestroyWindow(window)
-
-
-def main():
-    global window
-    # For now we just pass glutInit one empty argument. I wasn't sure what should or could be passed in (tuple, list, ...)
-    # Once I find out the right stuff based on reading the PyOpenGL source, I'll address this.
-    glutInit(sys.argv)
-
-    # Select type of Display mode:
-    #  Double buffer
-    #  RGBA color
-    # Alpha components supported
-    # Depth buffer
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-
-    # get a 640 x 480 window
-    glutInitWindowSize(640, 480)
-
-    # the window starts at the upper left corner of the screen
-    glutInitWindowPosition(0, 0)
-
-    # Okay, like the C version we retain the window id to use when closing, but for those of you new
-    # to Python (like myself), remember this assignment would make the variable local and not global
-    # if it weren't for the global declaration at the start of main.
-    window = glutCreateWindow("Jeff Molofee's GL Code Tutorial ... NeHe '99")
-
-    # Register the drawing function with glut, BUT in Python land, at least using PyOpenGL, we need to
-    # set the function pointer and invoke a function to actually register the callback, otherwise it
-    # would be very much like the C version of the code.
-    glutDisplayFunc(DrawGLScene)
-
-    # Uncomment this line to get full screen.
-    # glutFullScreen()
-
-    # When we are doing nothing, redraw the scene.
-    glutIdleFunc(DrawGLScene)
-
-    # Register the function called when our window is resized.
-    glutReshapeFunc(ReSizeGLScene)
-
-    # Register the function called when the keyboard is pressed.
-    glutKeyboardFunc(keyPressed)
-
-    # Initialize our window.
-    InitGL(640, 480)
-
-    # Start Event Processing Engine
-    glutMainLoop()
-
-# Print message to console, and kick off the main to get it rolling.
+def main() -> None:
+    print("Hit ESC key to quit.")
+    ShaderDemo(title="Jeff Molofee's GL Code Tutorial ... NeHe '99").run()
 
 
 if __name__ == "__main__":
-    print("Hit ESC key to quit.")
     main()

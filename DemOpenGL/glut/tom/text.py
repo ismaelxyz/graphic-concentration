@@ -4,23 +4,78 @@ Note:
     Has no navigation code ATM.
 """
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
+from OpenGL.GL import (
+    glCallList,
+    glClear,
+    glClearColor,
+    glEnable,
+    glEndList,
+    glGenLists,
+    glGetDoublev,
+    glLightfv,
+    glLightModelfv,
+    glLoadIdentity,
+    glMaterialfv,
+    glMatrixMode,
+    glNewList,
+    glRotate,
+    glFrontFace,
+    GL_AMBIENT,
+    GL_COLOR_BUFFER_BIT,
+    GL_CCW,
+    GL_COMPILE,
+    GL_CULL_FACE,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+    GL_DIFFUSE,
+    GL_FRONT,
+    GL_LIGHT0,
+    GL_LIGHTING,
+    GL_LIGHT_MODEL_AMBIENT,
+    GL_MODELVIEW,
+    GL_POSITION,
+    GL_PROJECTION,
+    GL_SPECULAR,
+    GL_VIEWPORT,
+)
+from OpenGL.GLU import gluLookAt, gluPerspective
+from OpenGL.GLUT import (
+    glutCreateWindow,
+    glutDisplayFunc,
+    glutIdleFunc,
+    glutInit,
+    glutInitDisplayMode,
+    glutMainLoop,
+    glutPostRedisplay,
+    glutSwapBuffers,
+    GLUT_DEPTH,
+    GLUT_DOUBLE,
+    GLUT_RGBA,
+)
 import time
 import sys
+from typing import Optional, cast
 from logo import define_logo
 
 
-def createList():
+# Global variable for text display list
+text_display_list: Optional[int] = None
+
+
+def create_list() -> int:
     """Create display list for the text"""
-    newList = glGenLists(1)
-    glNewList(newList, GL_COMPILE)
+    # PyOpenGL's type hints/stubs may report `glGenLists` as returning `None`.
+    # At runtime it returns an integer list id (0 indicates failure).
+    list_id = cast(int, glGenLists(1))
+    if list_id == 0:
+        raise RuntimeError("glGenLists failed to allocate a display list")
+
+    glNewList(list_id, GL_COMPILE)
     try:
         define_logo()
     finally:
         glEndList()
-    return newList
+    return list_id
 
 
 def light():
@@ -42,16 +97,16 @@ def display(swap=1, clear=1):
     """
     if clear:
         glClearColor(0.5, 0.5, 0.5, 0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glClear(int(GL_COLOR_BUFFER_BIT) | int(GL_DEPTH_BUFFER_BIT))
 
     # establish the projection matrix (perspective)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    x, y, width, height = glGetDoublev(GL_VIEWPORT)
+    _x, _y, width, height = glGetDoublev(GL_VIEWPORT)
     gluPerspective(
         45,  # field of view in degrees
-        width/float(height or 1),  # aspect ratio
-        .25,  # near clipping plane
+        width / float(height or 1),  # aspect ratio
+        0.25,  # near clipping plane
         200,  # far clipping plane
     )
 
@@ -59,9 +114,15 @@ def display(swap=1, clear=1):
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
     gluLookAt(
-        0, 1, 30,  # eyepoint
-        10, 0, 0,  # center-of-view
-        0, 1, 0,  # up-vector
+        0,
+        1,
+        30,  # eyepoint
+        10,
+        0,
+        0,  # center-of-view
+        0,
+        1,
+        0,  # up-vector
     )
     light()
     rotation()
@@ -69,14 +130,17 @@ def display(swap=1, clear=1):
     glFrontFace(GL_CCW)
     glEnable(GL_CULL_FACE)  # added by jfp to use with new logo.py
     glEnable(GL_DEPTH_TEST)
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, [1., 1., 0., 0.])
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, [1.0, 1.0, 0.0, 0.0])
 
-# define_logo()
-    global TEXT_DISPLAY_LIST
-    try:
-        glCallList(TEXT_DISPLAY_LIST)
-    except NameError:
-        TEXT_DISPLAY_LIST = createList()
+    global text_display_list
+
+    if text_display_list is None:
+        text_display_list = create_list()
+
+    list_id = text_display_list
+    if list_id is None:
+        return
+    glCallList(list_id)
 
     if swap:
         glutSwapBuffers()
@@ -86,24 +150,24 @@ def idle():
     glutPostRedisplay()
 
 
-starttime = time.time()
+start_time = time.time()
 
 
 def rotation(period=10):
     """Do rotation of the scene at given rate"""
-    angle = (((time.time()-starttime) % period)/period) * 360
+    angle = (((time.time() - start_time) % period) / period) * 360
     glRotate(angle, 0, 1, 0)
     return angle
 
 
 def main():
-    print('You should see polygonal text rotating slowly.')
-    import sys
+    print("You should see polygonal text rotating slowly.")
+
     glutInit(sys.argv)
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-    glutCreateWindow('Polygonal Geometry Demo')
+    glutInitDisplayMode(int(GLUT_RGBA) | int(GLUT_DOUBLE) | int(GLUT_DEPTH))
+    glutCreateWindow("Polygonal Geometry Demo")
     glutDisplayFunc(display)
-    glutIdleFunc(display)
+    glutIdleFunc(idle)
     # note need to do this to properly render faceted geometry
     glutMainLoop()
 

@@ -21,7 +21,7 @@ by telegram [@ismaelxyz](https://t.me/asraelxyz).
 
 ```sh
 sudo apt update
-sudo apt install libtogl2 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev
+sudo apt install libtogl2 libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev libgle3
 ```
 
 ## Linux Notes

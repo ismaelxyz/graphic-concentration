@@ -9,34 +9,74 @@ of the curve in its own function which can be called instead of
 the display-list if desired.
 """
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
 import time
+import sys
+from OpenGL.GL import (
+    glBegin,
+    glClear,
+    glClearColor,
+    glColor3f,
+    glDisable,
+    glEnable,
+    glEnd,
+    glEndList,
+    glGenLists,
+    glLoadIdentity,
+    glMatrixMode,
+    glNewList,
+    glRotate,
+    glVertex3f,
+    GL_COLOR_BUFFER_BIT,
+    GL_COMPILE,
+    GL_DEPTH_BUFFER_BIT,
+    GL_LIGHTING,
+    GL_LINE_STRIP,
+    GL_MODELVIEW,
+    GL_PROJECTION,
+)
+from OpenGL.GLU import gluLookAt, gluPerspective
+from OpenGL.GLUT import (
+    glutCreateWindow,
+    glutDisplayFunc,
+    glutGet,
+    glutIdleFunc,
+    glutInit,
+    glutInitDisplayMode,
+    glutMainLoop,
+    glutPostRedisplay,
+    glutSwapBuffers,
+    GLUT_DEPTH,
+    GLUT_DOUBLE,
+    GLUT_RGBA,
+    GLUT_WINDOW_HEIGHT,
+    GLUT_WINDOW_WIDTH,
+)
 
 n, dt = 2000, 0.01
 x, y, z = 0.01, 0.01, 0.01
-frac = -1.0 * (8.0/3.0)
+frac = -1.0 * (8.0 / 3.0)
 
 
 def lorentz(x, y, z, n=2000, dt=0.01):
     """Generate Lorentz attractor as a Display-list"""
     target = glGenLists(1)
     glNewList(target, GL_COMPILE)
+
     try:
-        drawLorentz(x, y, z, n, dt)
+        draw_lorentz(x, y, z, n, dt)
     finally:
         glEndList()
+
     return target
 
 
-def drawLorentz(x, y, z, n=2000, dt=0.01):
+def draw_lorentz(x, y, z, n=2000, dt=0.01):
     """Do the actual drawing & calculation of lorentz"""
     glDisable(GL_LIGHTING)
     glBegin(GL_LINE_STRIP)
 
     glVertex3f(x, y, z)
-    frac = -1.0 * (8.0/3.0)
+    frac = -1.0 * (8.0 / 3.0)
     for i in range(0, n):
         xp = x + (-10.0 * x * dt + 10.0 * y * dt)
         yp = y + (28.0 * x * dt - y * dt - x * dt * z * dt)
@@ -44,7 +84,7 @@ def drawLorentz(x, y, z, n=2000, dt=0.01):
         x = xp
         y = yp
         z = zp
-        glColor3f(i/float(n), i/float(n), 0)
+        glColor3f(i / float(n), i / float(n), 0)
         glVertex3f(x, y, z)
     glEnd()
 
@@ -61,15 +101,15 @@ def display():
     i.e. width is one drawing unit, as is height
     """
     glClearColor(0.5, 0.5, 0.5, 0)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glClear(int(GL_COLOR_BUFFER_BIT) | int(GL_DEPTH_BUFFER_BIT))
 
     # establish the projection matrix (perspective)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(
         45,  # field of view in degrees
-        glutGet(GLUT_WINDOW_WIDTH) / \
-        float(glutGet(GLUT_WINDOW_HEIGHT) or 1),  # aspect ratio
+        glutGet(GLUT_WINDOW_WIDTH)
+        / float(glutGet(GLUT_WINDOW_HEIGHT) or 1),  # aspect ratio
         1,  # near clipping plane
         30000,  # far clipping plane
     )
@@ -77,13 +117,19 @@ def display():
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
     gluLookAt(
-        0, 0, 13000,  # eyepoint
-        0, 0, 2000,  # center-of-view
-        0, 1, 0,  # up-vector
+        0,
+        0,
+        13000,  # eyepoint
+        0,
+        0,
+        2000,  # center-of-view
+        0,
+        1,
+        0,  # up-vector
     )
     rotation()
-    drawLorentz(0.01, 0.01, 0.01)
-    #glCallList( LORENTZ_LIST )
+    draw_lorentz(0.01, 0.01, 0.01)
+    # glCallList( LORENTZ_LIST )
     glutSwapBuffers()
 
 
@@ -96,18 +142,20 @@ starttime = time.time()
 
 def rotation(period=10):
     """Do rotation of the scene at given rate"""
-    angle = (((time.time()-starttime) % period)/period) * 360
+    angle = (((time.time() - starttime) % period) / period) * 360
     glRotate(angle, 0, 1, 0)
     return angle
 
 
 def main():
-    print('You should see a curved line representing a Lorentz attractor,'
-          'rendered in 3D, rotation about the origin.')
-    import sys
+    print(
+        "You should see a curved line representing a Lorentz attractor,"
+        "rendered in 3D, rotation about the origin."
+    )
+
     glutInit(sys.argv)
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-    glutCreateWindow('Lorentz Attractor Demo')
+    glutInitDisplayMode(int(GLUT_RGBA) | int(GLUT_DOUBLE) | int(GLUT_DEPTH))
+    glutCreateWindow("Lorentz Attractor Demo")
     glutDisplayFunc(display)
     glutIdleFunc(display)
     glutMainLoop()

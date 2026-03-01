@@ -4,17 +4,81 @@ Note:
     Has no navigation code ATM.
 """
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
 from PIL import Image
 import time
 import sys
 import os
+from OpenGL.GL import (
+    glClear,
+    glClearColor,
+    glDepthFunc,
+    glEnable,
+    glGetDouble,
+    glGetDoublev,
+    glLightfv,
+    glLightModelfv,
+    glLoadIdentity,
+    glLoadMatrixd,
+    glMaterialfv,
+    glMatrixMode,
+    glOrtho,
+    glPixelStorei,
+    glPopMatrix,
+    glPushMatrix,
+    glRasterPos2f,
+    glRasterPos2i,
+    glReadPixels,
+    glRotate,
+    glRotatef,
+    glTranslatef,
+    GL_AMBIENT,
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+    GL_DIFFUSE,
+    GL_FRONT,
+    GL_LESS,
+    GL_LIGHT0,
+    GL_LIGHTING,
+    GL_LIGHT_MODEL_AMBIENT,
+    GL_MODELVIEW,
+    GL_PACK_ALIGNMENT,
+    GL_POSITION,
+    GL_PROJECTION,
+    GL_PROJECTION_MATRIX,
+    GL_RGB,
+    GL_SHININESS,
+    GL_SPECULAR,
+    GL_UNSIGNED_BYTE,
+    GL_VIEWPORT,
+)
+from OpenGL.GLU import gluLookAt, gluPerspective
+from OpenGL import GLUT
+from OpenGL.GLUT import (
+    glutBitmapCharacter,
+    glutCreateWindow,
+    glutDisplayFunc,
+    glutIdleFunc,
+    glutInit,
+    glutInitDisplayMode,
+    glutMainLoop,
+    glutMouseFunc,
+    glutPostRedisplay,
+    glutSolidCone,
+    glutSwapBuffers,
+    GLUT_DEPTH,
+    GLUT_DOUBLE,
+    GLUT_RGBA,
+    GLUT_UP,
+)
 
 
-def drawMessage(value, x, y):
+GLUT_BITMAP_8_BY_13 = getattr(GLUT, "GLUT_BITMAP_8_BY_13")
+
+
+def draw_message(value, x, y):
     glMatrixMode(GL_PROJECTION)
+
     try:
         # For some reason the GL_PROJECTION_MATRIX is overflowing with a single push!
         # glPushMatrix()
@@ -25,16 +89,16 @@ def drawMessage(value, x, y):
             glOrtho(0.0, height or 32, 0.0, width or 32, -1.0, 1.0)
             glMatrixMode(GL_MODELVIEW)
             glPushMatrix()
+
             try:
                 glLoadIdentity()
                 glRasterPos2f(x, y)
                 lines = 0
                 for character in value:
-                    if character == '\n':
-                        glRasterPos2i(x, y-(lines*15))
+                    if character == "\n":
+                        glRasterPos2i(x, y - (lines * 15))
                     else:
-                        glutBitmapCharacter(
-                            GLUT_BITMAP_8_BY_13, ord(character))
+                        glutBitmapCharacter(GLUT_BITMAP_8_BY_13, ord(character))
             finally:
                 glPopMatrix()
             # For some reason the GL_PROJECTION_MATRIX is overflowing with a single push!
@@ -46,7 +110,7 @@ def drawMessage(value, x, y):
         glMatrixMode(GL_MODELVIEW)
 
 
-def drawCone(position=(0, -1, 0), radius=1, height=2, slices=50, stacks=10):
+def draw_cone(position=(0, -1, 0), radius=1, height=2, slices=50, stacks=10):
     glPushMatrix()
     try:
         glTranslatef(*position)
@@ -56,7 +120,7 @@ def drawCone(position=(0, -1, 0), radius=1, height=2, slices=50, stacks=10):
         glPopMatrix()
 
 
-def coneMaterial():
+def cone_material():
     """Setup material for cone"""
     glMaterialfv(GL_FRONT, GL_AMBIENT, [0.2, 0.2, 0.2, 1.0])
     glMaterialfv(GL_FRONT, GL_DIFFUSE, [0.8, 0.8, 0.8, 1.0])
@@ -89,7 +153,7 @@ def display(swap=1, clear=1):
     """
     if clear:
         glClearColor(0.5, 0.5, 0.5, 0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glClear(int(GL_COLOR_BUFFER_BIT) | int(GL_DEPTH_BUFFER_BIT))
 
     # establish the projection matrix (perspective)
     glMatrixMode(GL_PROJECTION)
@@ -97,26 +161,32 @@ def display(swap=1, clear=1):
     x, y, width, height = glGetDoublev(GL_VIEWPORT)
     gluPerspective(
         45,  # field of view in degrees
-        width/float(height or 1),  # aspect ratio
-        .25,  # near clipping plane
+        width / float(height or 1),  # aspect ratio
+        0.25,  # near clipping plane
         200,  # far clipping plane
     )
 
     # and then the model view matrix
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    drawMessage("Click to save buffer to test.jpg", 15, height-20)
+    draw_message("Click to save buffer to test.jpg", 15, height - 20)
     gluLookAt(
-        0, 1, 5,  # eyepoint
-        0, 0, 0,  # center-of-view
-        0, 1, 0,  # up-vector
+        0,
+        1,
+        5,  # eyepoint
+        0,
+        0,
+        0,  # center-of-view
+        0,
+        1,
+        0,  # up-vector
     )
     light()
     depth()
-    coneMaterial()
+    cone_material()
 
     rotation()
-    drawCone()
+    draw_cone()
     if swap:
         glutSwapBuffers()
 
@@ -128,20 +198,24 @@ def idle():
 def click(button, state, x, y):
     """Handler for click on the screen"""
     if state == GLUT_UP:
-        saveBuffer()
+        save_buffer()
 
 
-def saveBuffer(filename='test.jpg', img_format="JPEG"):
+def save_buffer(filename="test.jpg", img_format="JPEG"):
     """Save current buffer to filename in format"""
 
     x, y, width, height = glGetDoublev(GL_VIEWPORT)
     width, height = int(width), int(height)
     glPixelStorei(GL_PACK_ALIGNMENT, 1)
     data = glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE)
-    image = Image.frombytes('RGB', (width, height), data)
-    image = image.transpose(Image.FLIP_TOP_BOTTOM)
+
+    assert type(data) is bytes, "Expected bytes from glReadPixels, got %s" % type(data)
+
+    image = Image.frombytes("RGB", (width, height), data)
+    image = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
     image.save(filename, img_format)
-    print('Saved image to %s' % (os.path.abspath(filename)))
+
+    print("Saved image to %s" % (os.path.abspath(filename)))
     return image
 
 
@@ -150,17 +224,17 @@ starttime = time.time()
 
 def rotation(period=10):
     """Do rotation of the scene at given rate"""
-    angle = (((time.time()-starttime) % period)/period) * 360
+    angle = (((time.time() - starttime) % period) / period) * 360
     glRotate(angle, 0, 1, 0)
     return angle
 
 
 def main():
-    print('You should see a cone rotating slowly, click to save to test.jpg')
-    import sys
+    print("You should see a cone rotating slowly, click to save to test.jpg")
+
     glutInit(sys.argv)
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-    glutCreateWindow('Lorentz Attractor Demo')
+    glutInitDisplayMode(int(GLUT_RGBA) | int(GLUT_DOUBLE) | int(GLUT_DEPTH))
+    glutCreateWindow("Lorentz Attractor Demo")
     glutDisplayFunc(display)
     glutIdleFunc(display)
     glutMouseFunc(click)

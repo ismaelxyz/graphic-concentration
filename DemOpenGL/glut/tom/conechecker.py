@@ -6,13 +6,33 @@ Note:
     using the display functions from the other demo modules.
 """
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
 import time
 import sys
 import cone
 import checker
+from OpenGL.GL import (
+    glClear,
+    glClearColor,
+    glRotate,
+    glViewport,
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+)
+from OpenGL.GLUT import (
+    glutCreateWindow,
+    glutDisplayFunc,
+    glutGet,
+    glutIdleFunc,
+    glutInit,
+    glutInitDisplayMode,
+    glutMainLoop,
+    glutPostRedisplay,
+    GLUT_DEPTH,
+    GLUT_DOUBLE,
+    GLUT_RGBA,
+    GLUT_WINDOW_HEIGHT,
+    GLUT_WINDOW_WIDTH,
+)
 
 
 def display():
@@ -22,10 +42,10 @@ def display():
     i.e. width is one drawing unit, as is height
     """
     glClearColor(0.5, 0.5, 0.5, 0)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glClear(int(GL_COLOR_BUFFER_BIT) | int(GL_DEPTH_BUFFER_BIT))
     width, height = glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT)
-    halfHeight = int(height/2.0)
-    glViewport(0, halfHeight, width, halfHeight+1)
+    halfHeight = int(height / 2.0)
+    glViewport(0, halfHeight, width, halfHeight + 1)
     # glClear doesn't restrict itself to the viewport,
     # so we have to tell the child viewports not to use it...
     checker.display(swap=0, clear=0)
@@ -43,18 +63,20 @@ starttime = time.time()
 
 def rotation(period=10):
     """Do rotation of the scene at given rate"""
-    angle = (((time.time()-starttime) % period)/period) * 360
+    angle = (((time.time() - starttime) % period) / period) * 360
     glRotate(angle, 0, 1, 0)
     return angle
 
 
 def main():
-    print('You should see two OpenGL viewports, in the top, a '
-          'sphere+checker-board and in the bottom, a rotating cone.')
-    import sys
+    print(
+        "You should see two OpenGL viewports, in the top, a "
+        "sphere+checker-board and in the bottom, a rotating cone."
+    )
+
     glutInit(sys.argv)
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-    glutCreateWindow('Two-scene Demo (Cone Checker)')
+    glutInitDisplayMode(int(GLUT_RGBA) | int(GLUT_DOUBLE) | int(GLUT_DEPTH))
+    glutCreateWindow("Two-scene Demo (Cone Checker)")
     glutDisplayFunc(display)
     glutIdleFunc(display)
     # note need to do this to properly render faceted geometry
