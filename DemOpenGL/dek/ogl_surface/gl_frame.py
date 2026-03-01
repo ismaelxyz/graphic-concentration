@@ -15,6 +15,9 @@ class GLFrame:
         self.image_name = "photo.ppm"
         self.master = master
         self.keywords = keywords
+
+        self.keywords.setdefault("width", WIDTH)
+        self.keywords.setdefault("height", HEIGHT)
         self.ogl_frame = Frame(self.master, width=320, height=200)
         self.ogl_frame.pack(side="top", expand=1, fill="both")
         self.keywords["double"] = 1
@@ -43,6 +46,9 @@ class GLFrame:
 
         self.axis_points = identity((3))
 
+    def mainloop(self):
+        return self.main_loop()
+
     def redraw(self, event=None):
         glDisable(GL_LIGHTING)
         glBegin(GL_LINES)
@@ -64,7 +70,7 @@ class GLFrame:
 
         glEnd()
 
-    def photo(self, event=None):
+    def photo(self, _event=None):
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
         pixels = glReadPixels(
             0,
@@ -74,11 +80,11 @@ class GLFrame:
             GL_RGBA,
             GL_UNSIGNED_BYTE,
         )
-        if pixels is None:
-            pixels = b""
+
+        assert type(pixels) == bytes
 
         im = Image.new("RGB", (self.keywords["width"], self.keywords["height"]))
-        im.fromstring(pixels)
+        im.frombytes(pixels)
         im.save(self.image_name)
 
 

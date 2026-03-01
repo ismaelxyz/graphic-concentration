@@ -19,3 +19,4 @@ node_modules
 
 # Files
 Cargo.lock
+asterlike/BUILD_EMSCRIPTEN.md
