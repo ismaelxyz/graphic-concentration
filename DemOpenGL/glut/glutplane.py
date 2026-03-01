@@ -16,7 +16,7 @@ MAX_PLANES = 15
 #
 
 
-class plane(object):
+class Plane(object):
     def __init__(self, speed, red, green, blue, theta, x, y, z, angle):
         self.speed = speed
         self.red = red
@@ -33,7 +33,7 @@ class plane(object):
 #
 planes = []
 for n in range(MAX_PLANES):
-    p = plane(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    p = Plane(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     planes.append(p)
 
 
@@ -56,7 +56,7 @@ def draw():
     glEnable(GL_DEPTH_TEST)
     glShadeModel(GL_FLAT)
     for n in range(MAX_PLANES):
-        if (planes[n].speed != 0.0):
+        if planes[n].speed != 0.0:
             glPushMatrix()
             glTranslatef(planes[n].x, planes[n].y, planes[n].z)
             glRotatef(290.0, 1.0, 0.0, 0.0)
@@ -88,6 +88,7 @@ def draw():
     glutSwapBuffers()
     return
 
+
 # define the plane position and speed incrementor
 #
 
@@ -99,20 +100,21 @@ def tick_per_plane(i):
     planes[i].x = 5 * sin(2 * theta)
     planes[i].y = sin(theta / 3.4) * 3
     planes[i].angle = ((atan(2.0) + M_PI_2) * sin(theta) - M_PI_2) * 180 / M_PI
-    if (planes[i].speed < 0.0):
+    if planes[i].speed < 0.0:
         planes[i].angle += 180.0
     return
 
 
 # define the list of rgb tuples for setting plane colours by random choice
 #
-rgblist = [(1.0, 0.0, 0.0),  # red
-           (1.0, 1.0, 1.0),  # white
-           (0.0, 1.0, 0.0),  # green
-           (1.0, 0.0, 1.0),  # magenta
-           (1.0, 1.0, 0.0),  # yellow
-           (0.0, 1.0, 1.0)   # cyan
-           ]
+rgblist = [
+    (1.0, 0.0, 0.0),  # red
+    (1.0, 1.0, 1.0),  # white
+    (0.0, 1.0, 0.0),  # green
+    (1.0, 0.0, 1.0),  # magenta
+    (1.0, 1.0, 0.0),  # yellow
+    (0.0, 1.0, 1.0),  # cyan
+]
 
 # define add planes to display of planes
 #
@@ -120,14 +122,14 @@ rgblist = [(1.0, 0.0, 0.0),  # red
 
 def add_plane():
     for i in range(MAX_PLANES):
-        if (planes[i].speed == 0.0):
+        if planes[i].speed == 0.0:
             planes[i].red, planes[i].green, planes[i].blue = choice(rgblist)
             planes[i].speed = (float(randint(0, 19)) * 0.001) + 0.02
-            if (getrandbits(32) & 0x1):
+            if getrandbits(32) & 0x1:
                 planes[i].speed *= -1
             planes[i].theta = float(randint(0, 256)) * 0.1111
             tick_per_plane(i)
-            if (not moving):
+            if not moving:
                 glutPostRedisplay()
             return
     return
@@ -136,13 +138,14 @@ def add_plane():
 # define remove a plane from display of planes
 #
 def remove_plane():
-    for i in range(MAX_PLANES-1, -1, -1):
-        if (planes[i].speed != 0):
+    for i in range(MAX_PLANES - 1, -1, -1):
+        if planes[i].speed != 0:
             planes[i].speed = 0
-            if (not moving):
+            if not moving:
                 glutPostRedisplay()
             return
     return
+
 
 # define choice of planes to animate
 #
@@ -150,7 +153,7 @@ def remove_plane():
 
 def tick():
     for i in range(MAX_PLANES):
-        if (planes[i].speed != 0.0):
+        if planes[i].speed != 0.0:
             tick_per_plane(i)
     return
 
@@ -163,22 +166,22 @@ def animate():
 
 
 def visible(state):
-    if (state == GLUT_VISIBLE):
-        if (moving):
+    if state == GLUT_VISIBLE:
+        if moving:
             glutIdleFunc(animate)
     else:
-        if (moving):
+        if moving:
             glutIdleFunc(None)
     return
 
 
 # ARGSUSED1
-def keyboard(ch,  x,  y):
-    if (ch == ' '):
-        if (not moving):
+def keyboard(ch, x, y):
+    if ch == " ":
+        if not moving:
             tick()
             glutPostRedisplay()
-    elif (ch == chr(27)):
+    elif ch == chr(27):
         sys.exit(0)
     return 0
 
@@ -205,11 +208,13 @@ def doquit():
     return
 
 
-menudict = {ADD_PLANE: add_plane,
-            REMOVE_PLANE: remove_plane,
-            MOTION_ON: domotion_on,
-            MOTION_OFF: domotion_off,
-            QUIT: doquit}
+menudict = {
+    ADD_PLANE: add_plane,
+    REMOVE_PLANE: remove_plane,
+    MOTION_ON: domotion_on,
+    MOTION_OFF: domotion_off,
+    QUIT: doquit,
+}
 
 
 def dmenu(item):
@@ -218,13 +223,13 @@ def dmenu(item):
 
 
 def main():
-    glutInit(['glutplane'])
+    glutInit(["glutplane"])
     glutInitWindowPosition(112, 84)
     glutInitWindowSize(800, 600)
     # use multisampling if available
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE)
 
-    glutCreateWindow('GlutPlane')
+    glutCreateWindow("GlutPlane")
     glutDisplayFunc(draw)
     glutKeyboardFunc(keyboard)
     glutVisibilityFunc(visible)
@@ -256,7 +261,7 @@ def main():
     add_plane()
     add_plane()
 
-    print('RIGHT-CLICK to display the menu.')
+    print("RIGHT-CLICK to display the menu.")
     glutMainLoop()
 
 
