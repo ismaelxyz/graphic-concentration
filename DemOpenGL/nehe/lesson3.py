@@ -1,147 +1,127 @@
 #!/usr/bin/env python3
 
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-from OpenGL.GLU import *
+"""
+OpenGL Lesson 3: Colored Triangle and Quad
+A simple OpenGL example demonstrating colored polygons using GLUT.
+Converted to object-oriented style for cleaner code.
+"""
+
+import OpenGL.GL as gl
+import OpenGL.GLUT as glut
+import OpenGL.GLU as glu
 import sys
 
-# Some api in the chain is translating the keystrokes to this octal string
-# so instead of saying: ESCAPE = 27, we use the following.
-ESCAPE = b'\033'
 
-# Number of the glut window.
-window = 0
+class GLWindow:
+    """A class to encapsulate GLUT window and OpenGL rendering."""
 
-# A general OpenGL initialization function.  Sets all of the initial parameters.
+    ESCAPE = b"\033"
 
+    def __init__(
+        self,
+        width=640,
+        height=480,
+        title="Jeff Molofee's GL Code Tutorial ... NeHe '99",
+    ):
+        self.width = width
+        self.height = height
+        self.title = title
 
-def InitGL(Width, Height):
-    ''' We call this right after our OpenGL window is created. '''
-    # This Will Clear The Background Color To Black
-    glClearColor(0.0, 0.0, 0.0, 0.0)
-    glClearDepth(1.0)                    # Enables Clearing Of The Depth Buffer
-    glDepthFunc(GL_LESS)                # The Type Of Depth Test To Do
-    glEnable(GL_DEPTH_TEST)                # Enables Depth Testing
-    glShadeModel(GL_SMOOTH)                # Enables Smooth Color Shading
+    def init_gl(self):
+        """Initialize OpenGL settings."""
+        # Clear background to black
+        gl.glClearColor(0.0, 0.0, 0.0, 0.0)
+        gl.glClearDepth(1.0)
+        gl.glDepthFunc(gl.GL_LESS)
+        gl.glEnable(gl.GL_DEPTH_TEST)
+        gl.glShadeModel(gl.GL_SMOOTH)
 
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()                    # Reset The Projection Matrix
-    # Calculate The Aspect Ratio Of The Window
-    gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glLoadIdentity()
+        glu.gluPerspective(45.0, float(self.width) / float(self.height), 0.1, 100.0)
+        gl.glMatrixMode(gl.GL_MODELVIEW)
 
-    glMatrixMode(GL_MODELVIEW)
+    def resize_scene(self, width, height):
+        """Handle window resize."""
+        if height == 0:
+            height = 1
 
+        gl.glViewport(0, 0, width, height)
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glLoadIdentity()
+        glu.gluPerspective(45.0, float(width) / float(height), 0.1, 100.0)
+        gl.glMatrixMode(gl.GL_MODELVIEW)
 
-def ReSizeGLScene(Width, Height):
-    ''' The function called when our window is resized (which shouldn't happen
-        if you enable fullscreen, below)
-    '''
-    # Prevent A Divide By Zero If The Window Is Too Small
-    if Height == 0:
-        Height = 1
+    def draw_scene(self):
+        """Main rendering function."""
+        # Clear screen and depth buffer
+        gl.glClear(int(gl.GL_COLOR_BUFFER_BIT) | int(gl.GL_DEPTH_BUFFER_BIT))
+        gl.glLoadIdentity()
 
-    # Reset The Current Viewport And Perspective Transformation
-    glViewport(0, 0, Width, Height)
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
-    glMatrixMode(GL_MODELVIEW)
+        # Move left 1.5 units and into the screen 6.0 units
+        gl.glTranslatef(-1.5, 0.0, -6.0)
 
+        # Draw a triangle with smooth color interpolation
+        gl.glBegin(gl.GL_POLYGON)
+        gl.glColor3f(1.0, 0.0, 0.0)  # Red
+        gl.glVertex3f(0.0, 1.0, 0.0)  # Top
+        gl.glColor3f(0.0, 1.0, 0.0)  # Green
+        gl.glVertex3f(1.0, -1.0, 0.0)  # Bottom Right
+        gl.glColor3f(0.0, 0.0, 1.0)  # Blue
+        gl.glVertex3f(-1.0, -1.0, 0.0)  # Bottom Left
+        gl.glEnd()
 
-def DrawGLScene():
-    ''' The main drawing fu'''
-    # Clear The Screen And The Depth Buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glLoadIdentity()                    # Reset The View
+        # Move right 3.0 units
+        gl.glTranslatef(3.0, 0.0, 0.0)
 
-    # Move Left 1.5 units and into the screen 6.0 units.
-    glTranslatef(-1.5, 0.0, -6.0)
+        # Draw a square with solid color
+        gl.glColor3f(0.3, 0.5, 1.0)  # Bluish shade
+        gl.glBegin(gl.GL_QUADS)
+        gl.glVertex3f(-1.0, 1.0, 0.0)  # Top Left
+        gl.glVertex3f(1.0, 1.0, 0.0)  # Top Right
+        gl.glVertex3f(1.0, -1.0, 0.0)  # Bottom Right
+        gl.glVertex3f(-1.0, -1.0, 0.0)  # Bottom Left
+        gl.glEnd()
 
-    # Since we have smooth color mode on, this will be great for the Phish Heads :-).
-    # Draw a triangle
-    glBegin(GL_POLYGON)                 # Start drawing a polygon
-    glColor3f(1.0, 0.0, 0.0)            # Red
-    glVertex3f(0.0, 1.0, 0.0)           # Top
-    glColor3f(0.0, 1.0, 0.0)            # Green
-    glVertex3f(1.0, -1.0, 0.0)          # Bottom Right
-    glColor3f(0.0, 0.0, 1.0)            # Blue
-    glVertex3f(-1.0, -1.0, 0.0)         # Bottom Left
-    glEnd()                             # We are done with the polygon
+        # Swap buffers for double buffering
+        glut.glutSwapBuffers()
 
-    # Move Right 3.0 units.
-    glTranslatef(3.0, 0.0, 0.0)
+    def key_pressed(self, key, x, y):
+        """Handle keyboard input."""
+        if key == self.ESCAPE:
+            glut.glutDestroyWindow(self.window)
 
-    # Draw a square (quadrilateral)
-    glColor3f(0.3, 0.5, 1.0)            # Bluish shade
-    glBegin(GL_QUADS)                   # Start drawing a 4 sided polygon
-    glVertex3f(-1.0, 1.0, 0.0)          # Top Left
-    glVertex3f(1.0, 1.0, 0.0)           # Top Right
-    glVertex3f(1.0, -1.0, 0.0)          # Bottom Right
-    glVertex3f(-1.0, -1.0, 0.0)         # Bottom Left
-    glEnd()                             # We are done with the polygon
+    def run(self):
+        """Initialize and run the GLUT application."""
+        glut.glutInit(sys.argv)
 
-    #  since this is double buffered, swap the buffers to display what just got drawn.
-    glutSwapBuffers()
+        # Display mode: Double buffer, RGBA, Alpha, Depth
+        glut.glutInitDisplayMode(
+            int(glut.GLUT_RGBA) | int(glut.GLUT_DOUBLE) | int(glut.GLUT_DEPTH)
+        )
 
-# The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
+        glut.glutInitWindowSize(self.width, self.height)
+        glut.glutInitWindowPosition(0, 0)
 
+        self.window = glut.glutCreateWindow(self.title)
 
-def keyPressed(*args):
-    # If escape is pressed, kill everything.
-    if args[0] == ESCAPE:
-        glutDestroyWindow(window)
+        # Register callbacks
+        glut.glutDisplayFunc(self.draw_scene)
+        glut.glutIdleFunc(self.draw_scene)
+        glut.glutReshapeFunc(self.resize_scene)
+        glut.glutKeyboardFunc(self.key_pressed)
+
+        # Initialize OpenGL
+        self.init_gl()
+
+        print("Hit ESC key to quit.")
+
+        glut.glutMainLoop()
 
 
 def main():
-    global window
-
-    # For now we just pass glutInit one empty argument. I wasn't sure what should or could be passed in (tuple, list, ...)
-    # Once I find out the right stuff based on reading the PyOpenGL source, I'll address this.
-    glutInit(sys.argv)
-
-    # Select type of Display mode:
-    #  Double buffer
-    #  RGBA color
-    # Alpha components supported
-    # Depth buffer
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-
-    # get a 640 x 480 window
-    glutInitWindowSize(640, 480)
-
-    # the window starts at the upper left corner of the screen
-    glutInitWindowPosition(0, 0)
-
-    # Okay, like the C version we retain the window id to use when closing, but for those of you new
-    # to Python (like myself), remember this assignment would make the variable local and not global
-    # if it weren't for the global declaration at the start of main.
-    window = glutCreateWindow("Jeff Molofee's GL Code Tutorial ... NeHe '99")
-
-    # Register the drawing function with glut, BUT in Python land, at least using PyOpenGL, we need to
-    # set the function pointer and invoke a function to actually register the callback, otherwise it
-    # would be very much like the C version of the code.
-    glutDisplayFunc(DrawGLScene)
-
-    # Uncomment this line to get full screen.
-    # glutFullScreen()
-
-    # When we are doing nothing, redraw the scene.
-    glutIdleFunc(DrawGLScene)
-
-    # Register the function called when our window is resized.
-    glutReshapeFunc(ReSizeGLScene)
-
-    # Register the function called when the keyboard is pressed.
-    glutKeyboardFunc(keyPressed)
-
-    # Print message to console, and kick off the main to get it rolling.
-    print('Hit ESC key to quit.')
-
-    # Initialize our window.
-    InitGL(640, 480)
-
-    # Start Event Processing Engine
-    glutMainLoop()
+    app = GLWindow()
+    app.run()
 
 
 if __name__ == "__main__":
