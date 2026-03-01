@@ -1,268 +1,353 @@
+"""
+GlutPlane - A GLUT-based 3D plane simulation with OOP design.
+
+This module demonstrates an object-oriented approach to a 3D OpenGL/GLUT
+application showing animated planes flying in formation.
+"""
+
 import sys
-
-from OpenGL.GLUT import *
-from OpenGL.GLU import *
-from OpenGL.GL import *
-from math import *
-from random import random, choice, randint, getrandbits
-
-M_PI = pi
-M_PI_2 = pi / 2.0
-
-moving = False
-MAX_PLANES = 15
-
-# define plane object
-#
-
-
-class Plane(object):
-    def __init__(self, speed, red, green, blue, theta, x, y, z, angle):
-        self.speed = speed
-        self.red = red
-        self.green = green
-        self.blue = blue
-        self.theta = theta
-        self.angle = angle
-        self.x = x
-        self.y = y
-        self.z = z
-
-
-# create list of planes
-#
-planes = []
-for n in range(MAX_PLANES):
-    p = Plane(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    planes.append(p)
-
-
-# define the GLUT display function
-#
-def draw():
-    glClear(GL_DEPTH_BUFFER_BIT)
-    # paint black to blue smooth shaded polygon for background
-    glDisable(GL_DEPTH_TEST)
-    glShadeModel(GL_SMOOTH)
-    glBegin(GL_POLYGON)
-    glColor3f(0.0, 0.0, 0.0)
-    glVertex3f(-20.0, 20.0, -19.0)
-    glVertex3f(20.0, 20.0, -19.0)
-    glColor3f(0.0, 0.0, 1.0)
-    glVertex3f(20.0, -20.0, -19.0)
-    glVertex3f(-20.0, -20.0, -19.0)
-    glEnd()
-    # paint planes
-    glEnable(GL_DEPTH_TEST)
-    glShadeModel(GL_FLAT)
-    for n in range(MAX_PLANES):
-        if planes[n].speed != 0.0:
-            glPushMatrix()
-            glTranslatef(planes[n].x, planes[n].y, planes[n].z)
-            glRotatef(290.0, 1.0, 0.0, 0.0)
-            glRotatef(planes[n].angle, 0.0, 0.0, 1.0)
-            glScalef(1.0 / 3.0, 1.0 / 4.0, 1.0 / 4.0)
-            glTranslatef(0.0, -4.0, -1.5)
-            glBegin(GL_TRIANGLE_STRIP)
-            # left wing
-            glVertex3f(-7.0, 0.0, 2.0)
-            glVertex3f(-1.0, 0.0, 3.0)
-            red = planes[n].red
-            green = planes[n].green
-            blue = planes[n].blue
-            glColor3f(red, green, blue)
-            glVertex3f(-1.0, 7.0, 3.0)
-            # left side
-            glColor3f(0.6 * red, 0.6 * green, 0.6 * blue)
-            glVertex3f(0.0, 0.0, 0.0)
-            glVertex3f(0.0, 8.0, 0.0)
-            # right side
-            glVertex3f(1.0, 0.0, 3.0)
-            glVertex3f(1.0, 7.0, 3.0)
-            # final tip of right wing */
-            glColor3f(red, green, blue)
-            glVertex3f(7.0, 0.0, 2.0)
-            glEnd()
-            glPopMatrix()
-
-    glutSwapBuffers()
-    return
+import enum
+from OpenGL.GL import (
+    glClear,
+    glEnable,
+    glDisable,
+    glBegin,
+    glEnd,
+    glVertex3f,
+    glColor3f,
+    glPushMatrix,
+    glPopMatrix,
+    glTranslatef,
+    glRotatef,
+    glScalef,
+    glShadeModel,
+    glMatrixMode,
+    glFrustum,
+    glClearDepth,
+    glClearColor,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+    GL_SMOOTH,
+    GL_FLAT,
+    GL_POLYGON,
+    GL_TRIANGLE_STRIP,
+    GL_PROJECTION,
+    GL_MODELVIEW,
+)
+from OpenGL.GLUT import (
+    glutInit,
+    glutInitWindowPosition,
+    glutInitWindowSize,
+    glutSetOption,
+    glutLeaveMainLoop,
+    glutInitDisplayMode,
+    glutCreateWindow,
+    glutDisplayFunc,
+    glutKeyboardFunc,
+    glutVisibilityFunc,
+    glutIdleFunc,
+    glutPostRedisplay,
+    glutChangeToMenuEntry,
+    glutCreateMenu,
+    glutAddMenuEntry,
+    glutAttachMenu,
+    glutMainLoop,
+    glutSwapBuffers,
+    GLUT_VISIBLE,
+    GLUT_RIGHT_BUTTON,
+    GLUT_DOUBLE,
+    GLUT_RGB,
+    GLUT_DEPTH,
+    GLUT_MULTISAMPLE,
+    GLUT_ACTION_ON_WINDOW_CLOSE,
+    GLUT_ACTION_GLUTMAINLOOP_RETURNS,
+)
+from math import cos, sin, atan, pi
+from random import choice, randint, getrandbits
 
 
-# define the plane position and speed incrementor
-#
+class Plane:
+    """Represents a single plane with its properties and behavior."""
 
+    M_PI = pi
+    M_PI_2 = pi / 2.0
 
-def tick_per_plane(i):
-    planes[i].theta += planes[i].speed
-    theta = planes[i].theta
-    planes[i].z = -10 + 4 * cos(theta)
-    planes[i].x = 5 * sin(2 * theta)
-    planes[i].y = sin(theta / 3.4) * 3
-    planes[i].angle = ((atan(2.0) + M_PI_2) * sin(theta) - M_PI_2) * 180 / M_PI
-    if planes[i].speed < 0.0:
-        planes[i].angle += 180.0
-    return
+    # Color options for planes
+    RGB_LIST = [
+        (1.0, 0.0, 0.0),  # red
+        (1.0, 1.0, 1.0),  # white
+        (0.0, 1.0, 0.0),  # green
+        (1.0, 0.0, 1.0),  # magenta
+        (1.0, 1.0, 0.0),  # yellow
+        (0.0, 1.0, 1.0),  # cyan
+    ]
 
+    def __init__(self):
+        """Initialize a plane with default (inactive) values."""
+        self.speed = 0.0
+        self.red = 0.0
+        self.green = 0.0
+        self.blue = 0.0
+        self.theta = 0.0
+        self.angle = 0.0
+        self.x = 0.0
+        self.y = 0.0
+        self.z = 0.0
 
-# define the list of rgb tuples for setting plane colours by random choice
-#
-rgblist = [
-    (1.0, 0.0, 0.0),  # red
-    (1.0, 1.0, 1.0),  # white
-    (0.0, 1.0, 0.0),  # green
-    (1.0, 0.0, 1.0),  # magenta
-    (1.0, 1.0, 0.0),  # yellow
-    (0.0, 1.0, 1.0),  # cyan
-]
+    def is_active(self):
+        """Check if the plane is currently active (moving)."""
+        return self.speed != 0.0
 
-# define add planes to display of planes
-#
+    def activate(self):
+        """Activate the plane with random parameters."""
+        self.red, self.green, self.blue = choice(self.RGB_LIST)
+        self.speed = (float(randint(0, 19)) * 0.001) + 0.02
+        if getrandbits(32) & 0x1:
+            self.speed *= -1
+        self.theta = float(randint(0, 256)) * 0.1111
+        self.update_position()
 
+    def deactivate(self):
+        """Deactivate the plane."""
+        self.speed = 0.0
 
-def add_plane():
-    for i in range(MAX_PLANES):
-        if planes[i].speed == 0.0:
-            planes[i].red, planes[i].green, planes[i].blue = choice(rgblist)
-            planes[i].speed = (float(randint(0, 19)) * 0.001) + 0.02
-            if getrandbits(32) & 0x1:
-                planes[i].speed *= -1
-            planes[i].theta = float(randint(0, 256)) * 0.1111
-            tick_per_plane(i)
-            if not moving:
-                glutPostRedisplay()
+    def update_position(self):
+        """Update the plane's position based on its theta value."""
+        self.theta += self.speed
+        theta = self.theta
+        self.z = -10 + 4 * cos(theta)
+        self.x = 5 * sin(2 * theta)
+        self.y = sin(theta / 3.4) * 3
+        self.angle = (
+            ((atan(2.0) + self.M_PI_2) * sin(theta) - self.M_PI_2) * 180 / self.M_PI
+        )
+        if self.speed < 0.0:
+            self.angle += 180.0
+
+    def draw(self):
+        """Draw the plane using OpenGL."""
+        if not self.is_active():
             return
-    return
+
+        glPushMatrix()
+        glTranslatef(self.x, self.y, self.z)
+        glRotatef(290.0, 1.0, 0.0, 0.0)
+        glRotatef(self.angle, 0.0, 0.0, 1.0)
+        glScalef(1.0 / 3.0, 1.0 / 4.0, 1.0 / 4.0)
+        glTranslatef(0.0, -4.0, -1.5)
+        glBegin(GL_TRIANGLE_STRIP)
+
+        # left wing
+        glVertex3f(-7.0, 0.0, 2.0)
+        glVertex3f(-1.0, 0.0, 3.0)
+        red = self.red
+        green = self.green
+        blue = self.blue
+        glColor3f(red, green, blue)
+        glVertex3f(-1.0, 7.0, 3.0)
+
+        # left side
+        glColor3f(0.6 * red, 0.6 * green, 0.6 * blue)
+        glVertex3f(0.0, 0.0, 0.0)
+        glVertex3f(0.0, 8.0, 0.0)
+
+        # right side
+        glVertex3f(1.0, 0.0, 3.0)
+        glVertex3f(1.0, 7.0, 3.0)
+
+        # final tip of right wing
+        glColor3f(red, green, blue)
+        glVertex3f(7.0, 0.0, 2.0)
+
+        glEnd()
+        glPopMatrix()
 
 
-# define remove a plane from display of planes
-#
-def remove_plane():
-    for i in range(MAX_PLANES - 1, -1, -1):
-        if planes[i].speed != 0:
-            planes[i].speed = 0
-            if not moving:
+class PlaneSimulationAction(enum.Enum):
+    VOID = 0
+    ADD_PLANE = 1
+    REMOVE_PLANE = 2
+    MOTION_ON = 3
+    MOTION_OFF = 4
+    QUIT = 5
+
+
+class PlaneSimulation:
+    """Manages the plane simulation including rendering, animation, and input."""
+
+    # Menu constants
+
+    def __init__(self, max_planes=15):
+        """Initialize the plane simulation."""
+        self.max_planes = max_planes
+        self.planes = [Plane() for _ in range(max_planes)]
+        self.moving = False
+
+    def get_inactive_plane(self):
+        """Find and return the first inactive plane, or None if all are active."""
+        for plane in self.planes:
+            if not plane.is_active():
+                return plane
+        return None
+
+    def add_plane(self):
+        """Activate a new plane if there's an available slot."""
+        plane = self.get_inactive_plane()
+        if plane:
+            plane.activate()
+            if not self.moving:
                 glutPostRedisplay()
-            return
-    return
 
+    def remove_plane(self):
+        """Deactivate the most recently added plane."""
+        for i in range(self.max_planes - 1, -1, -1):
+            if self.planes[i].is_active():
+                self.planes[i].deactivate()
+                if not self.moving:
+                    glutPostRedisplay()
+                return
 
-# define choice of planes to animate
-#
+    def tick(self):
+        """Update all active planes."""
+        for plane in self.planes:
+            if plane.is_active():
+                plane.update_position()
 
+    def animate(self):
+        """Animation callback for GLUT idle function."""
+        self.tick()
+        glutPostRedisplay()
 
-def tick():
-    for i in range(MAX_PLANES):
-        if planes[i].speed != 0.0:
-            tick_per_plane(i)
-    return
+    def draw_background(self):
+        """Draw the background gradient (black to blue)."""
+        glDisable(GL_DEPTH_TEST)
+        glShadeModel(GL_SMOOTH)
+        glBegin(GL_POLYGON)
+        glColor3f(0.0, 0.0, 0.0)
+        glVertex3f(-20.0, 20.0, -19.0)
+        glVertex3f(20.0, 20.0, -19.0)
+        glColor3f(0.0, 0.0, 1.0)
+        glVertex3f(20.0, -20.0, -19.0)
+        glVertex3f(-20.0, -20.0, -19.0)
+        glEnd()
 
+    def draw(self):
+        """Main display callback - renders the scene."""
+        glClear(GL_DEPTH_BUFFER_BIT)
 
-# define animator so that motion can be started
-def animate():
-    tick()
-    glutPostRedisplay()
-    return
+        # Draw background
+        self.draw_background()
 
+        # Draw planes
+        glEnable(GL_DEPTH_TEST)
+        glShadeModel(GL_FLAT)
+        for plane in self.planes:
+            plane.draw()
 
-def visible(state):
-    if state == GLUT_VISIBLE:
-        if moving:
-            glutIdleFunc(animate)
-    else:
-        if moving:
-            glutIdleFunc(None)
-    return
+        glutSwapBuffers()
 
+    def visible(self, state):
+        """Visibility callback for GLUT."""
+        if state == GLUT_VISIBLE:
+            if self.moving:
+                glutIdleFunc(self.animate)
+        else:
+            if self.moving:
+                glutIdleFunc(None)
 
-# ARGSUSED1
-def keyboard(ch, x, y):
-    if ch == " ":
-        if not moving:
-            tick()
-            glutPostRedisplay()
-    elif ch == chr(27):
-        sys.exit(0)
-    return 0
+    def keyboard(self, ch, x, y):
+        """Keyboard callback."""
+        if ch == " ":
+            if not self.moving:
+                self.tick()
+                glutPostRedisplay()
+        elif ch == chr(27):
+            sys.exit(0)
+        return 0
 
+    def motion_on(self):
+        """Enable motion animation."""
+        self.moving = True
+        glutChangeToMenuEntry(3, "Motion off", PlaneSimulationAction.MOTION_OFF.value)
+        glutIdleFunc(self.animate)
 
-VOID, ADD_PLANE, REMOVE_PLANE, MOTION_ON, MOTION_OFF, QUIT = range(6)
+    def motion_off(self):
+        """Disable motion animation."""
+        self.moving = False
+        glutChangeToMenuEntry(3, "Motion", PlaneSimulationAction.MOTION_ON.value)
+        glutIdleFunc(None)
 
+    def quit(self):
+        """Exit the application."""
+        glutLeaveMainLoop()
 
-def domotion_on():
-    moving = GL_TRUE
-    glutChangeToMenuEntry(3, "Motion off", MOTION_OFF)
-    glutIdleFunc(animate)
-    return
+    def menu(self, item):
+        """Menu callback handler."""
 
+        match item:
+            case PlaneSimulationAction.ADD_PLANE.value:
+                self.add_plane()
+            case PlaneSimulationAction.REMOVE_PLANE.value:
+                self.remove_plane()
+            case PlaneSimulationAction.MOTION_ON.value:
+                self.motion_on()
+            case PlaneSimulationAction.MOTION_OFF.value:
+                self.motion_off()
+            case PlaneSimulationAction.QUIT.value:
+                self.quit()
 
-def domotion_off():
-    moving = GL_FALSE
-    glutChangeToMenuEntry(3, "Motion", MOTION_ON)
-    glutIdleFunc(None)
-    return
+        return 0
 
+    def init_glut(self, argv=None):
+        """Initialize GLUT and create window."""
+        if argv is None:
+            argv = ["glutplane"]
+        glutInit(argv)
+        glutInitWindowPosition(112, 84)
+        glutInitWindowSize(800, 600)
+        glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS)
+        # use multisampling if available
+        glutInitDisplayMode(
+            int(GLUT_DOUBLE) | int(GLUT_RGB) | int(GLUT_DEPTH) | int(GLUT_MULTISAMPLE)
+        )
 
-def doquit():
-    sys.exit(0)
-    return
+        glutCreateWindow("GlutPlane")
+        glutDisplayFunc(self.draw)
+        glutKeyboardFunc(self.keyboard)
+        glutVisibilityFunc(self.visible)
 
+        # Create menu
+        glutCreateMenu(self.menu)
+        glutAddMenuEntry("Add plane", PlaneSimulationAction.ADD_PLANE.value)
+        glutAddMenuEntry("Remove plane", PlaneSimulationAction.REMOVE_PLANE.value)
+        glutAddMenuEntry("Motion", PlaneSimulationAction.MOTION_ON.value)
+        glutAddMenuEntry("Quit", PlaneSimulationAction.QUIT.value)
+        glutAttachMenu(GLUT_RIGHT_BUTTON)
 
-menudict = {
-    ADD_PLANE: add_plane,
-    REMOVE_PLANE: remove_plane,
-    MOTION_ON: domotion_on,
-    MOTION_OFF: domotion_off,
-    QUIT: doquit,
-}
+        # Setup OpenGL state
+        glClearDepth(1.0)
+        glClearColor(0.0, 0.0, 0.0, 0.0)
+        glMatrixMode(GL_PROJECTION)
+        glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 30)
+        glMatrixMode(GL_MODELVIEW)
 
+    def run(self):
+        """Initialize and run the simulation."""
+        self.init_glut()
 
-def dmenu(item):
-    menudict[item]()
-    return 0
+        # Add three initial random planes
+        self.add_plane()
+        self.add_plane()
+        self.add_plane()
+
+        print("RIGHT-CLICK to display the menu.")
+        glutMainLoop()
 
 
 def main():
-    glutInit(["glutplane"])
-    glutInitWindowPosition(112, 84)
-    glutInitWindowSize(800, 600)
-    # use multisampling if available
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE)
-
-    glutCreateWindow("GlutPlane")
-    glutDisplayFunc(draw)
-    glutKeyboardFunc(keyboard)
-    glutVisibilityFunc(visible)
-    #
-    # This program fails if PyOpenGL-3.0.0b1-py2.5.egg\OpenGL\GLUT\special.py
-    # is not corrected at line 158 to read :
-    # callbackType = ctypes.CFUNCTYPE( None, ctypes.c_int )
-    # instead of :
-    # callbackType = ctypes.CFUNCTYPE( ctypes.c_int, ctypes.c_int )
-    #
-    # RIGHT-CLICK to display the menu
-    #
-    glutCreateMenu(dmenu)
-    glutAddMenuEntry("Add plane", ADD_PLANE)
-    glutAddMenuEntry("Remove plane", REMOVE_PLANE)
-    glutAddMenuEntry("Motion", MOTION_ON)
-    glutAddMenuEntry("Quit", QUIT)
-    glutAttachMenu(GLUT_RIGHT_BUTTON)
-
-    # setup OpenGL state
-    glClearDepth(1.0)
-    glClearColor(0.0, 0.0, 0.0, 0.0)
-    glMatrixMode(GL_PROJECTION)
-    glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 30)
-    glMatrixMode(GL_MODELVIEW)
-
-    # add three initial random planes
-    add_plane()
-    add_plane()
-    add_plane()
-
-    print("RIGHT-CLICK to display the menu.")
-    glutMainLoop()
+    """Main entry point."""
+    simulation = PlaneSimulation()
+    simulation.run()
 
 
 if __name__ == "__main__":
