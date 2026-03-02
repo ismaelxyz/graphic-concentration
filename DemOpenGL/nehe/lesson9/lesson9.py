@@ -5,6 +5,7 @@ import random
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Union
 
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
@@ -183,16 +184,19 @@ class Lesson9:
 
         glut.glutSwapBuffers()
 
-    def key_pressed(self, key: bytes, x: int, y: int) -> None:  # noqa: ARG002
+    def key_pressed(self, *args):
+        key = args[0]
+
         if key == self.ESCAPE:
-            self._should_exit = True
-            return
+            glut.glutDestroyWindow(self.window)
 
         if key in (b"t", b"T"):
             self.twinkle = not self.twinkle
             return
 
-    def special_key_pressed(self, key: int, x: int, y: int) -> None:  # noqa: ARG002
+    def special_key_pressed(self, *args):
+        key = args[0]
+
         if key == glut.GLUT_KEY_PAGE_UP:
             self.zoom -= 0.2
             return
@@ -208,18 +212,6 @@ class Lesson9:
         if key == glut.GLUT_KEY_DOWN:
             self.tilt += 0.5
             return
-
-    def _keyboard_callback(self, key: int, x: int, y: int) -> None:
-        try:
-            self.key_pressed(bytes((int(key) & 0xFF,)), int(x), int(y))
-        except Exception as exc:
-            print(f"keyboard callback error: {exc}", file=sys.stderr)
-
-    def _special_callback(self, key: int, x: int, y: int) -> None:
-        try:
-            self.special_key_pressed(int(key), int(x), int(y))
-        except Exception as exc:
-            print(f"special-key callback error: {exc}", file=sys.stderr)
 
     def destroy_window(self) -> None:
         """Destroy window via GLUT"""
