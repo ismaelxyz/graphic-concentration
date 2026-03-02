@@ -12,7 +12,7 @@ import OpenGL.GLU as glu
 import sys
 
 
-class GLWindow:
+class Lesson4:
     """A class to encapsulate GLUT window and OpenGL rendering."""
 
     ESCAPE = b"\033"
@@ -98,7 +98,7 @@ class GLWindow:
         # Swap buffers for double buffering
         glut.glutSwapBuffers()
 
-    def key_pressed(self, key, x, y):
+    def key_pressed(self, key, _x, _y):
         """Handle keyboard input."""
         if key == self.ESCAPE:
             glut.glutDestroyWindow(self.window)
@@ -132,7 +132,7 @@ class GLWindow:
 
 
 def main():
-    app = GLWindow()
+    app = Lesson4()
     app.run()
 
 

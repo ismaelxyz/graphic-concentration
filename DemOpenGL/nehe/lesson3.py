@@ -12,7 +12,7 @@ import OpenGL.GLU as glu
 import sys
 
 
-class GLWindow:
+class Lesson3:
     """A class to encapsulate GLUT window and OpenGL rendering."""
 
     ESCAPE = b"\033"
@@ -120,7 +120,7 @@ class GLWindow:
 
 
 def main():
-    app = GLWindow()
+    app = Lesson3()
     app.run()
 
 
