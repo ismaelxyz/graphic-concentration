@@ -42,9 +42,6 @@ class Lesson9:
         self.texture_id: int | None = None
         self.stars: list[Star] = []
 
-        self._should_exit = False
-        self._c_callbacks: list[object] = []
-
     def _texture_path(self) -> Path:
         return Path(__file__).with_name("Star.bmp")
 
@@ -118,12 +115,6 @@ class Lesson9:
         gl.glMatrixMode(gl.GL_MODELVIEW)
 
     def draw_scene(self):
-        if self._should_exit:
-            try:
-                if self.window:
-                    self.destroy_window()
-            finally:
-                os._exit(0)
 
         gl.glClear(int(gl.GL_COLOR_BUFFER_BIT) | int(gl.GL_DEPTH_BUFFER_BIT))
 
@@ -184,9 +175,7 @@ class Lesson9:
 
         glut.glutSwapBuffers()
 
-    def key_pressed(self, *args):
-        key = args[0]
-
+    def key_pressed(self, key: Union[bytes, int], *_args):
         if key == self.ESCAPE:
             glut.glutDestroyWindow(self.window)
 
@@ -194,8 +183,7 @@ class Lesson9:
             self.twinkle = not self.twinkle
             return
 
-    def special_key_pressed(self, *args):
-        key = args[0]
+    def special_key_pressed(self, key: Union[bytes, int], *_args):
 
         if key == glut.GLUT_KEY_PAGE_UP:
             self.zoom -= 0.2

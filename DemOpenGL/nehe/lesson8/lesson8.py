@@ -34,11 +34,6 @@ class Lesson8:
 
         self.textures: list[int] = []
 
-        self._should_exit = False
-
-        # Keep ctypes callback wrappers alive (raw GLUT does not manage lifetimes).
-        self._c_callbacks: list[object] = []
-
     def _texture_path(self) -> Path:
         return Path(__file__).with_name("glass.bmp")
 
@@ -167,12 +162,6 @@ class Lesson8:
             gl.glEnable(gl.GL_DEPTH_TEST)
 
     def draw_scene(self) -> None:
-        if self._should_exit:
-            try:
-                if self.window:
-                    self._destroy_window_raw()
-            finally:
-                os._exit(0)
 
         gl.glClear(int(gl.GL_COLOR_BUFFER_BIT) | int(gl.GL_DEPTH_BUFFER_BIT))
         gl.glLoadIdentity()
@@ -261,8 +250,7 @@ class Lesson8:
 
     def key_pressed(self, key: bytes, x: int, y: int) -> None:  # noqa: ARG002
         if key == self.ESCAPE:
-            # Don't try to destroy/exit directly from a ctypes callback.
-            self._should_exit = True
+            self.destroy_window()
             return
 
         if key in (b"l", b"L"):
@@ -318,73 +306,19 @@ class Lesson8:
         except Exception as exc:
             print(f"special-key callback error: {exc}", file=sys.stderr)
 
-    def _destroy_window_raw(self) -> None:
-        """Destroy window via raw GLUT.
+    def destroy_window(self) -> None:
+        """Destroy window via raw GLUT"""
 
-        PyOpenGL's `glutDestroyWindow` wrapper has crashed on some setups (we hit
-        an `UnboundLocalError` inside the wrapper when cleanup fails). Using the
-        raw binding avoids that wrapper.
-        """
+        glut.glutDestroyWindow(int(self.window))
 
-        import OpenGL.raw.GLUT as raw_glut
+    def register_callbacks(self) -> None:
+        """Register GLUT callbacks"""
 
-        raw_glut.glutDestroyWindow(int(self.window))
-
-    def _register_callbacks(self) -> None:
-        """Register GLUT callbacks.
-
-        Preferred path is the high-level `OpenGL.GLUT` API (same style as
-        `lesson1.py`). On some systems PyOpenGL fails registering callbacks if it
-        can't retrieve a current context ("no valid context"); in that case we
-        fall back to raw GLUT registration.
-        """
-
-        try:
-            glut.glutDisplayFunc(self.draw_scene)
-            glut.glutIdleFunc(self.draw_scene)
-            glut.glutReshapeFunc(self.resize_scene)
-            glut.glutKeyboardFunc(self.key_pressed)
-            glut.glutSpecialFunc(self.special_key_pressed)
-            return
-        except Exception as exc:
-            message = str(exc)
-            if "no valid context" not in message and "GetCurrentContext" not in message:
-                raise
-
-        self._register_callbacks_raw()
-
-    def _register_callbacks_raw(self) -> None:
-        """Raw GLUT callback registration (fallback).
-
-        This avoids PyOpenGL's contextdata registry (which may fail if the
-        current context can't be retrieved).
-        """
-
-        import OpenGL.raw.GLUT as raw_glut
-
-        self._c_callbacks.clear()
-
-        display_cb = raw_glut.CALLBACK_FUNCTION_TYPE(None)(self.draw_scene)
-        idle_cb = raw_glut.CALLBACK_FUNCTION_TYPE(None)(self.draw_scene)
-        reshape_cb = raw_glut.CALLBACK_FUNCTION_TYPE(
-            None, raw_glut.c_int, raw_glut.c_int
-        )(self.resize_scene)
-        keyboard_cb = raw_glut.CALLBACK_FUNCTION_TYPE(
-            None, raw_glut.c_ubyte, raw_glut.c_int, raw_glut.c_int
-        )(self._keyboard_callback)
-        special_cb = raw_glut.CALLBACK_FUNCTION_TYPE(
-            None, raw_glut.c_int, raw_glut.c_int, raw_glut.c_int
-        )(self._special_callback)
-
-        self._c_callbacks.extend(
-            [display_cb, idle_cb, reshape_cb, keyboard_cb, special_cb]
-        )
-
-        raw_glut.glutDisplayFunc(display_cb)
-        raw_glut.glutIdleFunc(idle_cb)
-        raw_glut.glutReshapeFunc(reshape_cb)
-        raw_glut.glutKeyboardFunc(keyboard_cb)
-        raw_glut.glutSpecialFunc(special_cb)
+        glut.glutDisplayFunc(self.draw_scene)
+        glut.glutIdleFunc(self.draw_scene)
+        glut.glutReshapeFunc(self.resize_scene)
+        glut.glutKeyboardFunc(self.key_pressed)
+        glut.glutSpecialFunc(self.special_key_pressed)
 
     def run(self) -> None:
         if not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
@@ -423,7 +357,7 @@ class Lesson8:
 
         # Prefer the high-level API (like lesson1), fall back to raw only if
         # PyOpenGL can't register callbacks due to missing current context.
-        self._register_callbacks()
+        self.register_callbacks()
 
         glut.glutFullScreen()
 
