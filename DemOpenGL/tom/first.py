@@ -1,20 +1,20 @@
 #!/usr/bin/python
 
-from OpenGL.GL import *
-from OpenGL.Tk import *
+import OpenGL.GL as gl
+import OpenGL.Tk as tk
 
 
 def redraw(o):
-    glClearColor(0, 0, 1, 0)
-    glClear(GL_COLOR_BUFFER_BIT)
+    gl.glClearColor(0, 0, 1, 0)
+    gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
 
 def main():
-    gl = Opengl(width=400, height=400, double=1)
-    gl.redraw = redraw
-    gl.pack(side='top', expand=1, fill='both')
-    gl.mainloop()
+    gltk = tk.Opengl(width=400, height=400, double=1)
+    gltk.redraw = redraw
+    gltk.pack(side="top", expand=1, fill="both")
+    gltk.mainloop()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
