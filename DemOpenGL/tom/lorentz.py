@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from OpenGL.GL import *
-from OpenGL.Tk import *
+import OpenGL.GL as gl
+import OpenGL.Tk as tk
 import tkinter
-from numpy import *
+import numpy as np
 import sys
 
 n, dt = 2000, 0.01
 x, y, z = 0.01, 0.01, 0.01
-frac = -1.0 * (8.0/3.0)
-a = array((n, 3), 'd')
+frac = -1.0 * (8.0 / 3.0)
+a = np.array((n, 3), "d")
 
 
-def lorentz(gl, x, y, z, n=2000, dt=0.01):
+def lorentz(gltk, x, y, z, n=2000, dt=0.01):
     """Generate Lorentz attractor.  Put graphic in a graphical object"""
-    gl.grob = glGenLists(1)
-    glNewList(gl.grob, GL_COMPILE)
+    gltk.grob = gl.glGenLists(1)
+    gl.glNewList(gltk.grob, gl.GL_COMPILE)
     try:
-        glDisable(GL_LIGHTING)
-        glBegin(GL_LINE_STRIP)
+        gl.glDisable(gl.GL_LIGHTING)
+        gl.glBegin(gl.GL_LINE_STRIP)
         try:
-            glVertex3d(x, y, z)
-            frac = -1.0 * (8.0/3.0)
+            gl.glVertex3d(x, y, z)
+            frac = -1.0 * (8.0 / 3.0)
             for i in range(0, n):
                 xp = x + (-10.0 * x * dt + 10.0 * y * dt)
                 yp = y + (28.0 * x * dt - y * dt - x * dt * z * dt)
@@ -30,39 +30,39 @@ def lorentz(gl, x, y, z, n=2000, dt=0.01):
                 x = xp
                 y = yp
                 z = zp
-                glVertex3d(x, y, z)
+                gl.glVertex3d(x, y, z)
         finally:
-            glEnd()
+            gl.glEnd()  # type: ignore[call-arg]
 
-        glEnable(GL_LIGHTING)
+        gl.glEnable(gl.GL_LIGHTING)
     finally:
-        glEndList()
+        gl.glEndList()
 
 
-def redraw(gl):
+def redraw(gltk):
     """The main scene redraw function."""
 
     # Clear the background and depth buffer.
-    glClearColor(1., 0., 1., 0.)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glColor3f(1., 1., 1.)
-    glCallList(gl.grob)
+    gl.glClearColor(1.0, 0.0, 1.0, 0.0)
+    gl.glClear(int(gl.GL_COLOR_BUFFER_BIT) | int(gl.GL_DEPTH_BUFFER_BIT))
+    gl.glColor3f(1.0, 1.0, 1.0)
+    gl.glCallList(gltk.grob)
 
 
 def main():
     # Create the opengl widget here.
-    gl = Opengl(None, width=400, height=400, double=1)
+    gltk = tk.Opengl(None, width=400, height=400, double=1)
 
     # Register the redraw procedure for the widget.
-    gl.redraw = redraw
+    gltk.redraw = redraw
 
-    gl.pack(side='top', expand=1, fill='both')
-    gl.set_centerpoint(0., 0., 2000.)
-    gl.set_eyepoint(13000.)
+    gltk.pack(side="top", expand=1, fill="both")
+    gltk.set_centerpoint(0.0, 0.0, 2000.0)
+    gltk.set_eyepoint(13000.0)
 
-    gl.far = 600000.
+    gltk.far = 600000.0
 
-    lorentz(gl, 0.01, 0.01, 0.01)
+    lorentz(gltk, 0.01, 0.01, 0.01)
 
     # Enter the tk mainloop.
     tkinter.mainloop()
