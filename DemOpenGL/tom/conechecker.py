@@ -1,77 +1,77 @@
 #!/usr/bin/python
 
-from OpenGL.GL import *
-from OpenGL.Tk import *
-from OpenGL.GLUT import *
+import OpenGL.GL as gl
+import OpenGL.Tk as tk
+import OpenGL.GLUT as glut
 import sys
 
 
 def redraw_checker(o):
-    glClearColor(1, 0, 1, 0)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glColor3f(0, 1, 0)
+    gl.glClearColor(1, 0, 1, 0)
+    gl.glClear(int(gl.GL_COLOR_BUFFER_BIT) | int(gl.GL_DEPTH_BUFFER_BIT))
+    gl.glColor3f(0, 1, 0)
     # draw checkerboard
-    N = 4
-    glDisable(GL_LIGHTING)
-    for x in range(-N, N):
-        for y in range(-N, N):
+    CHECKER_SIZE = 4
+    gl.glDisable(gl.GL_LIGHTING)
+    for x in range(-CHECKER_SIZE, CHECKER_SIZE):
+        for y in range(-CHECKER_SIZE, CHECKER_SIZE):
             if (x + y) % 2 == 0:
-                glColor3f(1, 1, 0)
+                gl.glColor3f(1, 1, 0)
             else:
-                glColor3f(0, 0, 0)
-            glRectf(x, y, x + 1, y + 1)
-    glEnable(GL_LIGHTING)
+                gl.glColor3f(0, 0, 0)
+            gl.glRectf(x, y, x + 1, y + 1)
+    gl.glEnable(gl.GL_LIGHTING)
 
-    glPushMatrix()
-    glTranslatef(0., 0., 1.)
-    glutSolidSphere(1.0, 20, 20)
-    glPopMatrix()
+    gl.glPushMatrix()
+    gl.glTranslatef(0.0, 0.0, 1.0)
+    glut.glutSolidSphere(1.0, 20, 20)
+    gl.glPopMatrix()
 
 
 def init():
-    glMaterialfv(GL_FRONT, GL_AMBIENT, [0.2, 0.2, 0.2, 1.0])
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, [0.8, 0.8, 0.8, 1.0])
-    glMaterialfv(GL_FRONT, GL_SPECULAR, [1.0, 0.0, 1.0, 1.0])
-    glMaterialfv(GL_FRONT, GL_SHININESS, 50.0)
-    glLightfv(GL_LIGHT0, GL_AMBIENT, [0.0, 1.0, 0.0, 1.0])
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, [1.0, 1.0, 1.0, 1.0])
-    glLightfv(GL_LIGHT0, GL_SPECULAR, [1.0, 1.0, 1.0, 1.0])
-    glLightfv(GL_LIGHT0, GL_POSITION, [1.0, 1.0, 1.0, 0.0])
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, [0.2, 0.2, 0.2, 1.0])
-    glEnable(GL_LIGHTING)
-    glEnable(GL_LIGHT0)
-    glDepthFunc(GL_LESS)
-    glEnable(GL_DEPTH_TEST)
+    gl.glMaterialfv(gl.GL_FRONT, gl.GL_AMBIENT, [0.2, 0.2, 0.2, 1.0])
+    gl.glMaterialfv(gl.GL_FRONT, gl.GL_DIFFUSE, [0.8, 0.8, 0.8, 1.0])
+    gl.glMaterialfv(gl.GL_FRONT, gl.GL_SPECULAR, [1.0, 0.0, 1.0, 1.0])
+    gl.glMaterialfv(gl.GL_FRONT, gl.GL_SHININESS, 50.0)
+    gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, [0.0, 1.0, 0.0, 1.0])
+    gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, [1.0, 1.0, 1.0, 1.0])
+    gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, [1.0, 1.0, 1.0, 1.0])
+    gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, [1.0, 1.0, 1.0, 0.0])
+    gl.glLightModelfv(gl.GL_LIGHT_MODEL_AMBIENT, [0.2, 0.2, 0.2, 1.0])
+    gl.glEnable(gl.GL_LIGHTING)
+    gl.glEnable(gl.GL_LIGHT0)
+    gl.glDepthFunc(gl.GL_LESS)
+    gl.glEnable(gl.GL_DEPTH_TEST)
 
 
 def redraw_cone(o):
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glPushMatrix()
-    glTranslatef(0, -1, 0)
-    glRotatef(250, 1, 0, 0)
-    glutSolidCone(1, 2, 50, 10)
-    glPopMatrix()
+    gl.glClear(int(gl.GL_COLOR_BUFFER_BIT) | int(gl.GL_DEPTH_BUFFER_BIT))
+    gl.glPushMatrix()
+    gl.glTranslatef(0, -1, 0)
+    gl.glRotatef(250, 1, 0, 0)
+    glut.glutSolidCone(1, 2, 50, 10)
+    gl.glPopMatrix()
 
 
 def main():
-    frame = Frame()
-    frame.pack(side=TOP)
-    gl = Opengl(width=200, height=200, double=1, depth=1)
-    glutInit([])
-    gl.redraw = redraw_checker
-    quit = Button(frame, text='Quit', command=sys.exit)
-    quit.pack(side=TOP, expand=YES, fill=BOTH)
-    gl.pack(side=TOP, expand=YES, fill=BOTH)
-    gl.set_eyepoint(20.)
+    frame = tk.Frame()
+    frame.pack(side=tk.TOP)
+    gltk = tk.Opengl(width=200, height=200, double=1, depth=1)
+    glut.glutInit([])
+    gltk.redraw = redraw_checker
+    quit = tk.Button(frame, text="Quit", command=sys.exit)
+    quit.pack(side=tk.TOP, expand=tk.YES, fill=tk.BOTH)
+    gltk.pack(side=tk.TOP, expand=tk.YES, fill=tk.BOTH)
+    gltk.set_eyepoint(20.0)
 
-    gl2 = Opengl(width=200, height=200, double=1)
-    gl2.redraw = redraw_cone
-    gl2.autospin_allowed = 1
-    gl2.pack(side=TOP, expand=YES, fill=BOTH)
+    gltk2 = tk.Opengl(width=200, height=200, double=1)
+    gltk2.redraw = redraw_cone
+    gltk2.autospin_allowed = 1
+    gltk2.pack(side=tk.TOP, expand=tk.YES, fill=tk.BOTH)
     init()
 
-    gl.mainloop()
+    gltk.mainloop()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
