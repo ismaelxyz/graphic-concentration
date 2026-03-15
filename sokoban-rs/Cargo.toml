@@ -1,0 +1,20 @@
+[package]
+authors = ["Sébastien Watteau", "Ismael Belisario"]
+description = "An implementation of Sokoban in Rust"
+edition = "2024"
+keywords = ["game", "sokoban"]
+license = "Apache-2.0"
+name = "sokoban-rs"
+readme = "README.md"
+repository = "https://github.com/ismaelxyz/sokoban-rs"
+version = "1.2.2"
+
+[dependencies]
+bitflags = "2.11.0"
+clap = {version = "4.5.55", features = ["derive"]}
+xml-rs = "1.0.0"
+
+[dependencies.sdl2]
+default-features = false
+features = ["image", "ttf"]
+version = "0.38.0"
